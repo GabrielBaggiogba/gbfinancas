@@ -6,6 +6,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
   erro?: string
   legenda?: string
   acao?: ReactNode
+  icone?: ReactNode
 }
 
 export default function CampoTexto({
@@ -14,6 +15,7 @@ export default function CampoTexto({
   erro,
   legenda,
   acao,
+  icone,
   className = '',
   ...resto
 }: Props) {
@@ -22,8 +24,9 @@ export default function CampoTexto({
     <div className={className}>
       <label
         htmlFor={id}
-        className="mb-2 block text-[.8125rem] font-[550] leading-[1.3] tracking-[.01em] text-t2"
+        className="mb-2 flex items-center gap-2 text-[.8125rem] font-[550] leading-[1.3] tracking-[.01em] text-t2"
       >
+        {icone}
         {rotulo}
       </label>
       <div className="caixa flex h-14 items-center pl-4 pr-2" data-erro={erro ? 'true' : undefined}>

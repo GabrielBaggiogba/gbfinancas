@@ -82,6 +82,60 @@ input {
   }
 }
 
+/* ---------- Login: fundo de fumaça e cartão de vidro ---------- */
+
+.palco-auth {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  padding-top: calc(max(env(safe-area-inset-top), 16px) + 16px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+  overflow: hidden;
+}
+
+.palco-auth .fumaca {
+  z-index: -1;
+  opacity: 0.55;
+}
+
+.cartao-vidro {
+  width: 100%;
+  max-width: 26rem;
+  padding: 28px 20px 24px;
+  border-radius: 28px;
+  background: rgba(6, 9, 13, 0.62);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 30px 60px -20px rgba(0, 0, 0, 0.8);
+}
+
+@media (min-width: 480px) {
+  .cartao-vidro {
+    padding: 36px 32px 32px;
+  }
+}
+
+.cartao-vidro .caixa {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.seta-btn {
+  transition: transform 0.2s var(--saida);
+}
+
+@media (hover: hover) {
+  .btn:hover:not(:disabled) .seta-btn {
+    transform: translateX(3px);
+  }
+}
+
 .grade-painel {
   width: 100%;
   max-width: 30rem;
@@ -625,6 +679,15 @@ li + li > .linha-dia {
 /* ---------- Preferências do sistema ---------- */
 
 @media (prefers-reduced-transparency: reduce) {
+  .cartao-vidro {
+    background: #06090d;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .palco-auth .fumaca {
+    display: none;
+  }
+
   .cabecalho {
     background: #000;
     -webkit-backdrop-filter: none;
