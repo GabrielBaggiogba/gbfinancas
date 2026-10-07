@@ -79,3 +79,18 @@ export function reaisParaCentavos(v: number | string): number {
 export function centavosParaReais(c: number): number {
   return c / 100
 }
+
+/** Para eixos e espaços curtos: "R$ 850", "R$ 1,2 mil", "R$ 3,4 mi". */
+export function formatarCurto(c: number): string {
+  const abs = Math.abs(c) / 100
+  const sinal = c < 0 ? '− ' : ''
+  const com1 = (n: number) => (Math.round(n * 10) / 10).toString().replace('.', ',')
+  if (abs >= 1_000_000) return `${sinal}R$ ${com1(abs / 1_000_000)} mi`
+  if (abs >= 1000) return `${sinal}R$ ${com1(abs / 1000)} mil`
+  return `${sinal}R$ ${Math.round(abs)}`
+}
+
+/** 0.234 -> "23%" */
+export function formatarPct(p: number): string {
+  return `${Math.round(p * 100)}%`
+}
