@@ -1,0 +1,40 @@
+{
+  "name": "gbfinancas",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "demo": "cross-env GBF_MODO_DEMO=1 next dev"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.117.2",
+    "next": "14.2.35",
+    "react": "^18",
+    "react-dom": "^18",
+    "server-only": "^0.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "cross-env": "^10.1.0",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
+    "eslint-config-prettier": "^10.1.8",
+    "postcss": "^8",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5",
+    "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

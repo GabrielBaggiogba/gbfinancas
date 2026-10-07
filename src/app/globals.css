@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --fundo: #000000;
+  --painel: #0c0f14;
+  --painel2: #141921;
+  --linha: rgba(255, 255, 255, 0.08);
+  --linha2: rgba(255, 255, 255, 0.14);
+  --t1: #eef1f5;
+  --t2: #a3abb6;
+  --t3: #7d8693;
+  --azul: #2aa8ea;
+  --gelo: #9adcff;
+  --tinta: #00131f;
+  --erro: #ff6b61;
+  --mola: cubic-bezier(0.32, 0.72, 0, 1);
+  --saida: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-toque: 0.12s;
+  --t-aba: 0.45s;
+  --t-entrada: 0.7s;
+  --t-atraso: 0.06s;
+}
