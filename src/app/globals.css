@@ -23,3 +23,549 @@
   --t-entrada: 0.7s;
   --t-atraso: 0.06s;
 }
+
+/* ---------- Base ---------- */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--fundo);
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+input {
+  touch-action: manipulation;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input {
+  font-size: max(16px, 1rem);
+}
+
+:focus-visible {
+  outline: 2px solid var(--azul);
+  outline-offset: 3px;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Layout ---------- */
+
+.pagina-auth {
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  padding-inline: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  padding-top: calc(max(env(safe-area-inset-top), 16px) + 12vh);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24px);
+}
+
+@media (min-width: 960px) {
+  .pagina-auth {
+    justify-content: center;
+    padding-top: 24px;
+  }
+}
+
+.grade-painel {
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-inline: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  padding-top: 8px;
+}
+
+@media (min-width: 960px) {
+  .grade-painel {
+    max-width: 60rem;
+    display: grid;
+    grid-template-columns: 26rem 1fr;
+    column-gap: 24px;
+    row-gap: 16px;
+    align-items: start;
+  }
+  .coluna-esquerda {
+    position: sticky;
+    top: calc(72px + env(safe-area-inset-top));
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.coluna-esquerda {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Superfícies ---------- */
+
+.cartao {
+  background: var(--painel);
+  border-radius: 24px;
+  box-shadow: inset 0 0 0 1px var(--linha);
+}
+
+.cartao-resumo {
+  background:
+    radial-gradient(420px 180px at 50% 120%, rgba(42, 168, 234, 0.1), transparent 70%),
+    var(--painel);
+  overflow: hidden;
+}
+
+.cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: calc(56px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  padding-inline: max(16px, env(safe-area-inset-left), env(safe-area-inset-right));
+  background: rgba(0, 0, 0, 0.72);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+
+.cabecalho::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+  pointer-events: none;
+  background: linear-gradient(rgba(0, 0, 0, 0.72), transparent);
+}
+
+/* ---------- Campos ---------- */
+
+.caixa {
+  background: var(--painel2);
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px var(--linha);
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.caixa:focus-within {
+  box-shadow:
+    inset 0 0 0 1.5px var(--azul),
+    0 0 0 4px rgba(42, 168, 234, 0.18);
+}
+
+.caixa[data-erro='true'] {
+  box-shadow: inset 0 0 0 1.5px var(--erro);
+}
+
+.caixa input {
+  outline: none;
+  background: transparent;
+  color: var(--t1);
+  width: 100%;
+  min-width: 0;
+}
+
+.caixa input::placeholder {
+  color: var(--t3);
+}
+
+/* ---------- Botões ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.0625rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 650;
+  border: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform var(--t-toque) var(--saida);
+}
+
+.btn-primario {
+  width: 100%;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--gelo);
+  color: var(--tinta);
+}
+
+.btn-primario:disabled {
+  cursor: default;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--t3);
+}
+
+.btn-primario[data-estado='sucesso'] {
+  background: rgba(154, 220, 255, 0.14);
+  color: var(--gelo);
+}
+
+.btn-fantasma {
+  min-height: 44px;
+  padding-inline: 14px;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--t2);
+  font-size: 1rem;
+  font-weight: 550;
+}
+
+.btn-fantasma:hover {
+  color: var(--t1);
+}
+
+.pilula {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  color: var(--gelo);
+  background: rgba(42, 168, 234, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(42, 168, 234, 0.28);
+}
+
+/* ---------- Segmentado ---------- */
+
+.seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 44px;
+  padding: 3px;
+  border-radius: 14px;
+  background: rgba(118, 118, 128, 0.2);
+}
+
+.seg .polegar {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: transform var(--t-aba) var(--mola);
+}
+
+.seg button {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--t2);
+  transition: color 0.25s ease;
+  cursor: pointer;
+}
+
+.seg button[aria-selected='true'] {
+  color: var(--t1);
+}
+
+/* ---------- Saldo ---------- */
+
+.saldo {
+  container-type: inline-size;
+}
+
+.saldo-valor {
+  display: block;
+  font-size: min(3.25rem, calc(100cqi / (var(--n, 10) * 0.58)));
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- Histórico ---------- */
+
+.linha-dia {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  column-gap: 16px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 20px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.2s ease;
+}
+
+.linha-dia + .linha-dia,
+li + li > .linha-dia {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.linha-dia[aria-current='true'] {
+  background: rgba(42, 168, 234, 0.08);
+}
+
+.linha-dia[aria-current='true']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--azul);
+}
+
+/* ---------- Movimentos do Krivvo ---------- */
+
+.mov-entra {
+  animation: sobe var(--t-entrada) var(--mola) backwards;
+  animation-delay: calc(var(--i, 0) * var(--t-atraso));
+}
+
+@keyframes sobe {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+.toque {
+  transition: transform var(--t-toque) var(--saida);
+}
+
+.toque:active {
+  transform: scale(0.97);
+}
+
+.toque:disabled:active {
+  transform: none;
+}
+
+.mov-nega {
+  animation: balanca 0.5s var(--mola);
+}
+
+@keyframes balanca {
+  15% {
+    transform: translateX(-10px);
+  }
+  35% {
+    transform: translateX(9px);
+  }
+  55% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(3px);
+  }
+}
+
+.mov-espera::after {
+  content: '';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: pontos 1.2s steps(4) infinite;
+}
+
+@keyframes pontos {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+}
+
+.anel .arco,
+.anel .marca {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.anel .arco {
+  animation: desenha 0.9s var(--saida) forwards;
+}
+
+.anel .marca {
+  animation: desenha 0.5s var(--saida) 0.38s forwards;
+}
+
+@keyframes desenha {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.mov-varre {
+  position: relative;
+  overflow: hidden;
+}
+
+.mov-varre::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(42, 168, 234, 0.4), transparent);
+  transform: translateX(-100%);
+  animation: varre 1.3s var(--saida) 0.36s;
+}
+
+@keyframes varre {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.mov-varre .val {
+  animation: realce 1.35s ease;
+}
+
+@keyframes realce {
+  0%,
+  55% {
+    color: var(--gelo);
+  }
+}
+
+@keyframes realce-curto {
+  0%,
+  99% {
+    color: var(--gelo);
+  }
+}
+
+.mov-pilula {
+  animation: pulinho 0.5s var(--mola) backwards;
+}
+
+@keyframes pulinho {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+}
+
+@keyframes aparece {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Preferências do sistema ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  .cabecalho {
+    background: #000;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .cabecalho::after {
+    background: linear-gradient(#000, transparent);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --linha: rgba(255, 255, 255, 0.4);
+    --linha2: rgba(255, 255, 255, 0.6);
+    --t2: #d5dae1;
+    --t3: #b4bcc8;
+  }
+  .cabecalho {
+    background: #000;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .cabecalho::after {
+    background: linear-gradient(#000, transparent);
+  }
+  .caixa {
+    box-shadow: inset 0 0 0 1.5px var(--linha2);
+  }
+  .caixa:focus-within {
+    box-shadow:
+      inset 0 0 0 1.5px var(--azul),
+      0 0 0 4px rgba(42, 168, 234, 0.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .mov-entra,
+  .mov-pilula {
+    animation: aparece 0.2s ease both !important;
+  }
+  .mov-nega {
+    animation: none !important;
+  }
+  .mov-varre::after {
+    display: none;
+  }
+  .mov-varre .val {
+    animation: realce-curto 0.6s linear !important;
+  }
+  .mov-espera::after {
+    content: '...';
+    animation: none !important;
+  }
+  .anel .arco,
+  .anel .marca {
+    stroke-dashoffset: 0;
+    animation: none !important;
+  }
+  .toque:active {
+    transform: none;
+    opacity: 0.8;
+  }
+}
