@@ -3,7 +3,9 @@ export default function Carregando() {
   return (
     <div role="status" aria-live="polite">
       <div className="cabecalho">
-        <span className="block h-5 w-28 rounded-full" style={{ background: bloco }} />
+        <div className="cabecalho-in">
+          <span className="block h-5 w-28 rounded-full" style={{ background: bloco }} />
+        </div>
       </div>
       <main className="grade-painel">
         <div className="coluna-esquerda">
