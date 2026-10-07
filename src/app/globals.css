@@ -684,9 +684,6 @@ li + li > .linha-dia {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
-  .palco-auth .fumaca {
-    display: none;
-  }
 
   .cabecalho {
     background: #000;
