@@ -14,6 +14,7 @@ import {
   Landmark,
   LayoutDashboard,
   LogOut,
+  Newspaper,
   Plus,
   Repeat,
   Settings,
@@ -43,6 +44,7 @@ const NAVEGACAO: Destino[] = [
   { href: '/metas', rotulo: 'Metas', icone: Target },
   { href: '/recorrentes', rotulo: 'Recorrentes', icone: Repeat },
   { href: '/relatorios', rotulo: 'Relatórios', icone: ChartColumn },
+  { href: '/noticias', rotulo: 'Notícias', icone: Newspaper },
   { href: '/configuracoes', rotulo: 'Configurações', icone: Settings },
 ]
 

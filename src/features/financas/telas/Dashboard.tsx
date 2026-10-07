@@ -50,6 +50,7 @@ import {
   usoDoOrcamento,
   type Insight,
 } from '../calculos'
+import NoticiasRecentes from '@/features/noticias/telas/NoticiasRecentes'
 import { useEditor } from '../components/Editor'
 import { operacoesDoRecorrente } from '../fabrica'
 import { ROTULO_CONTA } from '../padroes'
@@ -466,6 +467,9 @@ export default function Dashboard() {
             </div>
           </Bloco>
         )}
+        <motion.div variants={itemSurgir}>
+          <NoticiasRecentes />
+        </motion.div>
       </div>
     </Surgir>
   )

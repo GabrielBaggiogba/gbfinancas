@@ -4,12 +4,12 @@ import { AnimatePresence, motion, useDragControls } from 'motion/react'
 import { X } from 'lucide-react'
 import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { MOLA_PAINEL, MOLA_VIVA, projetar } from '@/components/motion/molas'
+import { MOLA_PAINEL, MOLA_RAPIDA, MOLA_VIVA, projetar } from '@/components/motion/molas'
 import { useCamadas, useCelular } from './ganchos'
 
 /**
- * Painel que desliza (Krivvo) com vidro. No desktop entra pela direita; no celular sobe
- * de baixo e pode ser arrastado pela alça: o gesto acompanha o dedo, e ao soltar a
+ * Painel com vidro. No desktop é uma janela flutuante no centro da tela; no celular sobe
+ * de baixo (painel que desliza, Krivvo) e pode ser arrastado pela alça: o gesto acompanha o dedo, e ao soltar a
  * decisão usa a posição projetada pela velocidade (apple-design).
  */
 export default function Folha({
@@ -57,8 +57,9 @@ export default function Folha({
   }, [aberta])
 
   if (!camadas) return null
-  const fora = celular ? { y: '104%' } : { x: '108%' }
-  const dentro = celular ? { y: 0 } : { x: 0 }
+  // No celular sobe de baixo; no desktop é uma janela flutuante que se materializa no centro.
+  const fora = celular ? { y: '104%' } : { opacity: 0, scale: 0.94, y: 18, filter: 'blur(10px)' }
+  const dentro = celular ? { y: 0 } : { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }
 
   return createPortal(
     <AnimatePresence>
@@ -82,8 +83,8 @@ export default function Folha({
             tabIndex={-1}
             className="folha outline-none"
             initial={fora}
-            animate={{ ...dentro, transition: celular ? MOLA_VIVA : MOLA_PAINEL }}
-            exit={{ ...fora, transition: MOLA_PAINEL }}
+            animate={{ ...dentro, transition: MOLA_VIVA }}
+            exit={{ ...fora, transition: celular ? MOLA_PAINEL : MOLA_RAPIDA }}
             drag={celular ? 'y' : false}
             dragControls={controles}
             dragListener={false}

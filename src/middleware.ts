@@ -36,7 +36,8 @@ export async function middleware(request: NextRequest) {
     logado = request.cookies.has('gbf_demo_sessao')
   }
 
-  const publica = pathname === '/login' || pathname.startsWith('/auth/')
+  const publica =
+    pathname === '/login' || pathname.startsWith('/auth/') || pathname === '/api/noticias'
   const origem = modo === 'supabase' ? resposta : undefined
 
   if (!logado && !publica) return ir('/login', origem)
