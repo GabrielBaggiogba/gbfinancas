@@ -43,18 +43,20 @@ export default function Historico({ linhas, hoje, selecionada, ultimaSalva, aoSe
       </h2>
 
       <div className="historico-grade">
-        <div className="historico-cab">
-          <span />
-          <span className="text-right text-[.8125rem] font-[550] tracking-[.01em] text-t3">
-            Entrada
-          </span>
-          <span className="text-right text-[.8125rem] font-[550] tracking-[.01em] text-t3">
-            Saída
-          </span>
-        </div>
+        {linhas.length > 0 && (
+          <div className="historico-cab">
+            <span />
+            <span className="text-right text-[.8125rem] font-[550] tracking-[.01em] text-t3">
+              Entrada
+            </span>
+            <span className="text-right text-[.8125rem] font-[550] tracking-[.01em] text-t3">
+              Saída
+            </span>
+          </div>
+        )}
 
         {linhas.length === 0 ? (
-          <div className="cartao flex flex-col items-center px-6 py-12 text-center">
+          <div className="cartao col-span-full flex flex-col items-center px-6 py-12 text-center">
             <div className="opacity-40">
               <Marca tamanho={40} />
             </div>
