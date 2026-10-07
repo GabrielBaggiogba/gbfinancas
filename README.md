@@ -2,7 +2,7 @@
 
 Controle financeiro pessoal de uma tela só: a pessoa anota a entrada e a saída do dia, vê o saldo acumulado e o histórico dos últimos 30 dias. Sem categorias, sem gráficos, sem conexão bancária. Tema preto com azul claro, feito para o celular.
 
-**Produção:** ainda não publicado (veja "Vercel" abaixo).
+**Produção:** https://gbfinancas.vercel.app
 
 ## Funcionalidades
 
