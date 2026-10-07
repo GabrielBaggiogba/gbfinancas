@@ -1,12 +1,7 @@
-export default function Carregando() {
+export default function EsqueletoPainel() {
   const bloco = 'rgba(255,255,255,.06)'
   return (
     <div role="status" aria-live="polite">
-      <div className="cabecalho">
-        <div className="cabecalho-in">
-          <span className="block h-5 w-28 rounded-full" style={{ background: bloco }} />
-        </div>
-      </div>
       <main className="grade-painel">
         <div className="coluna-esquerda">
           <div className="cartao h-[176px] p-5">

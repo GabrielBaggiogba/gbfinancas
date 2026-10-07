@@ -16,10 +16,12 @@ export default function CampoValor({ id, rotulo, centavos, aoMudar, inputRef }: 
   const texto = formatarCentavos(centavos)
 
   function irParaOFim(el: HTMLInputElement) {
-    requestAnimationFrame(() => {
+    const mover = () => {
       const fim = el.value.length
       el.setSelectionRange(fim, fim)
-    })
+    }
+    mover() // já, para a próxima tecla cair no fim
+    requestAnimationFrame(mover) // de novo, porque o iOS reposiciona o cursor depois do foco
   }
 
   function aoDigitar(valor: string) {
