@@ -37,7 +37,7 @@ export default function CartaoDia(p: Props) {
         if (!p.botao.desabilitado) p.aoSalvar()
       }}
     >
-      <div className="mb-4 flex min-h-[44px] items-center justify-between gap-3">
+      <div className="mb-4 flex min-h-[44px] flex-col items-start justify-center gap-2">
         <h2
           id="titulo-dia"
           className="min-w-0 text-[1.25rem] font-[650] leading-[1.2] tracking-[-.02em]"

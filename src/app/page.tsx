@@ -48,8 +48,8 @@ export default function Inicio() {
       </header>
       {modo === 'demo' && (
         <div className="faixa">
-          <p className="pilula mov-pilula" role="status">
-            Modo demonstração · os dados ficam só neste navegador
+          <p className="pilula pilula-aviso mov-pilula" role="status">
+            Modo demonstração · dados só neste navegador
           </p>
         </div>
       )}

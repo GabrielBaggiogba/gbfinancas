@@ -192,7 +192,7 @@ input {
 .alvo44::before {
   content: '';
   position: absolute;
-  inset: -4px;
+  inset: -6px;
 }
 
 .rodape {
@@ -309,6 +309,10 @@ input {
   box-shadow: inset 0 0 0 1px rgba(42, 168, 234, 0.28);
 }
 
+.pilula-aviso {
+  border-radius: 14px;
+}
+
 /* ---------- Segmentado ---------- */
 
 .seg {
@@ -344,6 +348,13 @@ input {
   cursor: pointer;
 }
 
+/* Área tocável de 44 px de altura, igual à do segmentado. */
+.seg button::before {
+  content: '';
+  position: absolute;
+  inset: -3px 0;
+}
+
 .seg button[aria-selected='true'] {
   color: var(--t1);
 }
@@ -352,6 +363,14 @@ input {
 
 .saldo {
   container-type: inline-size;
+}
+
+.total {
+  container-type: inline-size;
+}
+
+.total-valor {
+  font-size: clamp(0.6875rem, calc(100cqi / (var(--n, 12) * 0.54)), 1.0625rem);
 }
 
 .saldo-valor {
@@ -366,20 +385,70 @@ input {
 
 /* ---------- Histórico ---------- */
 
+.historico {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .historico-grade {
+    --pad: 16px;
+    --vao: 8px;
+  }
+}
+
+/* Uma única grade para cabeçalho e linhas (subgrid): rótulos e valores sempre alinhados. */
+.historico-grade {
+  --pad: 20px;
+  --vao: 16px;
+  /* Fonte do corpo da linha encolhe conforme a quantidade de caracteres (--n) e a largura. */
+  --fs: clamp(
+    0.6875rem,
+    calc((100cqi - 2 * var(--pad) - 2 * var(--vao)) / (var(--n) * 0.54)),
+    1rem
+  );
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  column-gap: var(--vao);
+  row-gap: 8px;
+}
+
+.historico-cab {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  padding-inline: var(--pad);
+  white-space: nowrap;
+}
+
+.historico-lista {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  overflow: hidden;
+  font-size: var(--fs);
+}
+
+.historico-lista > li {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
 .linha-dia {
   position: relative;
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: subgrid;
   align-items: center;
-  column-gap: 16px;
   width: 100%;
   min-height: 56px;
-  padding: 8px 20px;
+  padding: 8px var(--pad);
   text-align: left;
   background: transparent;
   border: 0;
   cursor: pointer;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   transition: background-color 0.2s ease;
 }
 
@@ -418,6 +487,13 @@ li + li > .linha-dia {
 
 .toque {
   transition: transform var(--t-toque) var(--saida);
+}
+
+.btn.toque {
+  transition:
+    transform var(--t-toque) var(--saida),
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .toque:active {

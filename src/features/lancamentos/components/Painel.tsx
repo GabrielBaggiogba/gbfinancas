@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { hojeEmSaoPaulo, inicioDaJanela } from '@/lib/datas'
-import { salvarLancamento } from '../actions'
+import { salvarLancamento, type ResultadoSalvar } from '../actions'
 import { lancamentoSchema } from '../esquemas'
 import { calcularResumo, montarLinhas, temRegistro } from '../resumo'
 import type { Lancamento } from '../tipos'
@@ -107,15 +107,7 @@ export default function Painel({ inicial, hoje, email }: Props) {
     mudarFase('salvando')
     const timer = setTimeout(() => setMostrarSalvando(true), 300)
 
-    try {
-      const r = await salvarLancamento(l)
-      if (!r.ok) throw new Error(r.mensagem)
-      setRegistros((m) => new Map(m).set(r.lancamento.data, r.lancamento))
-      mudarFase('salvo')
-      timerSalvo.current = setTimeout(() => {
-        if (faseRef.current === 'salvo') mudarFase('parado')
-      }, 1600)
-    } catch (e) {
+    const falhar = (mensagem: string) => {
       setRegistros((m) => {
         const n = new Map(m)
         if (anterior) n.set(l.data, anterior)
@@ -123,10 +115,31 @@ export default function Painel({ inicial, hoje, email }: Props) {
         return n
       })
       setUltimaSalva((u) => ({ data: null, pulso: u.pulso }))
-      const msg = e instanceof Error ? e.message : ''
-      setMensagemErro(msg && !msg.startsWith('Não foi possível salvar') ? msg : ERRO_CARTAO)
+      setMensagemErro(
+        mensagem && !mensagem.startsWith('Não foi possível salvar') ? mensagem : ERRO_CARTAO,
+      )
       setPulsoErro((p) => p + 1)
       mudarFase('erro')
+    }
+
+    try {
+      // Com a sessão expirada o middleware redireciona a chamada e a action devolve undefined.
+      const r = (await salvarLancamento(l)) as ResultadoSalvar | undefined
+      if (!r) {
+        window.location.assign('/login')
+        return
+      }
+      if (!r.ok) {
+        falhar(r.mensagem)
+        return
+      }
+      setRegistros((m) => new Map(m).set(r.lancamento.data, r.lancamento))
+      mudarFase('salvo')
+      timerSalvo.current = setTimeout(() => {
+        if (faseRef.current === 'salvo') mudarFase('parado')
+      }, 1600)
+    } catch {
+      falhar(ERRO_CARTAO)
     } finally {
       clearTimeout(timer)
       setMostrarSalvando(false)
@@ -141,10 +154,15 @@ export default function Painel({ inicial, hoje, email }: Props) {
     setMensagemErro('')
     mudarFase('parado')
     campoEntrada.current?.focus({ preventScroll: true })
-    cartao.current?.scrollIntoView({
-      block: 'start',
-      behavior: movimentoReduzido() ? 'auto' : 'smooth',
-    })
+    const el = cartao.current
+    if (el) {
+      const topoUtil = document.querySelector('.cabecalho')?.getBoundingClientRect().bottom ?? 0
+      const r = el.getBoundingClientRect()
+      // Só rola quando o cartão não está inteiro na área visível (no desktop ele já está).
+      if (r.top < topoUtil || r.bottom > window.innerHeight) {
+        el.scrollIntoView({ block: 'start', behavior: movimentoReduzido() ? 'auto' : 'smooth' })
+      }
+    }
   }
 
   const botao = (() => {

@@ -110,6 +110,7 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
           </p>
           <Botao
             variante="fantasma"
+            className="-ml-[14px]"
             onClick={() => {
               setConfirmarEmail(null)
               setModo('entrar')
