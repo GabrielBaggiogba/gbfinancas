@@ -34,8 +34,12 @@ export function bancoDemo(email: string): Banco {
   function ler(): Memoria {
     if (existsSync(arquivo)) return JSON.parse(readFileSync(arquivo, 'utf8')) as Memoria
     // E-mails começando com "vazio" abrem sem dados, para ver o primeiro uso.
+    // Grava na primeira leitura: os ids do exemplo são sorteados, e a tela precisa
+    // receber os mesmos que ficam no arquivo.
     const inicial = email.startsWith('vazio') ? DADOS_VAZIOS : dadosDeExemplo(hojeEmSaoPaulo())
-    return JSON.parse(JSON.stringify(inicial)) as Memoria
+    const memoria = JSON.parse(JSON.stringify(inicial)) as Memoria
+    gravar(memoria)
+    return memoria
   }
 
   function gravar(m: Memoria) {

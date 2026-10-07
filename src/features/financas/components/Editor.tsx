@@ -53,7 +53,8 @@ export function ProvedorDoEditor({ children }: { children: ReactNode }) {
   }, [])
 
   const contexto = useMemo<Contexto>(() => {
-    const primeiraConta = dados.contas.find((c) => !c.arquivada)?.id ?? null
+    const ativas = dados.contas.filter((c) => !c.arquivada)
+    const primeiraConta = ativas[0]?.id ?? null
     return {
       novo: (tipo, base) =>
         abrir(
@@ -62,6 +63,7 @@ export function ProvedorDoEditor({ children }: { children: ReactNode }) {
             tipo,
             data: hoje,
             conta_id: base?.cartao_id ? null : primeiraConta,
+            conta_destino_id: tipo === 'transferencia' ? (ativas[1]?.id ?? null) : null,
             forma_pagamento:
               tipo === 'transferencia' ? 'transferencia' : base?.cartao_id ? 'credito' : 'pix',
             ...base,

@@ -103,7 +103,8 @@ export default function Linha({
           />
           {!mini &&
             pontos.map((p, i) =>
-              i % passo === 0 || i === pontos.length - 1 ? (
+              (i % passo === 0 && pontos.length - 1 - i >= passo * 0.6) ||
+              i === pontos.length - 1 ? (
                 <text
                   key={i}
                   x={x(i)}

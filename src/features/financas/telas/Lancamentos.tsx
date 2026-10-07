@@ -250,7 +250,7 @@ export default function Lancamentos() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
             />
-            <kbd className="tecla max-[760px]:hidden">/</kbd>
+            <kbd className="tecla max-[760px]:!hidden">/</kbd>
           </label>
           <button
             type="button"
@@ -295,7 +295,7 @@ export default function Lancamentos() {
           </button>
           <button
             type="button"
-            className="b b-primario max-[760px]:hidden"
+            className="b b-primario max-[760px]:!hidden"
             onClick={() => novo('despesa')}
           >
             <Plus size={17} aria-hidden="true" /> Novo
@@ -742,7 +742,7 @@ function Calendario({ filtrados, usarFiltro }: { filtrados: Lancamento[]; usarFi
       </Bloco>
 
       <Bloco
-        titulo={<span className="first-letter:uppercase">{rotuloLongo(dia)}</span>}
+        titulo={<span className="inline-block first-letter:uppercase">{rotuloLongo(dia)}</span>}
         semPad
         acao={
           <button

@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'GBFinanças',
-  description: 'Entrada e saída do dia, e nada mais.',
+  description: 'Gestão financeira pessoal: lançamentos, contas, cartões, orçamentos e metas.',
   applicationName: 'GBFinanças',
   appleWebApp: { capable: true, title: 'GBFinanças', statusBarStyle: 'black-translucent' },
 }

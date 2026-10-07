@@ -140,7 +140,7 @@ export default function Casca({ children }: { children: ReactNode }) {
               <TextoSurgindo key={atual.href} texto={atual.rotulo} />
             </h1>
             {demo && (
-              <span className="selo selo-azul mov-pilula max-[900px]:hidden" role="status">
+              <span className="selo selo-azul mov-pilula max-[900px]:!hidden" role="status">
                 Modo demonstração
               </span>
             )}
@@ -158,7 +158,7 @@ export default function Casca({ children }: { children: ReactNode }) {
                 <Eye size={19} aria-hidden="true" />
               )}
             </button>
-            <div className="flex items-center gap-2 max-[760px]:hidden">
+            <div className="flex items-center gap-2 max-[760px]:!hidden">
               <Magnetico>
                 <button type="button" className="b b-realce" onClick={() => novo('receita')}>
                   <ArrowDownLeft size={17} aria-hidden="true" /> Entrada

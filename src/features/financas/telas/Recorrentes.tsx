@@ -214,11 +214,13 @@ export default function Recorrentes() {
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">
                           <span className="truncate font-[560]">{r.descricao}</span>
-                          <span className={`selo flex-none ${SELO[status].classe}`}>
-                            {SELO[status].rotulo}
-                          </span>
+                          {status !== 'pendente' && (
+                            <span className={`selo flex-none ${SELO[status].classe}`}>
+                              {SELO[status].rotulo}
+                            </span>
+                          )}
                           {c.pagosNoMes.has(r.id) && (
-                            <span className="selo selo-ok flex-none max-[560px]:hidden">
+                            <span className="selo selo-ok flex-none max-[560px]:!hidden">
                               <Check size={12} aria-hidden="true" /> {entrada ? 'Recebido' : 'Pago'}{' '}
                               este mês
                             </span>
@@ -244,7 +246,7 @@ export default function Recorrentes() {
                       {status !== 'pausado' && (
                         <motion.button
                           type="button"
-                          className="chip flex-none max-[560px]:hidden"
+                          className="chip flex-none max-[560px]:!hidden"
                           whileTap={{ scale: 0.94 }}
                           onClick={() =>
                             void aplicar(

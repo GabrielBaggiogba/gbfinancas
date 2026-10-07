@@ -1,7 +1,12 @@
 'use client'
 
-import { useId, useRef, type ClipboardEvent, type ReactNode } from 'react'
-import { digitosParaCentavos, formatarCentavos, interpretarMoeda } from '@/lib/dinheiro'
+import { useEffect, useId, useRef, type ClipboardEvent, type ReactNode } from 'react'
+import {
+  MAX_CENTAVOS,
+  digitosParaCentavos,
+  formatarCentavos,
+  interpretarMoeda,
+} from '@/lib/dinheiro'
 
 export function Campo({
   rotulo,
@@ -43,6 +48,37 @@ export function CampoValor({
   rotuloAria?: string
 }) {
   const ref = useRef<HTMLInputElement>(null)
+  const atual = useRef({ valor, aoMudar })
+  atual.current = { valor, aoMudar }
+
+  // A máscara não depende de onde está o cursor: cada dígito entra pela direita e
+  // apagar tira o último, seja qual for a posição da seleção.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const antes = (e: InputEvent) => {
+      if (!e.cancelable || e.inputType === 'insertFromPaste' || e.inputType === 'insertFromDrop')
+        return
+      const { valor: v, aoMudar: mudar } = atual.current
+      const tudo =
+        el.value.length > 0 && el.selectionStart === 0 && el.selectionEnd === el.value.length
+      if (e.inputType.startsWith('delete')) {
+        e.preventDefault()
+        mudar(tudo ? 0 : Math.floor(v / 10))
+      } else if (e.inputType.startsWith('insert') && e.data) {
+        e.preventDefault()
+        let novo = tudo ? 0 : v
+        for (const d of e.data.replace(/\D/g, '')) {
+          const proximo = novo * 10 + Number(d)
+          if (proximo <= MAX_CENTAVOS) novo = proximo
+        }
+        if (novo !== v) mudar(novo)
+      }
+    }
+    el.addEventListener('beforeinput', antes)
+    return () => el.removeEventListener('beforeinput', antes)
+  }, [])
+
   const irAoFim = () => {
     const el = ref.current
     if (!el) return

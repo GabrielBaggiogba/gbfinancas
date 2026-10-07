@@ -4,18 +4,24 @@ import { categoriasIniciais, contaInicial } from '../padroes'
 import type { Dados } from '../tipos'
 import { obterBanco } from './banco'
 
-/** Carrega tudo do usuário. No primeiro acesso, cria uma conta e as categorias prontas. */
+/** Carrega tudo do usuário. Quem ainda não tem conta ou categorias recebe as prontas. */
 export async function carregarDados(usuario: Usuario): Promise<Dados> {
   const banco = obterBanco(usuario)
   const dados = await banco.carregar()
-  if (dados.contas.length > 0 || dados.categorias.length > 0) return dados
+  const faltamContas = dados.contas.length === 0
+  const faltamCategorias = dados.categorias.length === 0
+  if (!faltamContas && !faltamCategorias) return dados
 
   const agora = new Date().toISOString()
-  const contas = [contaInicial(agora)]
-  const categorias = categoriasIniciais(agora)
+  const contas = faltamContas ? [contaInicial(agora)] : dados.contas
+  const categorias = faltamCategorias ? categoriasIniciais(agora) : dados.categorias
   await banco.aplicar([
-    { op: 'inserir', tabela: 'contas', linhas: contas },
-    { op: 'inserir', tabela: 'categorias', linhas: categorias },
+    ...(faltamContas
+      ? [{ op: 'inserir' as const, tabela: 'contas' as const, linhas: contas }]
+      : []),
+    ...(faltamCategorias
+      ? [{ op: 'inserir' as const, tabela: 'categorias' as const, linhas: categorias }]
+      : []),
   ])
   return { ...dados, contas, categorias }
 }

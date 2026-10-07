@@ -753,6 +753,11 @@ li + li > .linha-lista {
   transform-origin: left;
 }
 
+/* Itens de grade podem encolher: sem isso, um valor longo alarga a página no celular. */
+.pagina .grid > * {
+  min-width: 0;
+}
+
 /* ---------- Controles pequenos das telas ---------- */
 
 .interruptor {
@@ -1495,6 +1500,9 @@ kbd {
 
 .cal-dia {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   min-height: 86px;
   padding: 8px;
   border: 0;

@@ -26,7 +26,7 @@ export function dadosDeExemplo(hoje: string): Dados {
 
   const contas = [
     { id: id(), nome: 'Conta principal', tipo: 'corrente' as const, saldo_inicial: 240000 },
-    { id: id(), nome: 'Carteira', tipo: 'dinheiro' as const, saldo_inicial: 18000 },
+    { id: id(), nome: 'Carteira', tipo: 'dinheiro' as const, saldo_inicial: 95000 },
     { id: id(), nome: 'Poupança', tipo: 'poupanca' as const, saldo_inicial: 1250000 },
   ].map((c) => ({ ...c, arquivada: false, created_at: agora }))
   const [principal, carteira, poupanca] = contas

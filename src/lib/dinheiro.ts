@@ -92,5 +92,6 @@ export function formatarCurto(c: number): string {
 
 /** 0.234 -> "23%" */
 export function formatarPct(p: number): string {
-  return `${Math.round(p * 100)}%`
+  const n = Math.round(p * 100)
+  return n < 0 ? `−${-n}%` : `${n}%`
 }

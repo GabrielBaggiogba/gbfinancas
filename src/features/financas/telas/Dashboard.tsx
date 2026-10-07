@@ -135,11 +135,16 @@ export default function Dashboard() {
         ) : (
           <Numero
             className="num"
-            valor={Math.round(c.mes.taxaEconomia * 100)}
+            valor={Math.max(0, Math.round(c.mes.taxaEconomia * 100))}
             formato={(n) => `${n}%`}
           />
         ),
-      nota: c.mes.taxaEconomia === null ? 'sem entradas no mês' : 'do que entrou ficou com você',
+      nota:
+        c.mes.taxaEconomia === null
+          ? 'sem entradas no mês'
+          : c.mes.taxaEconomia < 0
+            ? 'as saídas passaram das entradas'
+            : 'do que entrou ficou com você',
     },
   ]
 
@@ -173,7 +178,7 @@ export default function Dashboard() {
           </div>
         </Holofote>
 
-        <div className="grid grid-cols-2 gap-[var(--vao)] min-[900px]:grid-cols-4">
+        <div className="grid grid-cols-2 gap-[var(--vao)] min-[900px]:max-[1279px]:grid-cols-4 min-[1640px]:grid-cols-4">
           {indicadores.map((k) => (
             <Holofote key={k.rotulo} className="cartao cartao-pad" variants={itemSurgir}>
               <p className="legenda flex items-center gap-2">

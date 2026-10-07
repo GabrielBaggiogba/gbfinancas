@@ -614,8 +614,8 @@ export default function Configuracoes() {
               </ul>
             </div>
             <p className="miudo">
-              Os lançamentos entram sem categoria. Depois, filtre por &ldquo;Importado de CSV&rdquo; na busca
-              para categorizar.
+              Os lançamentos entram sem categoria. Depois, filtre por &ldquo;Importado de CSV&rdquo;
+              na busca para categorizar.
             </p>
           </>
         )}

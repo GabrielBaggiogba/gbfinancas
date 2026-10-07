@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'GBFinanças',
     short_name: 'GBFinanças',
-    description: 'Entrada e saída do dia, e nada mais.',
+    description: 'Gestão financeira pessoal: lançamentos, contas, cartões, orçamentos e metas.',
     lang: 'pt-BR',
     start_url: '/',
     display: 'standalone',

@@ -22,7 +22,13 @@ import { Surgir, itemSurgir } from '@/components/motion/Surgir'
 import { MOLA } from '@/components/motion/molas'
 import { dataCurta, distanciaEmDias, rotuloMesCurto } from '@/lib/datas'
 import { formatarPct } from '@/lib/dinheiro'
-import { dividaDoCartao, faturasDoCartao, type Fatura, type StatusFatura } from '../calculos'
+import {
+  dividaDoCartao,
+  faturaDe,
+  faturasDoCartao,
+  type Fatura,
+  type StatusFatura,
+} from '../calculos'
 import { useEditor } from '../components/Editor'
 import { cartaoSchema, primeiraMensagem } from '../esquemas'
 import { emUso } from '../operacoes'
@@ -240,7 +246,8 @@ function PainelDoCartao({
   const c = useMemo(() => {
     const faturas = faturasDoCartao(cartao, dados.lancamentos, hoje)
     const usado = Math.max(0, dividaDoCartao(cartao.id, dados.lancamentos))
-    const aberta = faturas.find((f) => f.status === 'aberta')!
+    const atual = faturaDe(cartao, hoje)
+    const aberta = faturas.find((f) => f.ref === atual) ?? faturas[faturas.length - 1]
     const pendentes = faturas.filter((f) => f.status === 'fechada' || f.status === 'atrasada')
     const inicio = Math.max(0, faturas.indexOf(aberta) - 3)
     const relevantes = faturas.slice(inicio, inicio + 9)
