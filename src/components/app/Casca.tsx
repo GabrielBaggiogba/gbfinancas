@@ -30,6 +30,7 @@ import Marca from '@/components/ui/Marca'
 import { sair } from '@/features/auth/actions'
 import { useEditor } from '@/features/financas/components/Editor'
 import { useDados } from '@/features/financas/store'
+import FaixaDestaques from '@/features/mercado/telas/FaixaDestaques'
 import Folha from './Folha'
 import { usePreferencias } from './Preferencias'
 
@@ -189,6 +190,7 @@ export default function Casca({ children }: { children: ReactNode }) {
               </Magnetico>
             </div>
           </header>
+          <FaixaDestaques />
           <main className="pagina">{children}</main>
         </div>
 

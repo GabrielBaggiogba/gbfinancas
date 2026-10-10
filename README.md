@@ -16,6 +16,8 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Relatórios**: mensal, anual e comparação entre dois meses; 10 maiores despesas, categorias que mais cresceram, evolução do patrimônio, CSV e impressão em PDF.
 - **Configurações**: tema (sistema, escuro, claro), modo compacto, ocultar valores, categorias e subcategorias, backup e restauração, importação de CSV.
 - **Notícias**: manchetes de finanças e investimentos lidas dos feeds públicos (RSS) de portais brasileiros, com filtro por tema e fonte. O servidor guarda o resultado por 30 minutos e renova sozinho; cada notícia abre no site de origem. As fontes ficam em `src/features/noticias/fontes.ts`.
+- **Acompanhe o mercado**: na tela de Notícias, links para sites de notícias, cotações e gráficos. Abrem em nova aba e ficam em `src/features/mercado/links.ts`.
+- **Destaques da semana**: faixa no topo com os ativos de maior alta percentual na semana, o período, a fonte e a hora da atualização. Pode ser pausada e não corre para quem pede menos movimento no sistema. Depende de uma API de cotações (veja abaixo); sem ela, mostra "Dados semanais indisponíveis".
 - **Atalhos**: `N` novo lançamento, `/` busca, `Esc` fecha painéis.
 
 ## Stack
@@ -67,7 +69,27 @@ Os valores ficam no banco em reais com duas casas (`numeric`). O app trabalha em
 | `NEXT_PUBLIC_SITE_URL`          | opcional: origem usada no link de confirmação de e-mail | o endereço do site             |
 | `GBF_MODO_DEMO`                 | opcional: `1` liga o modo demonstração                  | só em desenvolvimento          |
 
+| `GBF_DESTAQUES_API_URL`         | opcional: endereço da API de cotações da faixa do topo  | o provedor de dados escolhido  |
+| `GBF_DESTAQUES_API_CHAVE`       | opcional: chave enviada em `Authorization: Bearer`      | o provedor de dados escolhido  |
+| `GBF_DESTAQUES_FONTE`           | opcional: nome da fonte mostrado na faixa               | você escolhe                   |
+
 A chave `service_role` não é usada em lugar nenhum.
+
+## Destaques da semana
+
+O projeto não traz cotações próprias e não lê as páginas dos sites de mercado. A faixa do topo chama, pelo servidor, o endereço em `GBF_DESTAQUES_API_URL` e espera um JSON assim:
+
+```json
+{
+  "fonte": "Nome do provedor",
+  "inicio": "2026-10-05",
+  "fim": "2026-10-09",
+  "atualizado_em": "2026-10-09T21:05:00Z",
+  "ativos": [{ "codigo": "XXXX3", "nome": "Empresa", "variacao": 4.32 }]
+}
+```
+
+`variacao` é a variação percentual do ativo entre `inicio` e `fim` (4.32 = +4,32%). `nome` e `fonte` são opcionais; sem `fonte`, vale `GBF_DESTAQUES_FONTE` ou o domínio da API. A faixa mostra as 12 maiores variações positivas, guarda a resposta por 30 minutos e fica em "Dados semanais indisponíveis" quando a API não está configurada, não responde, manda um período maior que 7 dias ou dados com mais de 7 dias. Se o provedor escolhido usa outro formato, a conversão cabe em `src/features/mercado/servidor.ts`.
 
 ## Deploy
 
@@ -79,6 +101,7 @@ Push na `main` publica automaticamente na Vercel. Pull Requests geram uma URL de
 - `src/app/login`, `src/app/auth`: acesso
 - `src/features/financas`: tipos, validação (`esquemas.ts`), regras financeiras (`calculos.ts`), ações do servidor, armazenamento (`servidor/`) e telas (`telas/`)
 - `src/features/noticias`: fontes, leitor de RSS e Atom, classificação por tema e telas
+- `src/features/mercado`: links de mercado e a faixa de destaques da semana
 - `src/features/auth`: login, cadastro e sessão
 - `src/components/app`: casca, painéis, campos, menus e avisos
 - `src/components/graficos`: gráficos em SVG

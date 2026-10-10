@@ -1640,6 +1640,168 @@ kbd {
   }
 }
 
+/* ---------- Faixa "Destaques da semana" ---------- */
+
+.faixa {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding: 2px clamp(16px, 3vw, 36px) 10px;
+}
+
+.faixa-corpo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 46px;
+  padding: 0 6px 0 16px;
+  border-radius: 16px;
+  background: var(--painel);
+  box-shadow:
+    inset 0 0 0 1px var(--linha),
+    var(--sombra-cartao);
+}
+
+.faixa-titulo {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--t2);
+}
+
+.faixa-estado {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 10px 10px 0;
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+/* A janela é um contêiner: cada lista ocupa pelo menos a largura dela, então a volta
+   nunca mostra um vazio, mesmo com poucos ativos. */
+.faixa-janela {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  container-type: inline-size;
+  border-radius: 8px;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 20px,
+    #000 calc(100% - 20px),
+    transparent
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+}
+
+.faixa-rolo {
+  display: flex;
+  width: max-content;
+  animation: faixa-corre var(--faixa-tempo, 60s) linear infinite;
+}
+
+.faixa-janela:hover .faixa-rolo,
+.faixa-janela:focus-within .faixa-rolo,
+.faixa-janela:focus .faixa-rolo {
+  animation-play-state: paused;
+}
+
+.faixa-lista {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 28px;
+  min-width: 100cqw;
+  padding: 0 14px;
+}
+
+.faixa-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  height: 46px;
+  line-height: 46px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.faixa-nome {
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--t3);
+}
+
+/* Alta: seta e sinal de mais, além da cor. */
+.faixa-alta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+  color: var(--ok);
+}
+
+.faixa-rodape {
+  padding: 6px 16px 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--t3);
+}
+
+/* Parada (pelo botão): vira uma lista que se rola com o dedo ou o teclado. */
+.faixa-janela[data-parada='true'] {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.faixa-janela[data-parada='true'] .faixa-rolo {
+  animation: none;
+}
+
+@keyframes faixa-corre {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 760px) {
+  .faixa-corpo {
+    flex-wrap: wrap;
+    row-gap: 0;
+    padding: 4px 6px 4px 14px;
+  }
+  .faixa-titulo {
+    flex: 1;
+    min-height: 40px;
+  }
+  .faixa-janela,
+  .faixa-estado,
+  .faixa-corpo > [role='status'] {
+    order: 3;
+    flex: 1 0 100%;
+  }
+  .faixa-estado {
+    padding: 0 8px 10px 0;
+  }
+  .faixa-corpo > div[role='status'] {
+    padding-bottom: 12px;
+  }
+  .faixa-item {
+    height: 40px;
+    line-height: 40px;
+  }
+  .faixa-rodape {
+    padding-inline: 14px;
+  }
+}
+
 .gira {
   animation: gira 0.9s linear infinite;
 }
@@ -1770,6 +1932,18 @@ kbd {
   .texto-brilho {
     color: var(--t2);
     background: none;
+  }
+  /* A faixa não corre: fica uma lista parada, que se rola à mão. */
+  .faixa-rolo {
+    animation: none !important;
+  }
+  .faixa-janela {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .faixa-copia,
+  .faixa-pausa {
+    display: none !important;
   }
   .b:active:not(:disabled) {
     transform: none;
