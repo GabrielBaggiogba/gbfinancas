@@ -1,40 +1,28 @@
 import 'server-only'
 import { unstable_cache } from 'next/cache'
-import { calcularDestaques, type Destaques } from './destaques'
+import { FONTE_DADOS, lerListaBrapi, type Mercado } from './acoes'
 
-// Busca os destaques na API configurada. Variáveis (Vercel → Settings → Environment Variables):
-//   GBF_DESTAQUES_URL    endereço que devolve o JSON descrito em destaques.ts (obrigatória)
-//   GBF_DESTAQUES_TOKEN  opcional: vai no cabeçalho "Authorization: Bearer <token>"
-//   GBF_DESTAQUES_FONTE  opcional: nome da fonte exibido na faixa, no lugar do que a API mandar
+// Lista de ações da B3 pela API pública da brapi.dev. Funciona sem chave; com
+// BRAPI_TOKEN (opcional, Vercel → Settings → Environment Variables) a chave vai
+// no cabeçalho e valem os limites do seu plano. Os dados chegam com atraso (no
+// plano gratuito, cerca de 30 minutos) e ficam guardados aqui por 15 minutos.
 
+const ENDERECO =
+  'https://brapi.dev/api/quote/list?type=stock&limit=2000&sortBy=volume&sortOrder=desc'
 const VALIDADE_SEGUNDOS = 15 * 60
-const ESPERA_MS = 8000
-const TAMANHO_MAX = 2_000_000
+const ESPERA_MS = 10_000
 
-function configuracao() {
-  const url = process.env.GBF_DESTAQUES_URL?.trim()
-  if (!url) return null
-  let endereco: URL
-  try {
-    endereco = new URL(url)
-  } catch {
-    console.error('[destaques] GBF_DESTAQUES_URL inválida')
-    return null
-  }
-  const local = ['localhost', '127.0.0.1', '[::1]'].includes(endereco.hostname)
-  if (endereco.protocol !== 'https:' && !(local && endereco.protocol === 'http:')) {
-    console.error('[destaques] GBF_DESTAQUES_URL precisa usar https')
-    return null
-  }
-  return {
-    url: endereco.toString(),
-    fonte: process.env.GBF_DESTAQUES_FONTE?.trim() || undefined,
-  }
+function enderecoDaLista(): string {
+  // Só para conferir as telas sem internet, no modo demonstração.
+  const teste = process.env.GBF_MERCADO_DE_TESTE
+  if (teste && process.env.GBF_MODO_DEMO === '1' && process.env.VERCEL_ENV !== 'production')
+    return teste
+  return ENDERECO
 }
 
-async function buscar(url: string, fonte: string | undefined) {
-  const token = process.env.GBF_DESTAQUES_TOKEN?.trim()
-  const resposta = await fetch(url, {
+async function buscar(endereco: string): Promise<Mercado> {
+  const token = process.env.BRAPI_TOKEN?.trim()
+  const resposta = await fetch(endereco, {
     cache: 'no-store',
     signal: AbortSignal.timeout(ESPERA_MS),
     headers: {
@@ -44,27 +32,28 @@ async function buscar(url: string, fonte: string | undefined) {
     },
   })
   if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
-  const texto = await resposta.text()
-  if (texto.length > TAMANHO_MAX) throw new Error('Resposta grande demais')
-  // Se falhar, lança: o erro não fica guardado e a próxima visita tenta de novo.
-  return calcularDestaques(JSON.parse(texto), { fonte })
+  const acoes = lerListaBrapi(await resposta.json())
+  // Lista vazia lança: assim ela não fica guardada e a próxima visita tenta de novo.
+  if (acoes.length < 20) throw new Error(`Só ${acoes.length} ações na resposta`)
+  return {
+    situacao: 'ok',
+    acoes,
+    consultado_em: new Date().toISOString(),
+    fonte: FONTE_DADOS,
+  }
 }
 
-// A chave inclui o endereço: trocar a API não reaproveita o resultado da anterior.
-// O token é lido dentro da busca e não entra na chave do cache.
-const emCache = unstable_cache(buscar, ['destaques-v1'], {
+const emCache = unstable_cache(buscar, ['mercado-v1'], {
   revalidate: VALIDADE_SEGUNDOS,
-  tags: ['destaques'],
+  tags: ['mercado'],
 })
 
-/** Destaques da semana, guardados por 15 minutos. Nunca lança. */
-export async function obterDestaques(): Promise<Destaques> {
-  const config = configuracao()
-  if (!config) return { situacao: 'indisponivel', motivo: 'nao-configurado' }
+/** Ações da B3, guardadas por 15 minutos. Nunca lança. */
+export async function obterMercado(): Promise<Mercado> {
   try {
-    return await emCache(config.url, config.fonte)
+    return await emCache(enderecoDaLista())
   } catch (e) {
-    console.error('[destaques]', e instanceof Error ? e.message : e)
-    return { situacao: 'indisponivel', motivo: 'falhou' }
+    console.error('[mercado]', e instanceof Error ? e.message : e)
+    return { situacao: 'indisponivel' }
   }
 }

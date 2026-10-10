@@ -1,22 +1,19 @@
 'use client'
 
-import { Activity, Pause, Play, TrendingUp } from 'lucide-react'
+import { Activity, ArrowRight, Pause, Play } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
+import Link from 'next/link'
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { FUSO, dataBR, diasEntre, hojeEmSaoPaulo } from '@/lib/datas'
-import { formatarVariacao, type Destaque, type Destaques } from '../destaques'
+import { formatarPreco, type Acao } from '../acoes'
+import { Logo, Variacao, horario } from './partes'
 
 const CHAVE_PAUSA = 'gbf_faixa_pausada'
 /** Velocidade da faixa em px por segundo: devagar o bastante para ler sem pressa. */
 const VELOCIDADE = 32
 
-const horario = new Intl.DateTimeFormat('pt-BR', {
-  timeZone: FUSO,
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-})
+type Dados =
+  | { situacao: 'ok'; consultado_em: string; fonte: string; altas: Acao[]; baixas: Acao[] }
+  | { situacao: 'indisponivel' }
 
 function lerPausa(): boolean {
   try {
@@ -35,24 +32,25 @@ function gravarPausa(pausada: boolean) {
 }
 
 /**
- * Faixa "Destaques da semana" no topo da área logada. Mostra os ativos com maior
- * alta no período semanal da API configurada; sem API, diz que os dados estão
- * indisponíveis. Nada aqui é inventado nem recomendação.
+ * Faixa no topo da área logada com as maiores altas e baixas do dia na B3. Os dados
+ * vêm da brapi.dev pelo servidor; sem resposta, a faixa diz que estão indisponíveis.
  */
-export default function DestaquesDaSemana() {
-  const [dados, setDados] = useState<Destaques | null>(null)
+export default function FaixaDoMercado() {
+  const [dados, setDados] = useState<Dados | null>(null)
 
   useEffect(() => {
     const controle = new AbortController()
-    fetch('/api/destaques', { signal: controle.signal })
+    fetch('/api/mercado', { signal: controle.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((d: Destaques) => setDados(d))
+      .then((d: Dados) => setDados(d))
       .catch((e: unknown) => {
         if (!(e instanceof DOMException && e.name === 'AbortError'))
-          setDados({ situacao: 'indisponivel', motivo: 'falhou' })
+          setDados({ situacao: 'indisponivel' })
       })
     return () => controle.abort()
   }, [])
+
+  const vazio = dados?.situacao === 'ok' && dados.altas.length + dados.baixas.length === 0
 
   return (
     <motion.section
@@ -65,61 +63,50 @@ export default function DestaquesDaSemana() {
       <div className="ticker-linha">
         <h2 id="ticker-titulo" className="ticker-titulo">
           <Activity size={16} aria-hidden="true" />
-          Destaques da semana
+          Altas e baixas do dia
         </h2>
         {dados === null ? (
           <div className="ticker-janela" aria-busy="true">
             <span className="osso h-4 w-full max-w-[420px]" />
-            <span className="sr-only">Carregando destaques</span>
+            <span className="sr-only">Carregando cotações</span>
           </div>
-        ) : dados.situacao === 'ok' ? (
-          <Fita itens={dados.itens} />
+        ) : dados.situacao === 'ok' && !vazio ? (
+          <Fita altas={dados.altas} baixas={dados.baixas} />
         ) : (
-          <p className="ticker-janela ticker-aviso">
-            {dados.situacao === 'sem-alta'
-              ? 'Nenhum ativo acompanhado subiu no período'
-              : 'Dados semanais indisponíveis'}
-          </p>
+          <p className="ticker-janela ticker-aviso">Cotações indisponíveis no momento</p>
         )}
+        <Link href="/mercado" className="b b-fantasma ticker-mais" title="Ver o mercado">
+          <span className="max-[1180px]:sr-only">Mercado</span>
+          <ArrowRight size={15} aria-hidden="true" />
+        </Link>
       </div>
 
-      {dados && <Rodape dados={dados} />}
+      {dados && (
+        <p className="ticker-meta">
+          {dados.situacao === 'ok' ? (
+            <>
+              <span>Variação no último pregão</span>
+              <span>Fonte: {dados.fonte}, com atraso</span>
+              <span>
+                Consultado em{' '}
+                <time dateTime={dados.consultado_em}>
+                  {horario.format(new Date(dados.consultado_em))}
+                </time>
+              </span>
+              <span>Não é recomendação de investimento.</span>
+            </>
+          ) : (
+            <span>
+              A fonte de cotações não respondeu. Uma nova tentativa é feita em alguns minutos.
+            </span>
+          )}
+        </p>
+      )}
     </motion.section>
   )
 }
 
-function Rodape({ dados }: { dados: Destaques }) {
-  if (dados.situacao === 'indisponivel') {
-    return (
-      <p className="ticker-meta">
-        {dados.motivo === 'nao-configurado'
-          ? 'A fonte de cotações ainda não foi conectada. Nenhum valor é exibido sem uma fonte de dados.'
-          : 'A fonte de cotações não respondeu agora. Uma nova tentativa é feita em alguns minutos.'}
-      </p>
-    )
-  }
-  const { periodo, fonte, atualizado_em } = dados
-  const antigo = diasEntre(periodo.fim, hojeEmSaoPaulo()) > 7
-  return (
-    <p className="ticker-meta">
-      <span>
-        Período: {dataBR(periodo.inicio).slice(0, 5)} a {dataBR(periodo.fim)}
-      </span>
-      <span>Fonte: {fonte}</span>
-      <span>
-        Atualizado em{' '}
-        <time dateTime={atualizado_em}>{horario.format(new Date(atualizado_em))}</time>
-      </span>
-      {antigo && <span className="selo selo-aviso">Período antigo</span>}
-      <span className="ticker-aviso-legal">
-        Maiores altas percentuais do período. Não é recomendação de investimento; desempenho passado
-        não garante resultados futuros.
-      </span>
-    </p>
-  )
-}
-
-function Fita({ itens }: { itens: Destaque[] }) {
+function Fita({ altas, baixas }: { altas: Acao[]; baixas: Acao[] }) {
   const reduzir = useReducedMotion() ?? false
   const [pausada, setPausada] = useState(false)
   const [transborda, setTransborda] = useState(false)
@@ -143,7 +130,7 @@ function Fita({ itens }: { itens: Destaque[] }) {
     observador.observe(j)
     observador.observe(l)
     return () => observador.disconnect()
-  }, [itens])
+  }, [altas, baixas])
 
   const movendo = transborda && !reduzir && !pausada
   const alternar = () => {
@@ -152,6 +139,19 @@ function Fita({ itens }: { itens: Destaque[] }) {
       return !p
     })
   }
+
+  const conteudo = (
+    <>
+      {altas.length > 0 && <li className="ticker-grupo">Maiores altas</li>}
+      {altas.map((a) => (
+        <Item key={a.codigo} a={a} />
+      ))}
+      {baixas.length > 0 && <li className="ticker-grupo">Maiores baixas</li>}
+      {baixas.map((a) => (
+        <Item key={a.codigo} a={a} />
+      ))}
+    </>
+  )
 
   return (
     <>
@@ -162,19 +162,15 @@ function Fita({ itens }: { itens: Destaque[] }) {
         // Parada e maior que a tela, a lista rola com o dedo, o mouse ou o teclado.
         tabIndex={!movendo && transborda ? 0 : undefined}
         role={!movendo && transborda ? 'region' : undefined}
-        aria-label={!movendo && transborda ? 'Lista de destaques, role para ver mais' : undefined}
+        aria-label={!movendo && transborda ? 'Altas e baixas, role para ver mais' : undefined}
       >
         <div className="ticker-trilho" style={{ '--duracao': `${duracao}s` } as CSSProperties}>
           <ul ref={lista} className="ticker-lista">
-            {itens.map((d) => (
-              <Item key={d.codigo} d={d} />
-            ))}
+            {conteudo}
           </ul>
           {movendo && (
             <ul className="ticker-lista" aria-hidden="true">
-              {itens.map((d) => (
-                <Item key={d.codigo} d={d} />
-              ))}
+              {conteudo}
             </ul>
           )}
         </div>
@@ -195,16 +191,13 @@ function Fita({ itens }: { itens: Destaque[] }) {
   )
 }
 
-function Item({ d }: { d: Destaque }) {
+function Item({ a }: { a: Acao }) {
   return (
     <li className="ticker-item">
-      <span className="ticker-codigo">{d.codigo}</span>
-      {d.nome && <span className="ticker-nome">{d.nome}</span>}
-      <span className="ticker-alta">
-        <TrendingUp size={14} aria-hidden="true" />
-        <span className="sr-only">alta de</span>
-        {formatarVariacao(d.variacao_pct)}
-      </span>
+      <Logo codigo={a.codigo} tamanho={20} />
+      <span className="ticker-codigo">{a.codigo}</span>
+      <span className="ticker-preco">{formatarPreco(a.preco)}</span>
+      <Variacao valor={a.variacao} />
     </li>
   )
 }

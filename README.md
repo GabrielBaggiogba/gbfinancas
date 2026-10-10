@@ -16,8 +16,8 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Relatórios**: mensal, anual e comparação entre dois meses; 10 maiores despesas, categorias que mais cresceram, evolução do patrimônio, CSV e impressão em PDF.
 - **Configurações**: tema (sistema, escuro, claro), modo compacto, ocultar valores, categorias e subcategorias, backup e restauração, importação de CSV.
 - **Notícias**: manchetes de finanças e investimentos lidas dos feeds públicos (RSS) de portais brasileiros, com filtro por tema e fonte. O servidor guarda o resultado por 30 minutos e renova sozinho; cada notícia abre no site de origem. As fontes ficam em `src/features/noticias/fontes.ts`.
-- **Acompanhe o mercado**: no topo da tela Notícias, atalhos para InfoMoney, Valor, B3, Investing.com, TradingView e Forbes. São só links, abertos em nova aba; nada desses sites é lido pelo app. A lista fica em `src/features/mercado/fontes-uteis.ts`.
-- **Destaques da semana**: faixa no topo de todas as telas da área logada com os ativos de maior alta percentual no período semanal, a fonte, o período e o horário da atualização. Os dados vêm de uma API que você configura (veja abaixo); sem ela, a faixa mostra "Dados semanais indisponíveis". O movimento é lento, para ao passar o mouse ou focar, tem botão de pausa e fica parado para quem pede menos movimento no sistema.
+- **Mercado**: "O que está relevante hoje?" com as 5 maiores altas e baixas do último pregão, ranking de ações (valor de mercado, mais negociadas, small caps), tabela de todas as ações da B3 com busca, setor e ordenação, e a seção "Acompanhe o mercado" com links para InfoMoney, Valor, B3, Investing.com, TradingView e Forbes. Cada ativo abre o gráfico no TradingView.
+- **Faixa do topo**: altas e baixas do dia passando em uma linha em todas as telas da área logada. Anda devagar, para ao passar o mouse ou focar, tem botão de pausa e fica parada (e rolável) para quem pede menos movimento no sistema.
 - **Atalhos**: `N` novo lançamento, `/` busca, `Esc` fecha painéis.
 
 ## Stack
@@ -68,34 +68,21 @@ Os valores ficam no banco em reais com duas casas (`numeric`). O app trabalha em
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | chave pública (anon ou publishable)                     | Supabase → Settings → API Keys |
 | `NEXT_PUBLIC_SITE_URL`          | opcional: origem usada no link de confirmação de e-mail | o endereço do site             |
 | `GBF_MODO_DEMO`                 | opcional: `1` liga o modo demonstração                  | só em desenvolvimento          |
-| `GBF_DESTAQUES_URL`             | opcional: API dos destaques da semana (https)           | seu provedor de cotações       |
-| `GBF_DESTAQUES_TOKEN`           | opcional: enviado como `Authorization: Bearer`          | seu provedor de cotações       |
-| `GBF_DESTAQUES_FONTE`           | opcional: nome da fonte exibido na faixa                | você escolhe                   |
+| `BRAPI_TOKEN`                   | opcional: chave da brapi.dev para mais requisições      | brapi.dev → Dashboard          |
 
 A chave `service_role` não é usada em lugar nenhum.
 
-## API dos destaques da semana
+## Cotações
 
-O app não tem cotações próprias e não lê páginas de sites de mercado. A faixa consulta `GBF_DESTAQUES_URL` (a cada 15 minutos, no servidor) e espera este JSON:
+As cotações vêm da lista pública da [brapi.dev](https://brapi.dev) (`/api/quote/list`), lida pelo servidor e guardada por 15 minutos. Funciona sem chave. Os dados chegam com atraso (cerca de 30 minutos no plano gratuito) e não são em tempo real.
 
-```json
-{
-  "fonte": "Nome do provedor",
-  "periodo": { "inicio": "2026-10-02", "fim": "2026-10-09" },
-  "atualizado_em": "2026-10-09T18:30:00-03:00",
-  "ativos": [
-    { "codigo": "ABCD3", "nome": "Empresa", "fechamento_inicial": 10.0, "fechamento_final": 10.5 },
-    { "codigo": "WXYZ4", "variacao_pct": 3.2 }
-  ]
-}
-```
+- Ficam de fora o mercado fracionário (códigos terminados em F) e ações sem negócio no dia.
+- Altas e baixas consideram só ações com volume financeiro acima de R$ 1 milhão no dia, para fugir de saltos sem negócio.
+- Volume financeiro = ações negociadas × último preço (aproximado).
+- Small caps: valor de mercado até R$ 10 bilhões.
+- Sem resposta da fonte, a faixa e a tela mostram "Cotações indisponíveis" em vez de números.
 
-- `periodo`: a semana considerada. `inicio` é o fechamento de referência e `fim` o último fechamento; entre os dois, de 1 a 7 dias corridos. Fora disso a resposta é recusada.
-- Cada ativo traz `fechamento_inicial` e `fechamento_final` (o app calcula a variação) ou `variacao_pct` já pronta, em %.
-- "Em alta na semana" = variação positiva. A faixa mostra os 10 maiores, do maior para o menor. Se nenhum subiu, ela diz isso.
-- Resposta fora do formato, erro ou demora acima de 8 s: a faixa mostra "Dados semanais indisponíveis" e o motivo vai para o log do servidor.
-
-Qualquer serviço que monte esse JSON serve: uma função sua sobre a API do seu provedor de cotações (brapi.dev, Alpha Vantage, a da sua corretora) ou um arquivo JSON publicado por um job diário. As regras ficam em `src/features/mercado/destaques.ts`.
+Se um dia precisar de mais requisições, crie uma conta na brapi.dev e coloque a chave em `BRAPI_TOKEN`. As regras ficam em `src/features/mercado/acoes.ts`.
 
 ## Deploy
 
@@ -107,7 +94,7 @@ Push na `main` publica automaticamente na Vercel. Pull Requests geram uma URL de
 - `src/app/login`, `src/app/auth`: acesso
 - `src/features/financas`: tipos, validação (`esquemas.ts`), regras financeiras (`calculos.ts`), ações do servidor, armazenamento (`servidor/`) e telas (`telas/`)
 - `src/features/noticias`: fontes, leitor de RSS e Atom, classificação por tema e telas
-- `src/features/mercado`: links de mercado e faixa de destaques da semana
+- `src/features/mercado`: cotações (brapi.dev), rankings, faixa do topo e links de mercado
 - `src/features/auth`: login, cadastro e sessão
 - `src/components/app`: casca, painéis, campos, menus e avisos
 - `src/components/graficos`: gráficos em SVG

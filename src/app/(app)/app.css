@@ -1909,7 +1909,7 @@ kbd {
 
 .ticker-item {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   white-space: nowrap;
   font-size: 0.875rem;
@@ -1921,19 +1921,31 @@ kbd {
   letter-spacing: 0.01em;
 }
 
-.ticker-nome {
-  font-size: 0.8125rem;
-  color: var(--t3);
+.ticker-preco {
+  color: var(--t2);
 }
 
-.ticker-alta {
+.ticker-grupo {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  align-self: center;
-  font-weight: 640;
-  /* Um tom mais fechado no tema claro para manter o contraste do texto. */
-  color: color-mix(in srgb, var(--ok) 80%, var(--t1));
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--painel2);
+  box-shadow: inset 0 0 0 1px var(--linha);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t3);
+  white-space: nowrap;
+}
+
+.ticker-mais {
+  flex: none;
+  height: 34px !important;
+  padding: 0 10px !important;
+  font-size: 0.8125rem !important;
 }
 
 .ticker-aviso {
@@ -1981,11 +1993,14 @@ kbd {
     order: 2;
     margin-left: auto;
   }
+  .ticker-mais {
+    order: 2;
+  }
   .ticker-janela {
     order: 3;
     flex-basis: 100%;
   }
-  .ticker-nome {
+  .ticker-preco {
     display: none;
   }
 }
@@ -1997,5 +2012,72 @@ kbd {
   .fonte-util,
   .fonte-util:hover {
     transform: none;
+  }
+}
+
+/* ---------- Mercado ---------- */
+
+/* Alta e baixa: um tom mais fechado no tema claro para manter o contraste do texto. */
+.variacao {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 640;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--t2);
+}
+
+.variacao-alta {
+  color: color-mix(in srgb, var(--ok) 80%, var(--t1));
+}
+
+.variacao-baixa {
+  color: color-mix(in srgb, var(--erro) 82%, var(--t1));
+}
+
+.variacao-pilula {
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 13%, transparent);
+}
+
+.ativo-logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--painel2);
+  box-shadow: inset 0 0 0 1px var(--linha);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--t2);
+}
+
+.ativo-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ativo-posicao {
+  flex: none;
+  width: 18px;
+  text-align: right;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--t3);
+}
+
+.ativo-linha {
+  color: inherit;
+}
+
+@media (hover: hover) {
+  .ativo-linha:hover {
+    background: color-mix(in srgb, var(--t1) 4%, transparent);
   }
 }

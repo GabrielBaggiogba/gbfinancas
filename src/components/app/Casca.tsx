@@ -5,6 +5,7 @@ import {
   ArrowDownLeft,
   ArrowLeftRight,
   ArrowUpRight,
+  ChartCandlestick,
   ChartColumn,
   ChartPie,
   CreditCard,
@@ -30,7 +31,7 @@ import Marca from '@/components/ui/Marca'
 import { sair } from '@/features/auth/actions'
 import { useEditor } from '@/features/financas/components/Editor'
 import { useDados } from '@/features/financas/store'
-import DestaquesDaSemana from '@/features/mercado/telas/DestaquesDaSemana'
+import FaixaDoMercado from '@/features/mercado/telas/FaixaDoMercado'
 import Folha from './Folha'
 import { usePreferencias } from './Preferencias'
 
@@ -45,6 +46,7 @@ const NAVEGACAO: Destino[] = [
   { href: '/metas', rotulo: 'Metas', icone: Target },
   { href: '/recorrentes', rotulo: 'Recorrentes', icone: Repeat },
   { href: '/relatorios', rotulo: 'Relatórios', icone: ChartColumn },
+  { href: '/mercado', rotulo: 'Mercado', icone: ChartCandlestick },
   { href: '/noticias', rotulo: 'Notícias', icone: Newspaper },
   { href: '/configuracoes', rotulo: 'Configurações', icone: Settings },
 ]
@@ -191,7 +193,7 @@ export default function Casca({ children }: { children: ReactNode }) {
             </div>
           </header>
           <div className="ticker-area">
-            <DestaquesDaSemana />
+            <FaixaDoMercado />
           </div>
           <main className="pagina">{children}</main>
         </div>

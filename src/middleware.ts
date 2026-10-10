@@ -37,7 +37,10 @@ export async function middleware(request: NextRequest) {
   }
 
   const publica =
-    pathname === '/login' || pathname.startsWith('/auth/') || pathname === '/api/noticias'
+    pathname === '/login' ||
+    pathname.startsWith('/auth/') ||
+    pathname === '/api/noticias' ||
+    pathname === '/api/mercado'
   const origem = modo === 'supabase' ? resposta : undefined
 
   if (!logado && !publica) return ir('/login', origem)
