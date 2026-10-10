@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, type FormEvent } from 'react'
-import { ArrowRight, Lock, User } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import AnelMarca from '@/components/ui/AnelMarca'
 import Botao from '@/components/ui/Botao'
 import CampoTexto from '@/components/ui/CampoTexto'
+import Grainient from '@/components/ui/Grainient'
 import Marca from '@/components/ui/Marca'
-import Segmentado from '@/components/ui/Segmentado'
-import { SmokeyBackground } from '@/components/ui/login-form'
 import { cadastrar, entrar } from '../actions'
 import { cadastroSchema, credenciaisSchema } from '../esquemas'
 
@@ -74,16 +73,20 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
 
   return (
     <main className="palco-auth">
-      <SmokeyBackground className="fumaca" />
+      <Grainient className="fundo-auth" />
       <div className="cartao-vidro">
-        <div className="mov-entra" style={indice(0)}>
-          <div className="flex items-center gap-3">
-            <Marca tamanho={28} />
-            <h1 className="text-[1.75rem] font-[650] leading-[1.1] tracking-[-0.03em]">
-              GBFinanças
-            </h1>
+        <div className="mov-entra mb-8 flex flex-col items-center text-center" style={indice(0)}>
+          <div className="selo-marca">
+            <Marca tamanho={30} />
           </div>
-          <p className="mb-8 mt-3 text-t2">Duas anotações por dia. Só isso.</p>
+          <h1 className="mt-4 text-[1.75rem] font-[650] leading-[1.1] tracking-[-0.03em]">
+            {modo === 'entrar' ? 'Bem-vindo de volta' : 'Crie sua conta'}
+          </h1>
+          <p className="mt-2 text-t2">
+            {modo === 'entrar'
+              ? 'Entre para continuar no GBFinanças'
+              : 'Comece a organizar seu dinheiro no GBFinanças'}
+          </p>
         </div>
 
         {mensagemAviso && !confirmarEmail && (
@@ -129,25 +132,13 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
           </div>
         ) : (
           <>
-            <div className="mov-entra mb-5" style={indice(2)}>
-              <Segmentado
-                rotulo="Entrar ou criar conta"
-                opcoes={[
-                  { valor: 'entrar', rotulo: 'Entrar' },
-                  { valor: 'cadastrar', rotulo: 'Criar conta' },
-                ]}
-                valor={modo}
-                aoMudar={trocarModo}
-              />
-            </div>
-
-            <form noValidate onSubmit={aoEnviar} className="mov-entra" style={indice(3)}>
+            <form noValidate onSubmit={aoEnviar} className="mov-entra" style={indice(2)}>
               <div key={pulsoErro} className={pulsoErro > 0 ? 'mov-nega' : undefined}>
                 <div className="flex flex-col gap-3">
                   <CampoTexto
                     id="email"
                     rotulo="E-mail"
-                    icone={<User size={16} aria-hidden="true" />}
+                    icone={<Mail size={18} aria-hidden="true" />}
                     type="email"
                     inputMode="email"
                     autoComplete="email"
@@ -159,7 +150,7 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
                   <CampoTexto
                     id="senha"
                     rotulo="Senha"
-                    icone={<Lock size={16} aria-hidden="true" />}
+                    icone={<Lock size={18} aria-hidden="true" />}
                     type={mostrarSenha ? 'text' : 'password'}
                     autoComplete={modo === 'entrar' ? 'current-password' : 'new-password'}
                     value={senha}
@@ -168,11 +159,16 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
                     acao={
                       <button
                         type="button"
-                        className="toque h-11 shrink-0 rounded-xl px-3 text-[.9375rem] font-[550] text-t2"
+                        className="toque relative z-[1] grid h-11 w-11 shrink-0 place-items-center rounded-xl text-t2"
+                        aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
                         aria-pressed={mostrarSenha}
                         onClick={() => setMostrarSenha((v) => !v)}
                       >
-                        {mostrarSenha ? 'Ocultar' : 'Mostrar'}
+                        {mostrarSenha ? (
+                          <EyeOff size={18} aria-hidden="true" />
+                        ) : (
+                          <Eye size={18} aria-hidden="true" />
+                        )}
                       </button>
                     }
                   />
@@ -196,6 +192,17 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
                 </Botao>
               </div>
             </form>
+
+            <p className="mov-entra mt-7 text-center text-[.9375rem] text-t2" style={indice(3)}>
+              {modo === 'entrar' ? 'Não tem conta?' : 'Já tem conta?'}{' '}
+              <button
+                type="button"
+                className="elo"
+                onClick={() => trocarModo(modo === 'entrar' ? 'cadastrar' : 'entrar')}
+              >
+                {modo === 'entrar' ? 'Criar conta' : 'Entrar'}
+              </button>
+            </p>
           </>
         )}
       </div>
