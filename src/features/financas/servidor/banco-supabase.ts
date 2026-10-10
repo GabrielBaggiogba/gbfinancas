@@ -36,6 +36,8 @@ function traduzir(erro: { code?: string; message?: string }): string {
     return 'Este item ainda tem lançamentos ligados a ele. Arquive ou mova os lançamentos antes de excluir.'
   if (erro.code === '23505') return 'Já existe um item igual a este.'
   if (erro.code === '23514') return 'Algum valor está fora do permitido.'
+  // Limite de gravações por minuto (trigger `limite` no banco).
+  if (erro.code === 'GB429') return 'Muitas alterações em pouco tempo. Aguarde um minuto.'
   return 'Não foi possível salvar. Tente de novo.'
 }
 

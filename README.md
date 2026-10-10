@@ -49,6 +49,7 @@ O banco fica em `supabase/migrations`, em ordem:
 1. `20261006000000_cria_lancamentos_diarios.sql`: a tabela da primeira versão (um registro por dia).
 2. `20261007000000_gestao_financeira.sql`: contas, cartões, categorias, lançamentos, orçamentos, metas, aportes e recorrentes, todas com RLS. Também copia os registros diários antigos para o modelo novo, em uma conta "Carteira".
 3. `20261009000000_seguranca.sql`: as policies passam a exigir que conta, cartão, categoria, meta e recorrente referenciados sejam do próprio usuário, e cria a função que exclui a conta de acesso (botão "Excluir conta" em Configurações).
+4. `20261010000000_auditoria_e_limite.sql`: tabela `auditoria` (cada gravação deixa uma linha com quem, tabela, operação e quantidade; a pessoa só lê a própria) e limite de 600 comandos de gravação por minuto por usuário, feito no banco. O registro não é limpo sozinho.
 
 Para aplicar em um projeto novo, rode os arquivos em ordem no SQL Editor do Supabase, ou use a CLI:
 
