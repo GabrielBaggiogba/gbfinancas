@@ -8,7 +8,7 @@ export const config = {
   ],
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const modo = obterModo()
   const { pathname } = request.nextUrl
 

@@ -22,7 +22,7 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 
 ## Stack
 
-Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS 3 · Motion · Supabase (Postgres e Auth) · Zod · Vercel
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 3 · Motion · Supabase (Postgres e Auth) · Zod · Vercel
 
 ## Ver sem Supabase
 
@@ -115,7 +115,7 @@ Como os dados circulam: o layout da área logada lê tudo do usuário uma vez e 
 - **Exclusão**: conta ou cartão com lançamentos não é excluído, só arquivado.
 - **Volume**: o app carrega até 50 mil lançamentos por usuário de uma vez. Acima disso, vale paginar no servidor.
 - **Tela de login**: usa só `globals.css` e fica sempre no tema escuro.
-- **Next.js 14**: `npm audit` acusa avisos conhecidos dessa linha. Não rode `npm audit fix --force`, porque ele troca a versão principal.
+- **Dependências**: `npm audit --omit=dev` não acusa nada. Os avisos restantes são de ferramentas de desenvolvimento (Vitest, Tailwind) e não vão para produção. Não rode `npm audit fix --force`, porque ele troca versões principais.
 
 ## Próximos passos
 
