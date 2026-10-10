@@ -14,8 +14,8 @@ export type ResultadoAuth =
 const SEM_CONEXAO = 'Sem conexão com o servidor. Tente de novo.'
 const COOKIE_SESSAO_DEMO = 'gbf_demo_sessao'
 
-function abrirSessaoDemo(email: string) {
-  cookies().set(COOKIE_SESSAO_DEMO, email, {
+async function abrirSessaoDemo(email: string) {
+  ;(await cookies()).set(COOKIE_SESSAO_DEMO, email, {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
@@ -30,11 +30,11 @@ export async function entrar(dados: unknown): Promise<ResultadoAuth> {
 
   const modo = obterModo()
   if (modo === 'demo') {
-    abrirSessaoDemo(email)
+    await abrirSessaoDemo(email)
   } else if (modo === 'supabase') {
     let erro
     try {
-      const supabase = criarClienteServidor()
+      const supabase = await criarClienteServidor()
       const resposta = await supabase.auth.signInWithPassword({ email, password: senha })
       erro = resposta.error
     } catch {
@@ -56,17 +56,17 @@ export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
 
   const modo = obterModo()
   if (modo === 'demo') {
-    abrirSessaoDemo(email)
+    await abrirSessaoDemo(email)
     revalidatePath('/', 'layout')
     redirect('/')
   }
   if (modo !== 'supabase') return { ok: false, mensagem: 'Falta conectar o Supabase.' }
 
   const origem =
-    headers().get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+    (await headers()).get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   let resultado
   try {
-    const supabase = criarClienteServidor()
+    const supabase = await criarClienteServidor()
     resultado = await supabase.auth.signUp({
       email,
       password: senha,
@@ -91,12 +91,12 @@ export async function sair(): Promise<void> {
   const modo = obterModo()
   if (modo === 'supabase') {
     try {
-      await criarClienteServidor().auth.signOut()
+      await (await criarClienteServidor()).auth.signOut()
     } catch {
       // Sem rede, o cookie local ainda é descartado pelo redirecionamento do middleware.
     }
   } else if (modo === 'demo') {
-    cookies().delete(COOKIE_SESSAO_DEMO)
+    ;(await cookies()).delete(COOKIE_SESSAO_DEMO)
   }
   revalidatePath('/', 'layout')
   redirect('/login')
@@ -107,7 +107,7 @@ export async function excluirConta(): Promise<{ ok: false; mensagem: string }> {
   const modo = obterModo()
   if (modo === 'supabase') {
     try {
-      const supabase = criarClienteServidor()
+      const supabase = await criarClienteServidor()
       const { error } = await supabase.rpc('excluir_minha_conta')
       if (error) return { ok: false, mensagem: 'Não foi possível excluir a conta. Tente de novo.' }
       // A conta já não existe; isto só descarta os cookies da sessão.
@@ -116,7 +116,7 @@ export async function excluirConta(): Promise<{ ok: false; mensagem: string }> {
       return { ok: false, mensagem: SEM_CONEXAO }
     }
   } else if (modo === 'demo') {
-    cookies().delete(COOKIE_SESSAO_DEMO)
+    ;(await cookies()).delete(COOKIE_SESSAO_DEMO)
   }
   revalidatePath('/', 'layout')
   redirect('/login')
