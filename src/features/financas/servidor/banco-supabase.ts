@@ -64,7 +64,19 @@ export function bancoSupabase(): Banco {
     return linhas.map((l) => paraApp(tabela, l))
   }
 
-  async function inserir(tabela: Tabela, linhas: Registro[]) {
+  async function inserir(tabela: Tabela, linhas: Registro[]): Promise<void> {
+    // Subcategorias em um comando separado, depois das categorias-mãe: a policy do banco
+    // confere se a mãe existe, e não enxerga linhas do mesmo comando.
+    if (tabela === 'categorias' && linhas.some((l) => l.pai_id) && linhas.some((l) => !l.pai_id)) {
+      await inserir(
+        tabela,
+        linhas.filter((l) => !l.pai_id),
+      )
+      return inserir(
+        tabela,
+        linhas.filter((l) => l.pai_id),
+      )
+    }
     for (let i = 0; i < linhas.length; i += 500) {
       const lote = linhas.slice(i, i + 500).map((l) => paraBanco(tabela, l))
       const { error } = await supabase.from(tabela).insert(lote)
@@ -107,9 +119,7 @@ export function bancoSupabase(): Banco {
         if (error) throw new ErroDeBanco(traduzir(error))
       }
       for (const tabela of TABELAS) {
-        // Subcategorias depois das categorias-mãe.
-        const linhas = [...(dados[tabela] as Registro[])]
-        if (tabela === 'categorias') linhas.sort((a, b) => Number(!!a.pai_id) - Number(!!b.pai_id))
+        const linhas = dados[tabela] as Registro[]
         if (linhas.length) await inserir(tabela, linhas)
       }
     },

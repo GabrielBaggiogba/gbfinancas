@@ -9,7 +9,7 @@ import Marca from '@/components/ui/Marca'
 import Segmentado from '@/components/ui/Segmentado'
 import { SmokeyBackground } from '@/components/ui/login-form'
 import { cadastrar, entrar } from '../actions'
-import { credenciaisSchema } from '../esquemas'
+import { cadastroSchema, credenciaisSchema } from '../esquemas'
 
 type Props = { aviso?: 'confirmado'; erroLink?: boolean; demo: boolean }
 type ModoForm = 'entrar' | 'cadastrar'
@@ -35,7 +35,8 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
   async function aoEnviar(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (pendente) return
-    const analise = credenciaisSchema.safeParse({ email, senha })
+    const schema = modo === 'cadastrar' ? cadastroSchema : credenciaisSchema
+    const analise = schema.safeParse({ email, senha })
     if (!analise.success) {
       setErro(analise.error.issues[0].message)
       setPulsoErro((p) => p + 1)
@@ -112,7 +113,7 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
             </h2>
             <p className="mb-6 mt-2 break-words text-t2">
               Enviamos um link de confirmação para {confirmarEmail}. Abra o link neste aparelho para
-              entrar.
+              entrar. Se você já tem conta com este e-mail, entre com sua senha.
             </p>
             <Botao
               variante="fantasma"
@@ -163,7 +164,7 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
                     autoComplete={modo === 'entrar' ? 'current-password' : 'new-password'}
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
-                    legenda={modo === 'cadastrar' ? 'Pelo menos 6 caracteres.' : undefined}
+                    legenda={modo === 'cadastrar' ? 'Pelo menos 8 caracteres.' : undefined}
                     acao={
                       <button
                         type="button"

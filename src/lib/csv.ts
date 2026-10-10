@@ -10,7 +10,9 @@ export function paraCSV(linhas: (string | number)[][]): string {
     .map((linha) =>
       linha
         .map((celula) => {
-          const texto = String(celula)
+          let texto = String(celula)
+          // Texto que o Excel leria como fórmula ganha um apóstrofo. Números ("-12,50") ficam.
+          if (/^[=+\-@\t\r]/.test(texto) && !/^[-+]?[\d.,]+$/.test(texto)) texto = `'${texto}`
           return precisaDeAspas.test(texto) ? `"${texto.replace(/"/g, '""')}"` : texto
         })
         .join(';'),

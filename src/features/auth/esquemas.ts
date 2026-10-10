@@ -8,4 +8,12 @@ export const credenciaisSchema = z.object({
     .max(72, 'Senha longa demais.'),
 })
 
+// Só o cadastro exige 8: quem já tem conta com senha de 6 ou 7 continua entrando.
+export const cadastroSchema = credenciaisSchema.extend({
+  senha: z
+    .string()
+    .min(8, 'A senha precisa ter pelo menos 8 caracteres.')
+    .max(72, 'Senha longa demais.'),
+})
+
 export type Credenciais = z.infer<typeof credenciaisSchema>

@@ -30,7 +30,7 @@ import Menu from '@/components/app/Menu'
 import { usePreferencias, type Tema } from '@/components/app/Preferencias'
 import { ItemDeLista } from '@/components/motion/Efeitos'
 import { Surgir } from '@/components/motion/Surgir'
-import { sair } from '@/features/auth/actions'
+import { excluirConta, sair } from '@/features/auth/actions'
 import { baixar, interpretarExtrato, type LinhaImportada } from '@/lib/csv'
 import { apagarTudo, restaurarBackup } from '../actions'
 import { categoriaSchema, primeiraMensagem } from '../esquemas'
@@ -238,6 +238,24 @@ export default function Configuracoes() {
     }
   }
 
+  const excluirAcesso = async () => {
+    const ok = await confirmar({
+      titulo: 'Excluir sua conta?',
+      texto:
+        'Sua conta de acesso e todos os seus dados serão apagados para sempre. Faça um backup antes, porque esta ação não pode ser desfeita.',
+      acao: 'Excluir conta',
+      perigo: true,
+    })
+    if (!ok) return
+    setOcupado(true)
+    // Deu certo: a ação redireciona para o login e não devolve nada.
+    const r = await excluirConta().catch(() => null)
+    if (r) {
+      setOcupado(false)
+      avisar({ tipo: 'erro', texto: r.mensagem })
+    }
+  }
+
   const entradasCsv = importacao?.linhas.filter((l) => l.entrada).length ?? 0
 
   return (
@@ -399,6 +417,14 @@ export default function Configuracoes() {
               <LogOut size={17} aria-hidden="true" /> Sair
             </button>
           </form>
+          <button
+            type="button"
+            className="b b-perigo mt-2"
+            disabled={ocupado}
+            onClick={() => void excluirAcesso()}
+          >
+            <Trash2 size={17} aria-hidden="true" /> Excluir conta
+          </button>
         </Bloco>
       </div>
 

@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 import { obterModo } from '@/lib/modo'
 import { criarClienteServidor } from '@/lib/supabase/server'
 import { traduzirErroAuth } from './erros'
-import { credenciaisSchema } from './esquemas'
+import { cadastroSchema, credenciaisSchema } from './esquemas'
 
 export type ResultadoAuth =
   { ok: false; mensagem: string } | { ok: true; confirmar: true; email: string }
@@ -50,7 +50,7 @@ export async function entrar(dados: unknown): Promise<ResultadoAuth> {
 }
 
 export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
-  const analise = credenciaisSchema.safeParse(dados)
+  const analise = cadastroSchema.safeParse(dados)
   if (!analise.success) return { ok: false, mensagem: analise.error.issues[0].message }
   const { email, senha } = analise.data
 
@@ -76,11 +76,11 @@ export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
     return { ok: false, mensagem: SEM_CONEXAO }
   }
   const { data, error } = resultado
-  if (error) return { ok: false, mensagem: traduzirErroAuth(error) }
-  if (data.user?.identities?.length === 0) {
-    return { ok: false, mensagem: 'Este e-mail já tem conta. Entre com sua senha.' }
-  }
-  if (data.session) {
+  // E-mail que já tem conta recebe a mesma resposta de um cadastro novo, para a tela
+  // não revelar quem é cliente.
+  if (error && error.code !== 'user_already_exists' && error.code !== 'email_exists')
+    return { ok: false, mensagem: traduzirErroAuth(error) }
+  if (data?.session) {
     revalidatePath('/', 'layout')
     redirect('/')
   }
@@ -94,6 +94,26 @@ export async function sair(): Promise<void> {
       await criarClienteServidor().auth.signOut()
     } catch {
       // Sem rede, o cookie local ainda é descartado pelo redirecionamento do middleware.
+    }
+  } else if (modo === 'demo') {
+    cookies().delete(COOKIE_SESSAO_DEMO)
+  }
+  revalidatePath('/', 'layout')
+  redirect('/login')
+}
+
+/** Exclui a conta de acesso e, em cascata, todos os dados. Só devolve algo se falhar. */
+export async function excluirConta(): Promise<{ ok: false; mensagem: string }> {
+  const modo = obterModo()
+  if (modo === 'supabase') {
+    try {
+      const supabase = criarClienteServidor()
+      const { error } = await supabase.rpc('excluir_minha_conta')
+      if (error) return { ok: false, mensagem: 'Não foi possível excluir a conta. Tente de novo.' }
+      // A conta já não existe; isto só descarta os cookies da sessão.
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => undefined)
+    } catch {
+      return { ok: false, mensagem: SEM_CONEXAO }
     }
   } else if (modo === 'demo') {
     cookies().delete(COOKIE_SESSAO_DEMO)
