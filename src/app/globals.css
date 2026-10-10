@@ -322,6 +322,61 @@ input {
   color: var(--tinta);
 }
 
+/* Faixa de luz que cruza o botão principal ao passar o ponteiro (shimmer button do
+   21st.dev). Vale para o botão do login (.btn-primario) e os da área logada (.b-primario). */
+.btn-primario,
+.b-primario {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.btn-primario::after,
+.b-primario::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%);
+  transform: translateX(-110%);
+}
+
+@media (hover: hover) {
+  .btn-primario:hover:not(:disabled)::after,
+  .b-primario:hover:not(:disabled)::after {
+    transform: translateX(110%);
+    transition: transform 0.7s var(--saida);
+  }
+}
+
+/* Carregador: as barras da marca sobem e descem em onda (loader de barras do React Bits). */
+.carregador rect {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: carregador 1s ease-in-out infinite;
+}
+
+.carregador rect:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.carregador rect:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes carregador {
+  0%,
+  100% {
+    transform: scaleY(0.45);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
 .btn-primario:disabled {
   cursor: default;
   background: rgba(255, 255, 255, 0.08);
