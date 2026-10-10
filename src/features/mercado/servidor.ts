@@ -1,66 +1,70 @@
 import 'server-only'
 import { unstable_cache } from 'next/cache'
-import { hojeEmSaoPaulo } from '@/lib/datas'
-import { normalizar } from './destaques'
-import type { Destaques } from './tipos'
+import { calcularDestaques, type Destaques } from './destaques'
 
-// A faixa "Destaques da semana" lê uma API de cotações configurada por variável de
-// ambiente. Sem ela, a faixa mostra "Dados semanais indisponíveis": nada é inventado
-// e nenhuma página é raspada. O formato esperado está no README.
+// Busca os destaques na API configurada. Variáveis (Vercel → Settings → Environment Variables):
+//   GBF_DESTAQUES_URL    endereço que devolve o JSON descrito em destaques.ts (obrigatória)
+//   GBF_DESTAQUES_TOKEN  opcional: vai no cabeçalho "Authorization: Bearer <token>"
+//   GBF_DESTAQUES_FONTE  opcional: nome da fonte exibido na faixa, no lugar do que a API mandar
 
-const VALIDADE_SEGUNDOS = 30 * 60
-const ESPERA_MS = 7000
+const VALIDADE_SEGUNDOS = 15 * 60
+const ESPERA_MS = 8000
+const TAMANHO_MAX = 2_000_000
 
-type Configuracao = { url: string; chave: string; fonte: string }
-
-function configuracao(): Configuracao | null {
-  const bruta = process.env.GBF_DESTAQUES_API_URL?.trim()
-  if (!bruta) return null
+function configuracao() {
+  const url = process.env.GBF_DESTAQUES_URL?.trim()
+  if (!url) return null
+  let endereco: URL
   try {
-    const url = new URL(bruta)
-    if (url.protocol !== 'https:' && url.protocol !== 'http:') return null
-    return {
-      url: url.toString(),
-      chave: process.env.GBF_DESTAQUES_API_CHAVE?.trim() ?? '',
-      fonte: process.env.GBF_DESTAQUES_FONTE?.trim() || url.hostname,
-    }
+    endereco = new URL(url)
   } catch {
+    console.error('[destaques] GBF_DESTAQUES_URL inválida')
     return null
+  }
+  const local = ['localhost', '127.0.0.1', '[::1]'].includes(endereco.hostname)
+  if (endereco.protocol !== 'https:' && !(local && endereco.protocol === 'http:')) {
+    console.error('[destaques] GBF_DESTAQUES_URL precisa usar https')
+    return null
+  }
+  return {
+    url: endereco.toString(),
+    fonte: process.env.GBF_DESTAQUES_FONTE?.trim() || undefined,
   }
 }
 
-async function buscar(): Promise<Destaques> {
-  const c = configuracao()
-  if (!c) throw new Error('destaques: API não configurada')
-  const cabecalhos: Record<string, string> = { Accept: 'application/json' }
-  if (c.chave) cabecalhos.Authorization = `Bearer ${c.chave}`
-  const resposta = await fetch(c.url, {
+async function buscar(url: string, fonte: string | undefined) {
+  const token = process.env.GBF_DESTAQUES_TOKEN?.trim()
+  const resposta = await fetch(url, {
     cache: 'no-store',
     signal: AbortSignal.timeout(ESPERA_MS),
-    headers: cabecalhos,
+    headers: {
+      Accept: 'application/json',
+      'User-Agent': 'GBFinancas/1.0 (+https://gbfinancas.vercel.app)',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   })
-  if (!resposta.ok) throw new Error(`destaques: HTTP ${resposta.status}`)
-  const dados = normalizar(await resposta.json(), {
-    fontePadrao: c.fonte,
-    hoje: hojeEmSaoPaulo(),
-  })
-  // Falha lança: assim ela não fica guardada por meia hora.
-  if (dados.situacao === 'indisponivel' && dados.motivo === 'falha')
-    throw new Error('destaques: resposta inválida')
-  return dados
+  if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`)
+  const texto = await resposta.text()
+  if (texto.length > TAMANHO_MAX) throw new Error('Resposta grande demais')
+  // Se falhar, lança: o erro não fica guardado e a próxima visita tenta de novo.
+  return calcularDestaques(JSON.parse(texto), { fonte })
 }
 
+// A chave inclui o endereço: trocar a API não reaproveita o resultado da anterior.
+// O token é lido dentro da busca e não entra na chave do cache.
 const emCache = unstable_cache(buscar, ['destaques-v1'], {
   revalidate: VALIDADE_SEGUNDOS,
   tags: ['destaques'],
 })
 
-/** Ativos em alta na semana, guardados por 30 minutos. Nunca lança. */
+/** Destaques da semana, guardados por 15 minutos. Nunca lança. */
 export async function obterDestaques(): Promise<Destaques> {
-  if (!configuracao()) return { situacao: 'indisponivel', motivo: 'nao-configurado' }
+  const config = configuracao()
+  if (!config) return { situacao: 'indisponivel', motivo: 'nao-configurado' }
   try {
-    return await emCache()
-  } catch {
-    return { situacao: 'indisponivel', motivo: 'falha' }
+    return await emCache(config.url, config.fonte)
+  } catch (e) {
+    console.error('[destaques]', e instanceof Error ? e.message : e)
+    return { situacao: 'indisponivel', motivo: 'falhou' }
   }
 }

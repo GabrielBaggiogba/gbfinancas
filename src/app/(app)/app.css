@@ -1640,168 +1640,6 @@ kbd {
   }
 }
 
-/* ---------- Faixa "Destaques da semana" ---------- */
-
-.faixa {
-  width: 100%;
-  max-width: 1360px;
-  margin-inline: auto;
-  padding: 2px clamp(16px, 3vw, 36px) 10px;
-}
-
-.faixa-corpo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 46px;
-  padding: 0 6px 0 16px;
-  border-radius: 16px;
-  background: var(--painel);
-  box-shadow:
-    inset 0 0 0 1px var(--linha),
-    var(--sombra-cartao);
-}
-
-.faixa-titulo {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.8125rem;
-  font-weight: 650;
-  letter-spacing: 0.01em;
-  color: var(--t2);
-}
-
-.faixa-estado {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 10px 10px 0;
-  font-size: 0.875rem;
-  line-height: 1.35;
-}
-
-/* A janela é um contêiner: cada lista ocupa pelo menos a largura dela, então a volta
-   nunca mostra um vazio, mesmo com poucos ativos. */
-.faixa-janela {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  container-type: inline-size;
-  border-radius: 8px;
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 20px,
-    #000 calc(100% - 20px),
-    transparent
-  );
-  mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
-}
-
-.faixa-rolo {
-  display: flex;
-  width: max-content;
-  animation: faixa-corre var(--faixa-tempo, 60s) linear infinite;
-}
-
-.faixa-janela:hover .faixa-rolo,
-.faixa-janela:focus-within .faixa-rolo,
-.faixa-janela:focus .faixa-rolo {
-  animation-play-state: paused;
-}
-
-.faixa-lista {
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  gap: 28px;
-  min-width: 100cqw;
-  padding: 0 14px;
-}
-
-.faixa-item {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  height: 46px;
-  line-height: 46px;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-.faixa-nome {
-  max-width: 18ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--t3);
-}
-
-/* Alta: seta e sinal de mais, além da cor. */
-.faixa-alta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-weight: 620;
-  font-variant-numeric: tabular-nums;
-  color: var(--ok);
-}
-
-.faixa-rodape {
-  padding: 6px 16px 0;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: var(--t3);
-}
-
-/* Parada (pelo botão): vira uma lista que se rola com o dedo ou o teclado. */
-.faixa-janela[data-parada='true'] {
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.faixa-janela[data-parada='true'] .faixa-rolo {
-  animation: none;
-}
-
-@keyframes faixa-corre {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (max-width: 760px) {
-  .faixa-corpo {
-    flex-wrap: wrap;
-    row-gap: 0;
-    padding: 4px 6px 4px 14px;
-  }
-  .faixa-titulo {
-    flex: 1;
-    min-height: 40px;
-  }
-  .faixa-janela,
-  .faixa-estado,
-  .faixa-corpo > [role='status'] {
-    order: 3;
-    flex: 1 0 100%;
-  }
-  .faixa-estado {
-    padding: 0 8px 10px 0;
-  }
-  .faixa-corpo > div[role='status'] {
-    padding-bottom: 12px;
-  }
-  .faixa-item {
-    height: 40px;
-    line-height: 40px;
-  }
-  .faixa-rodape {
-    padding-inline: 14px;
-  }
-}
-
 .gira {
   animation: gira 0.9s linear infinite;
 }
@@ -1933,20 +1771,231 @@ kbd {
     color: var(--t2);
     background: none;
   }
-  /* A faixa não corre: fica uma lista parada, que se rola à mão. */
-  .faixa-rolo {
-    animation: none !important;
-  }
-  .faixa-janela {
-    overflow-x: auto;
-    scrollbar-width: thin;
-  }
-  .faixa-copia,
-  .faixa-pausa {
-    display: none !important;
-  }
   .b:active:not(:disabled) {
     transform: none;
     opacity: 0.8;
+  }
+}
+
+/* ---------- Acompanhe o mercado ---------- */
+
+.fonte-util {
+  position: relative;
+  border-radius: 16px;
+  background: var(--painel2);
+  box-shadow: inset 0 0 0 1px var(--linha);
+  transition:
+    transform 0.35s var(--mola),
+    box-shadow 0.25s ease;
+}
+
+.fonte-util a {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+  color: inherit;
+}
+
+@media (hover: hover) {
+  .fonte-util:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 0 0 1px var(--linha2);
+  }
+  .fonte-util:hover .noticia-seta {
+    transform: translate(3px, -3px);
+    color: var(--gelo);
+  }
+}
+
+/* ---------- Faixa "Destaques da semana" ---------- */
+
+.ticker-area {
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  padding: 2px clamp(16px, 3vw, 36px) 6px;
+}
+
+.ticker {
+  border-radius: 18px;
+  background: var(--painel);
+  box-shadow:
+    inset 0 0 0 1px var(--linha),
+    var(--sombra-cartao);
+  padding: 4px 6px 8px 16px;
+}
+
+.ticker-linha {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 42px;
+}
+
+.ticker-titulo {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-right: 14px;
+  box-shadow: 1px 0 0 var(--linha);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+
+.ticker-titulo svg {
+  color: var(--gelo);
+}
+
+.ticker-janela {
+  /* Posicionada: o texto só para leitor de tela (absoluto) fica preso dentro dela. */
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  border-radius: 8px;
+}
+
+.ticker-janela::-webkit-scrollbar {
+  display: none;
+}
+
+.ticker-janela[data-movendo='true'] {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 28px,
+    #000 calc(100% - 28px),
+    transparent
+  );
+  mask-image: linear-gradient(90deg, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+
+.ticker-trilho {
+  display: flex;
+  width: max-content;
+}
+
+.ticker-janela[data-movendo='true'] .ticker-trilho {
+  animation: ticker-rola var(--duracao, 40s) linear infinite;
+}
+
+/* Parar para ler: ponteiro em cima ou foco dentro da faixa. */
+.ticker:hover .ticker-trilho,
+.ticker:focus-within .ticker-trilho {
+  animation-play-state: paused;
+}
+
+@keyframes ticker-rola {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-lista {
+  flex: none;
+  display: flex;
+  gap: 28px;
+  padding-right: 28px;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ticker-codigo {
+  font-weight: 680;
+  letter-spacing: 0.01em;
+}
+
+.ticker-nome {
+  font-size: 0.8125rem;
+  color: var(--t3);
+}
+
+.ticker-alta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  align-self: center;
+  font-weight: 640;
+  /* Um tom mais fechado no tema claro para manter o contraste do texto. */
+  color: color-mix(in srgb, var(--ok) 80%, var(--t1));
+}
+
+.ticker-aviso {
+  font-size: 0.875rem;
+  font-weight: 560;
+  color: var(--t2);
+}
+
+.ticker-botao {
+  flex: none;
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.ticker-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 14px;
+  padding-right: 10px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--t3);
+}
+
+.ticker-meta .selo {
+  height: 20px;
+  font-size: 0.6875rem;
+}
+
+@media (max-width: 760px) {
+  .ticker {
+    padding: 8px 6px 10px 14px;
+  }
+  .ticker-linha {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+  .ticker-titulo {
+    box-shadow: none;
+    padding-right: 0;
+    min-height: 34px;
+  }
+  .ticker-botao {
+    order: 2;
+    margin-left: auto;
+  }
+  .ticker-janela {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .ticker-nome {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-janela[data-movendo='true'] .ticker-trilho {
+    animation: none;
+  }
+  .fonte-util,
+  .fonte-util:hover {
+    transform: none;
   }
 }

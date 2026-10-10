@@ -1,84 +1,96 @@
 import { describe, expect, it } from 'vitest'
-import { formatarAlta, MAXIMO_DE_ATIVOS, normalizar } from './destaques'
+import { calcularDestaques, formatarVariacao } from './destaques'
 
-const opcoes = { fontePadrao: 'api.exemplo.com', hoje: '2026-10-09' }
+// Valores fictícios, só para testar as regras.
 const base = {
-  fonte: 'Provedor',
-  inicio: '2026-10-05',
-  fim: '2026-10-09',
-  atualizado_em: '2026-10-09T21:05:00Z',
-  ativos: [
-    { codigo: 'aaaa3', nome: 'Empresa A', variacao: 2.5 },
-    { codigo: 'BBBB4', variacao: 7.125 },
-    { codigo: 'CCCC3', variacao: -3 },
-    { codigo: 'DDDD3', variacao: 0 },
-  ],
+  fonte: 'API de teste',
+  periodo: { inicio: '2026-10-02', fim: '2026-10-09' },
+  atualizado_em: '2026-10-09T18:30:00-03:00',
 }
 
-describe('normalizar', () => {
-  it('fica só com as altas, da maior para a menor', () => {
-    expect(normalizar(base, opcoes)).toEqual({
-      situacao: 'ok',
+describe('calcularDestaques', () => {
+  it('calcula pela variação dos fechamentos, só altas, da maior para a menor', () => {
+    const r = calcularDestaques({
+      ...base,
       ativos: [
-        { codigo: 'BBBB4', nome: null, variacao: 7.125 },
-        { codigo: 'AAAA3', nome: 'Empresa A', variacao: 2.5 },
+        { codigo: 'aaa3', fechamento_inicial: 10, fechamento_final: 11 },
+        { codigo: 'BBB4', nome: 'Bê', fechamento_inicial: 20, fechamento_final: 25 },
+        { codigo: 'CCC3', fechamento_inicial: 10, fechamento_final: 9 },
+        { codigo: 'DDD3', variacao_pct: 3.456 },
+        { codigo: 'EEE3', variacao_pct: 0 },
       ],
-      inicio: '2026-10-05',
-      fim: '2026-10-09',
-      fonte: 'Provedor',
-      atualizado_em: '2026-10-09T21:05:00Z',
     })
+    expect(r.situacao).toBe('ok')
+    if (r.situacao !== 'ok') return
+    expect(r.itens).toEqual([
+      { codigo: 'BBB4', nome: 'Bê', variacao_pct: 25 },
+      { codigo: 'AAA3', nome: null, variacao_pct: 10 },
+      { codigo: 'DDD3', nome: null, variacao_pct: 3.46 },
+    ])
+    expect(r.atualizado_em).toBe('2026-10-09T21:30:00.000Z')
   })
 
-  it('usa a fonte padrão quando a resposta não informa', () => {
-    const d = normalizar({ ...base, fonte: undefined }, opcoes)
-    expect(d.situacao === 'ok' && d.fonte).toBe('api.exemplo.com')
+  it('prefere os fechamentos à variação pronta e ignora código repetido', () => {
+    const r = calcularDestaques({
+      ...base,
+      ativos: [
+        { codigo: 'AAA3', fechamento_inicial: 10, fechamento_final: 12, variacao_pct: 99 },
+        { codigo: 'aaa3', variacao_pct: 50 },
+      ],
+    })
+    expect(r.situacao === 'ok' && r.itens).toEqual([
+      { codigo: 'AAA3', nome: null, variacao_pct: 20 },
+    ])
   })
 
-  it('ignora itens inválidos e códigos repetidos', () => {
-    const d = normalizar(
-      {
+  it('respeita o limite e permite trocar o nome da fonte', () => {
+    const ativos = Array.from({ length: 15 }, (_, i) => ({ codigo: `X${i}`, variacao_pct: i + 1 }))
+    const r = calcularDestaques({ ...base, ativos }, { limite: 5, fonte: 'Minha fonte' })
+    expect(r.situacao === 'ok' && r.itens.map((d) => d.codigo)).toEqual([
+      'X14',
+      'X13',
+      'X12',
+      'X11',
+      'X10',
+    ])
+    expect(r.situacao === 'ok' && r.fonte).toBe('Minha fonte')
+  })
+
+  it('sem nenhuma alta, diz isso em vez de mostrar quedas', () => {
+    const r = calcularDestaques({ ...base, ativos: [{ codigo: 'A', variacao_pct: -2 }] })
+    expect(r.situacao).toBe('sem-alta')
+  })
+
+  it('recusa período que não é semanal e resposta fora do formato', () => {
+    expect(() =>
+      calcularDestaques({
         ...base,
-        ativos: [
-          { codigo: 'AAAA3', variacao: 1 },
-          { codigo: 'aaaa3', variacao: 4 },
-          { codigo: '', variacao: 9 },
-          { codigo: 'EEEE3', variacao: '5' },
-          { codigo: 'FFFF3', variacao: Infinity },
-          null,
-        ],
-      },
-      opcoes,
-    )
-    expect(d.situacao === 'ok' && d.ativos).toEqual([{ codigo: 'AAAA3', nome: null, variacao: 4 }])
-  })
-
-  it('limita a quantidade de ativos', () => {
-    const ativos = Array.from({ length: 40 }, (_, i) => ({ codigo: `X${i}`, variacao: i + 1 }))
-    const d = normalizar({ ...base, ativos }, opcoes)
-    expect(d.situacao === 'ok' && d.ativos.length).toBe(MAXIMO_DE_ATIVOS)
-    expect(d.situacao === 'ok' && d.ativos[0].codigo).toBe('X39')
-  })
-
-  it('avisa quando nenhum ativo subiu', () => {
-    const d = normalizar({ ...base, ativos: [{ codigo: 'CCCC3', variacao: -3 }] }, opcoes)
-    expect(d).toEqual({ situacao: 'indisponivel', motivo: 'sem-altas' })
-  })
-
-  it('recusa resposta incompleta, período maior que uma semana ou dados antigos', () => {
-    const falha = { situacao: 'indisponivel', motivo: 'falha' }
-    expect(normalizar(null, opcoes)).toEqual(falha)
-    expect(normalizar({ ...base, atualizado_em: 'ontem' }, opcoes)).toEqual(falha)
-    expect(normalizar({ ...base, inicio: '2026-02-30' }, opcoes)).toEqual(falha)
-    expect(normalizar({ ...base, inicio: '2026-09-01' }, opcoes)).toEqual(falha)
-    expect(normalizar({ ...base, inicio: '2026-10-09' }, opcoes)).toEqual(falha)
-    expect(normalizar(base, { ...opcoes, hoje: '2026-10-17' })).toEqual(falha)
+        periodo: { inicio: '2026-09-01', fim: '2026-10-09' },
+        ativos: [],
+      }),
+    ).toThrow(/Período/)
+    expect(() =>
+      calcularDestaques({
+        ...base,
+        periodo: { inicio: '2026-10-09', fim: '2026-10-09' },
+        ativos: [],
+      }),
+    ).toThrow(/Período/)
+    expect(() => calcularDestaques({ ...base, ativos: [{ codigo: 'A' }] })).toThrow(/formato/)
+    expect(() => calcularDestaques({ ativos: [] })).toThrow(/formato/)
+    expect(() =>
+      calcularDestaques({
+        ...base,
+        ativos: [{ codigo: 'A', fechamento_inicial: 0, fechamento_final: 1 }],
+      }),
+    ).toThrow(/formato/)
   })
 })
 
-describe('formatarAlta', () => {
-  it('usa vírgula, duas casas e o sinal de mais', () => {
-    expect(formatarAlta(4.3)).toBe('+4,30%')
-    expect(formatarAlta(12)).toBe('+12,00%')
+describe('formatarVariacao', () => {
+  it('usa vírgula, duas casas e sinal', () => {
+    expect(formatarVariacao(6.3)).toBe('+6,30%')
+    expect(formatarVariacao(12.345)).toBe('+12,35%')
+    expect(formatarVariacao(-1.5)).toBe('−1,50%')
   })
 })

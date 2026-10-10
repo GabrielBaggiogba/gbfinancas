@@ -16,8 +16,8 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Relatórios**: mensal, anual e comparação entre dois meses; 10 maiores despesas, categorias que mais cresceram, evolução do patrimônio, CSV e impressão em PDF.
 - **Configurações**: tema (sistema, escuro, claro), modo compacto, ocultar valores, categorias e subcategorias, backup e restauração, importação de CSV.
 - **Notícias**: manchetes de finanças e investimentos lidas dos feeds públicos (RSS) de portais brasileiros, com filtro por tema e fonte. O servidor guarda o resultado por 30 minutos e renova sozinho; cada notícia abre no site de origem. As fontes ficam em `src/features/noticias/fontes.ts`.
-- **Acompanhe o mercado**: na tela de Notícias, links para sites de notícias, cotações e gráficos. Abrem em nova aba e ficam em `src/features/mercado/links.ts`.
-- **Destaques da semana**: faixa no topo com os ativos de maior alta percentual na semana, o período, a fonte e a hora da atualização. Pode ser pausada e não corre para quem pede menos movimento no sistema. Depende de uma API de cotações (veja abaixo); sem ela, mostra "Dados semanais indisponíveis".
+- **Acompanhe o mercado**: no topo da tela Notícias, atalhos para InfoMoney, Valor, B3, Investing.com, TradingView e Forbes. São só links, abertos em nova aba; nada desses sites é lido pelo app. A lista fica em `src/features/mercado/fontes-uteis.ts`.
+- **Destaques da semana**: faixa no topo de todas as telas da área logada com os ativos de maior alta percentual no período semanal, a fonte, o período e o horário da atualização. Os dados vêm de uma API que você configura (veja abaixo); sem ela, a faixa mostra "Dados semanais indisponíveis". O movimento é lento, para ao passar o mouse ou focar, tem botão de pausa e fica parado para quem pede menos movimento no sistema.
 - **Atalhos**: `N` novo lançamento, `/` busca, `Esc` fecha painéis.
 
 ## Stack
@@ -68,28 +68,34 @@ Os valores ficam no banco em reais com duas casas (`numeric`). O app trabalha em
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | chave pública (anon ou publishable)                     | Supabase → Settings → API Keys |
 | `NEXT_PUBLIC_SITE_URL`          | opcional: origem usada no link de confirmação de e-mail | o endereço do site             |
 | `GBF_MODO_DEMO`                 | opcional: `1` liga o modo demonstração                  | só em desenvolvimento          |
-
-| `GBF_DESTAQUES_API_URL`         | opcional: endereço da API de cotações da faixa do topo  | o provedor de dados escolhido  |
-| `GBF_DESTAQUES_API_CHAVE`       | opcional: chave enviada em `Authorization: Bearer`      | o provedor de dados escolhido  |
-| `GBF_DESTAQUES_FONTE`           | opcional: nome da fonte mostrado na faixa               | você escolhe                   |
+| `GBF_DESTAQUES_URL`             | opcional: API dos destaques da semana (https)           | seu provedor de cotações       |
+| `GBF_DESTAQUES_TOKEN`           | opcional: enviado como `Authorization: Bearer`          | seu provedor de cotações       |
+| `GBF_DESTAQUES_FONTE`           | opcional: nome da fonte exibido na faixa                | você escolhe                   |
 
 A chave `service_role` não é usada em lugar nenhum.
 
-## Destaques da semana
+## API dos destaques da semana
 
-O projeto não traz cotações próprias e não lê as páginas dos sites de mercado. A faixa do topo chama, pelo servidor, o endereço em `GBF_DESTAQUES_API_URL` e espera um JSON assim:
+O app não tem cotações próprias e não lê páginas de sites de mercado. A faixa consulta `GBF_DESTAQUES_URL` (a cada 15 minutos, no servidor) e espera este JSON:
 
 ```json
 {
   "fonte": "Nome do provedor",
-  "inicio": "2026-10-05",
-  "fim": "2026-10-09",
-  "atualizado_em": "2026-10-09T21:05:00Z",
-  "ativos": [{ "codigo": "XXXX3", "nome": "Empresa", "variacao": 4.32 }]
+  "periodo": { "inicio": "2026-10-02", "fim": "2026-10-09" },
+  "atualizado_em": "2026-10-09T18:30:00-03:00",
+  "ativos": [
+    { "codigo": "ABCD3", "nome": "Empresa", "fechamento_inicial": 10.0, "fechamento_final": 10.5 },
+    { "codigo": "WXYZ4", "variacao_pct": 3.2 }
+  ]
 }
 ```
 
-`variacao` é a variação percentual do ativo entre `inicio` e `fim` (4.32 = +4,32%). `nome` e `fonte` são opcionais; sem `fonte`, vale `GBF_DESTAQUES_FONTE` ou o domínio da API. A faixa mostra as 12 maiores variações positivas, guarda a resposta por 30 minutos e fica em "Dados semanais indisponíveis" quando a API não está configurada, não responde, manda um período maior que 7 dias ou dados com mais de 7 dias. Se o provedor escolhido usa outro formato, a conversão cabe em `src/features/mercado/servidor.ts`.
+- `periodo`: a semana considerada. `inicio` é o fechamento de referência e `fim` o último fechamento; entre os dois, de 1 a 7 dias corridos. Fora disso a resposta é recusada.
+- Cada ativo traz `fechamento_inicial` e `fechamento_final` (o app calcula a variação) ou `variacao_pct` já pronta, em %.
+- "Em alta na semana" = variação positiva. A faixa mostra os 10 maiores, do maior para o menor. Se nenhum subiu, ela diz isso.
+- Resposta fora do formato, erro ou demora acima de 8 s: a faixa mostra "Dados semanais indisponíveis" e o motivo vai para o log do servidor.
+
+Qualquer serviço que monte esse JSON serve: uma função sua sobre a API do seu provedor de cotações (brapi.dev, Alpha Vantage, a da sua corretora) ou um arquivo JSON publicado por um job diário. As regras ficam em `src/features/mercado/destaques.ts`.
 
 ## Deploy
 
@@ -101,7 +107,7 @@ Push na `main` publica automaticamente na Vercel. Pull Requests geram uma URL de
 - `src/app/login`, `src/app/auth`: acesso
 - `src/features/financas`: tipos, validação (`esquemas.ts`), regras financeiras (`calculos.ts`), ações do servidor, armazenamento (`servidor/`) e telas (`telas/`)
 - `src/features/noticias`: fontes, leitor de RSS e Atom, classificação por tema e telas
-- `src/features/mercado`: links de mercado e a faixa de destaques da semana
+- `src/features/mercado`: links de mercado e faixa de destaques da semana
 - `src/features/auth`: login, cadastro e sessão
 - `src/components/app`: casca, painéis, campos, menus e avisos
 - `src/components/graficos`: gráficos em SVG

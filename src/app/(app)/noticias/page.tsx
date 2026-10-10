@@ -5,9 +5,9 @@ import { obterNoticias } from '@/features/noticias/servidor'
 export default async function Pagina() {
   const dados = await obterNoticias()
   return (
-    <div className="grid gap-[calc(var(--vao)*2)]">
-      <Noticias dados={dados} agora={Date.now()} />
+    <div className="grid gap-[var(--vao)]">
       <AcompanheOMercado />
+      <Noticias dados={dados} agora={Date.now()} />
     </div>
   )
 }

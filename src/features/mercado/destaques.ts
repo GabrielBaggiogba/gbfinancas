@@ -1,80 +1,114 @@
 import { z } from 'zod'
 import { dataValida, diasEntre } from '@/lib/datas'
-import type { AtivoEmAlta, Destaques } from './tipos'
 
-// Confere e ordena o que a API de cotações devolve. Nenhum número nasce aqui: o que
-// não passar na conferência vira "indisponível" em vez de aparecer na faixa.
+// Destaques da semana: os ativos com maior alta percentual no período semanal.
+//
+// O app não tem cotações próprias e não lê páginas de terceiros. Os dados vêm de
+// uma API configurada em GBF_DESTAQUES_URL, que responde no formato abaixo
+// (documentado também no README). O app só filtra, ordena e exibe.
+
+const data = z.string().refine(dataValida, 'data no formato AAAA-MM-DD')
+
+const ativo = z
+  .object({
+    codigo: z.string().trim().min(1).max(20),
+    nome: z.string().trim().max(80).optional(),
+    /** Fechamento no início do período (último pregão antes da semana). */
+    fechamento_inicial: z.number().positive().finite().optional(),
+    /** Fechamento no fim do período. */
+    fechamento_final: z.number().positive().finite().optional(),
+    /** Variação já calculada pela fonte, em %. Usada só sem os dois fechamentos. */
+    variacao_pct: z.number().finite().optional(),
+  })
+  .refine(
+    (a) =>
+      (a.fechamento_inicial !== undefined && a.fechamento_final !== undefined) ||
+      a.variacao_pct !== undefined,
+    'informe fechamento_inicial e fechamento_final, ou variacao_pct',
+  )
+
+export const esquemaRespostaDestaques = z.object({
+  fonte: z.string().trim().min(1).max(80),
+  periodo: z.object({ inicio: data, fim: data }),
+  atualizado_em: z.string().datetime({ offset: true }),
+  ativos: z.array(ativo).max(2000),
+})
+
+export type RespostaDestaques = z.infer<typeof esquemaRespostaDestaques>
+
+export type Destaque = { codigo: string; nome: string | null; variacao_pct: number }
+
+export type Destaques =
+  | {
+      situacao: 'ok'
+      fonte: string
+      periodo: { inicio: string; fim: string }
+      atualizado_em: string
+      itens: Destaque[]
+    }
+  | {
+      situacao: 'sem-alta'
+      fonte: string
+      periodo: { inicio: string; fim: string }
+      atualizado_em: string
+      itens: []
+    }
+  | { situacao: 'indisponivel'; motivo: 'nao-configurado' | 'falhou' }
 
 /** Quantos ativos a faixa mostra. */
-export const MAXIMO_DE_ATIVOS = 12
-/** O período informado pela API precisa caber em uma semana. */
-const DIAS_DO_PERIODO = 7
-/** Passado isso do fim do período, os dados já não são "da semana". */
-const DIAS_DE_VALIDADE = 7
-
-const dia = z.string().refine(dataValida)
-
-const resposta = z.object({
-  fonte: z.string().trim().min(1).max(60).optional(),
-  inicio: dia,
-  fim: dia,
-  atualizado_em: z.string().datetime({ offset: true }),
-  ativos: z.array(z.unknown()).max(1000),
-})
-
-const ativo = z.object({
-  codigo: z.string().trim().min(1).max(12),
-  nome: z.string().trim().max(60).nullish(),
-  variacao: z.number().finite(),
-})
-
-const FALHA: Destaques = { situacao: 'indisponivel', motivo: 'falha' }
+export const LIMITE_DESTAQUES = 10
+/** Semana: de 1 a 7 dias corridos entre o início e o fim do período. */
+export const DIAS_MAX_PERIODO = 7
 
 /**
- * "Em alta na semana" são os ativos com maior variação percentual positiva no período
- * informado pela API, do maior para o menor.
+ * Valida a resposta da API e escolhe os destaques: só variação positiva, da maior
+ * para a menor, com no máximo `limite` ativos. Um código repetido conta uma vez.
  */
-export function normalizar(
+export function calcularDestaques(
   bruto: unknown,
-  { fontePadrao, hoje }: { fontePadrao: string; hoje: string },
+  opcoes: { fonte?: string; limite?: number } = {},
 ): Destaques {
-  const r = resposta.safeParse(bruto)
-  if (!r.success) return FALHA
-  const { inicio, fim, atualizado_em } = r.data
+  const lido = esquemaRespostaDestaques.safeParse(bruto)
+  if (!lido.success) throw new Error(`Resposta fora do formato: ${lido.error.issues[0]?.message}`)
+  const { periodo, atualizado_em, ativos } = lido.data
 
-  const duracao = diasEntre(inicio, fim)
-  if (duracao < 1 || duracao > DIAS_DO_PERIODO) return FALHA
-  if (diasEntre(fim, hoje) > DIAS_DE_VALIDADE) return FALHA
+  const dias = diasEntre(periodo.inicio, periodo.fim)
+  if (dias < 1 || dias > DIAS_MAX_PERIODO)
+    throw new Error(`Período de ${dias} dias; o esperado é uma semana (1 a 7 dias).`)
 
-  const porCodigo = new Map<string, AtivoEmAlta>()
-  for (const item of r.data.ativos) {
-    const a = ativo.safeParse(item)
-    if (!a.success || a.data.variacao <= 0) continue
-    const codigo = a.data.codigo.toUpperCase()
-    const anterior = porCodigo.get(codigo)
-    if (anterior && anterior.variacao >= a.data.variacao) continue
-    porCodigo.set(codigo, { codigo, nome: a.data.nome || null, variacao: a.data.variacao })
+  const vistos = new Set<string>()
+  const itens: Destaque[] = []
+  for (const a of ativos) {
+    const codigo = a.codigo.toUpperCase()
+    if (vistos.has(codigo)) continue
+    vistos.add(codigo)
+    const variacao =
+      a.fechamento_inicial !== undefined && a.fechamento_final !== undefined
+        ? (a.fechamento_final / a.fechamento_inicial - 1) * 100
+        : (a.variacao_pct as number)
+    const arredondada = Math.round(variacao * 100) / 100
+    if (arredondada > 0) itens.push({ codigo, nome: a.nome || null, variacao_pct: arredondada })
   }
-  if (porCodigo.size === 0) return { situacao: 'indisponivel', motivo: 'sem-altas' }
+  itens.sort((x, y) => y.variacao_pct - x.variacao_pct || x.codigo.localeCompare(y.codigo))
 
-  const ativos = Array.from(porCodigo.values())
-    .sort((a, b) => b.variacao - a.variacao || a.codigo.localeCompare(b.codigo))
-    .slice(0, MAXIMO_DE_ATIVOS)
+  const base = {
+    fonte: opcoes.fonte?.trim() || lido.data.fonte,
+    periodo,
+    atualizado_em: new Date(atualizado_em).toISOString(),
+  }
+  if (itens.length === 0) return { situacao: 'sem-alta', ...base, itens: [] }
   return {
     situacao: 'ok',
-    ativos,
-    inicio,
-    fim,
-    fonte: r.data.fonte ?? fontePadrao,
-    atualizado_em,
+    ...base,
+    itens: itens.slice(0, opcoes.limite ?? LIMITE_DESTAQUES),
   }
 }
 
-/** "+4,32%" */
-export function formatarAlta(variacao: number): string {
-  const numero = variacao.toLocaleString('pt-BR', {
+/** 6.3 -> "+6,30%" */
+export function formatarVariacao(p: number): string {
+  const texto = Math.abs(p).toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
-  return `+${numero}%`
+  return `${p < 0 ? '−' : '+'}${texto}%`
 }

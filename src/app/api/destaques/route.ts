@@ -3,9 +3,10 @@ import { obterDestaques } from '@/features/mercado/servidor'
 
 export const dynamic = 'force-dynamic'
 
-// Ativos em alta na semana, para a faixa do topo. Só dados de mercado, nada do usuário.
+// Destaques da semana para a faixa do topo. Só para quem está logado (middleware).
 export async function GET() {
-  return NextResponse.json(await obterDestaques(), {
-    headers: { 'Cache-Control': 'private, max-age=300' },
+  const destaques = await obterDestaques()
+  return NextResponse.json(destaques, {
+    headers: { 'Cache-Control': 'private, max-age=60' },
   })
 }
