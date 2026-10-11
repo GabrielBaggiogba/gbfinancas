@@ -75,7 +75,8 @@ export default function Calculadora() {
                 <input
                   ref={campo}
                   className="num"
-                  inputMode="decimal"
+                  // Sem teclado virtual: no celular a conta é feita nas teclas da calculadora.
+                  inputMode="none"
                   autoComplete="off"
                   spellCheck={false}
                   aria-label="Conta"
