@@ -97,9 +97,8 @@ input {
   overflow: hidden;
 }
 
-.palco-auth .fumaca {
+.palco-auth .fundo-auth {
   z-index: -1;
-  opacity: 0.55;
 }
 
 .cartao-vidro {
@@ -124,6 +123,101 @@ input {
 
 .cartao-vidro .caixa {
   background: rgba(255, 255, 255, 0.06);
+}
+
+/* Selo redondo com a marca, no topo do cartão. */
+.selo-marca {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(42, 168, 234, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(154, 220, 255, 0.18);
+}
+
+/* Campo com rótulo flutuante e luz que segue o ponteiro. */
+.campo-flutua {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 8px 0 46px;
+  overflow: hidden;
+}
+
+.campo-flutua .campo-icone {
+  position: absolute;
+  left: 16px;
+  display: flex;
+  color: var(--t3);
+  transition: color 0.2s ease;
+}
+
+.campo-flutua:focus-within .campo-icone {
+  color: var(--gelo);
+}
+
+.campo-flutua input {
+  height: 100%;
+  padding-top: 16px;
+  font-size: 1.0625rem;
+}
+
+.campo-flutua label {
+  position: absolute;
+  left: 46px;
+  top: 50%;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  color: var(--t3);
+  font-size: 1rem;
+  pointer-events: none;
+  transition:
+    top 0.2s var(--saida),
+    transform 0.2s var(--saida),
+    color 0.2s ease;
+}
+
+.campo-flutua input:focus ~ label,
+.campo-flutua input:not(:placeholder-shown) ~ label,
+.campo-flutua input:autofill ~ label {
+  top: 17px;
+  transform: translateY(-50%) scale(0.76);
+  color: var(--gelo);
+  font-weight: 550;
+}
+
+.campo-flutua::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    200px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(42, 168, 234, 0.14),
+    transparent 70%
+  );
+  transition: opacity 0.3s ease;
+}
+
+@media (hover: hover) {
+  .campo-flutua:hover::after {
+    opacity: 1;
+  }
+}
+
+.elo {
+  color: var(--gelo);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .elo:hover {
+    text-decoration: underline;
+  }
 }
 
 .seta-btn {

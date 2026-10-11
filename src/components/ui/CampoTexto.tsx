@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { InputHTMLAttributes, PointerEvent, ReactNode } from 'react'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   id: string
@@ -9,6 +9,8 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
   icone?: ReactNode
 }
 
+// Campo com rótulo flutuante e luz que segue o ponteiro (adaptado do sign-in-flo do
+// 21st.dev). O rótulo sobe por CSS quando o campo tem foco ou valor.
 export default function CampoTexto({
   id,
   rotulo,
@@ -20,23 +22,27 @@ export default function CampoTexto({
   ...resto
 }: Props) {
   const descricao = erro ? `${id}-erro` : legenda ? `${id}-legenda` : undefined
+  const mover = (e: PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
+    e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
+  }
   return (
     <div className={className}>
-      <label
-        htmlFor={id}
-        className="mb-2 flex items-center gap-2 text-[.8125rem] font-[550] leading-[1.3] tracking-[.01em] text-t2"
+      <div
+        className="caixa campo-flutua"
+        data-erro={erro ? 'true' : undefined}
+        onPointerMove={mover}
       >
-        {icone}
-        {rotulo}
-      </label>
-      <div className="caixa flex h-14 items-center pl-4 pr-2" data-erro={erro ? 'true' : undefined}>
+        {icone && <span className="campo-icone">{icone}</span>}
         <input
           id={id}
-          className="h-full text-[1.0625rem]"
+          placeholder=" "
           aria-invalid={erro ? true : undefined}
           aria-describedby={descricao}
           {...resto}
         />
+        <label htmlFor={id}>{rotulo}</label>
         {acao}
       </div>
       {erro ? (

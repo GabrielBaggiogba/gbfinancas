@@ -15,9 +15,9 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Recorrentes**: semanal, mensal ou anual, com próximo vencimento, status e fluxo de caixa previsto para 90 dias.
 - **Relatórios**: mensal, anual e comparação entre dois meses; 10 maiores despesas, categorias que mais cresceram, evolução do patrimônio, CSV e impressão em PDF.
 - **Configurações**: tema (sistema, escuro, claro), modo compacto, ocultar valores, categorias e subcategorias, backup e restauração, importação de CSV.
-- **Notícias**: manchetes de finanças e investimentos lidas dos feeds públicos (RSS) de portais brasileiros, com filtro por tema e fonte. O servidor guarda o resultado por 30 minutos e renova sozinho; cada notícia abre no site de origem. As fontes ficam em `src/features/noticias/fontes.ts`.
 - **Mercado**: "O que está relevante hoje?" com as 5 maiores altas e baixas do último pregão, ranking de ações (valor de mercado, mais negociadas, small caps), tabela de todas as ações da B3 com busca, setor e ordenação, e a seção "Acompanhe o mercado" com links para InfoMoney, Valor, B3, Investing.com, TradingView e Forbes. Cada ativo abre o gráfico no TradingView.
-- **Faixa do topo**: altas e baixas do dia passando em uma linha em todas as telas da área logada. Anda devagar, para ao passar o mouse ou focar, tem botão de pausa e fica parada (e rolável) para quem pede menos movimento no sistema.
+- **Faixa de altas e baixas**: passa em uma linha no topo da tela Mercado. Anda devagar, para ao passar o mouse ou focar, tem botão de pausa e fica parada (e rolável) para quem pede menos movimento no sistema.
+- **Calculadora**: botão no canto inferior direito de todas as telas; abre uma janela flutuante que aceita vírgula, parênteses e porcentagem (`200 + 10%` dá 220).
 - **Atalhos**: `N` novo lançamento, `/` busca, `Esc` fecha painéis.
 
 ## Stack
@@ -95,8 +95,7 @@ Push na `main` publica automaticamente na Vercel. Pull Requests geram uma URL de
 - `src/app/(app)`: área logada (layout com os dados, uma pasta por tela)
 - `src/app/login`, `src/app/auth`: acesso
 - `src/features/financas`: tipos, validação (`esquemas.ts`), regras financeiras (`calculos.ts`), ações do servidor, armazenamento (`servidor/`) e telas (`telas/`)
-- `src/features/noticias`: fontes, leitor de RSS e Atom, classificação por tema e telas
-- `src/features/mercado`: cotações (brapi.dev), rankings, faixa do topo e links de mercado
+- `src/features/mercado`: cotações (brapi.dev), rankings, faixa de altas e baixas e links de mercado
 - `src/features/auth`: login, cadastro e sessão
 - `src/components/app`: casca, painéis, campos, menus e avisos
 - `src/components/graficos`: gráficos em SVG
