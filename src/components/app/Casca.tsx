@@ -38,6 +38,7 @@ import { usePreferencias } from './Preferencias'
 type Destino = { href: string; rotulo: string; icone: LucideIcon }
 
 const NAVEGACAO: Destino[] = [
+  { href: '/comece-aqui', rotulo: 'Comece aqui', icone: CirclePlay },
   { href: '/', rotulo: 'Dashboard', icone: LayoutDashboard },
   { href: '/lancamentos', rotulo: 'Lançamentos', icone: ArrowLeftRight },
   { href: '/contas', rotulo: 'Contas', icone: Landmark },
@@ -47,9 +48,13 @@ const NAVEGACAO: Destino[] = [
   { href: '/recorrentes', rotulo: 'Recorrentes', icone: Repeat },
   { href: '/relatorios', rotulo: 'Relatórios', icone: ChartColumn },
   { href: '/mercado', rotulo: 'Mercado', icone: ChartCandlestick },
-  { href: '/comece-aqui', rotulo: 'Comece aqui', icone: CirclePlay },
   { href: '/configuracoes', rotulo: 'Configurações', icone: Settings },
 ]
+
+// No celular, três telas ficam na barra de baixo e o resto vai para a folha "Mais".
+const NO_DOCK = ['/', '/lancamentos', '/cartoes']
+const [INICIO, LANCAMENTOS, CARTOES] = NO_DOCK.map((h) => NAVEGACAO.find((d) => d.href === h)!)
+const EM_MAIS = NAVEGACAO.filter((d) => !NO_DOCK.includes(d.href))
 
 const noCampo = (alvo: EventTarget | null) =>
   alvo instanceof HTMLElement &&
@@ -63,7 +68,7 @@ export default function Casca({ children }: { children: ReactNode }) {
   const { ocultar, definir } = usePreferencias()
   const [mais, setMais] = useState(false)
   const [onda, setOnda] = useState(0)
-  const atual = NAVEGACAO.find((d) => d.href === caminho) ?? NAVEGACAO[0]
+  const atual = NAVEGACAO.find((d) => d.href === caminho) ?? INICIO
 
   // Atalhos: N abre um lançamento, / vai para a busca. Esc fecha painéis (em cada painel).
   useEffect(() => {
@@ -196,7 +201,7 @@ export default function Casca({ children }: { children: ReactNode }) {
         </div>
 
         <nav className="dock" aria-label="Navegação">
-          {NAVEGACAO.slice(0, 2).map((d) => (
+          {[INICIO, LANCAMENTOS].map((d) => (
             <ItemDoDock key={d.href} destino={d} ativo={d.href === caminho} />
           ))}
           <div className="grid place-items-center">
@@ -213,15 +218,11 @@ export default function Casca({ children }: { children: ReactNode }) {
               <Plus size={24} aria-hidden="true" />
             </button>
           </div>
-          <ItemDoDock destino={NAVEGACAO[3]} ativo={caminho === '/cartoes'} />
+          <ItemDoDock destino={CARTOES} ativo={caminho === '/cartoes'} />
           <button
             type="button"
             className="dock-item"
-            aria-current={
-              NAVEGACAO.slice(2).some((d) => d.href === caminho && d.href !== '/cartoes')
-                ? 'page'
-                : undefined
-            }
+            aria-current={EM_MAIS.some((d) => d.href === caminho) ? 'page' : undefined}
             onClick={() => setMais(true)}
           >
             <Ellipsis size={21} aria-hidden="true" />
@@ -231,7 +232,7 @@ export default function Casca({ children }: { children: ReactNode }) {
 
         <Folha aberta={mais} aoFechar={() => setMais(false)} titulo="Mais">
           <div className="grid grid-cols-2 gap-2 pb-2">
-            {NAVEGACAO.slice(2).map((d, i) => (
+            {EM_MAIS.map((d, i) => (
               <motion.div
                 key={d.href}
                 initial={{ opacity: 0, y: 12 }}
