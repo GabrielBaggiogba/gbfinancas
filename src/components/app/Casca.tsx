@@ -8,6 +8,7 @@ import {
   ChartCandlestick,
   ChartColumn,
   ChartPie,
+  CirclePlay,
   CreditCard,
   Ellipsis,
   Eye,
@@ -46,6 +47,7 @@ const NAVEGACAO: Destino[] = [
   { href: '/recorrentes', rotulo: 'Recorrentes', icone: Repeat },
   { href: '/relatorios', rotulo: 'Relatórios', icone: ChartColumn },
   { href: '/mercado', rotulo: 'Mercado', icone: ChartCandlestick },
+  { href: '/comece-aqui', rotulo: 'Comece aqui', icone: CirclePlay },
   { href: '/configuracoes', rotulo: 'Configurações', icone: Settings },
 ]
 

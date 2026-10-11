@@ -17,6 +17,7 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Configurações**: tema (sistema, escuro, claro), modo compacto, ocultar valores, categorias e subcategorias, backup e restauração, importação de CSV.
 - **Mercado**: "O que está relevante hoje?" com as 5 maiores altas e baixas do último pregão, ranking de ações (valor de mercado, mais negociadas, small caps), tabela de todas as ações da B3 com busca, setor e ordenação, e a seção "Acompanhe o mercado" com links para InfoMoney, Valor, B3, Investing.com, TradingView e Forbes. Cada ativo abre o gráfico no TradingView.
 - **Faixa de altas e baixas**: passa em uma linha no topo da tela Mercado. Anda devagar, para ao passar o mouse ou focar, tem botão de pausa e fica parada (e rolável) para quem pede menos movimento no sistema.
+- **Comece aqui**: vídeo narrado de dois minutos que apresenta cada tela, com legendas e capítulos clicáveis. A fonte do vídeo fica em `video/`.
 - **Calculadora**: botão no canto inferior direito de todas as telas; abre uma janela flutuante que aceita vírgula, parênteses e porcentagem (`200 + 10%` dá 220).
 - **Atalhos**: `N` novo lançamento, `/` busca, `Esc` fecha painéis.
 

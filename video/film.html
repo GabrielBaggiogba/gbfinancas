@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: HG; src: url(fonte.woff2); font-weight: 100 900; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; overflow: hidden; }
+#palco { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #000; font-family: HG, sans-serif; color: #eef1f5; }
+#brilho { position: absolute; inset: -20%; z-index: 0; }
+.tela { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; visibility: hidden; }
+.tela img { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; display: block; }
+.anel { position: absolute; border: 3px solid #9adcff; z-index: 3; visibility: hidden; }
+#sombra { position: absolute; left: 0; right: 0; bottom: 0; height: 330px; z-index: 40; background: linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.88) 50%, rgba(0,0,0,0) 100%); }
+#legenda { position: absolute; left: 160px; right: 160px; bottom: 54px; z-index: 41; text-align: center; }
+#capitulo { display: inline-block; font-size: 22px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #9adcff; margin-bottom: 14px; }
+#fala { font-size: 44px; line-height: 1.22; font-weight: 620; letter-spacing: -.02em; text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.8); }
+#progresso { position: absolute; left: 0; bottom: 0; height: 6px; z-index: 42; background: #2aa8ea; }
+.cena-texto { position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: center; visibility: hidden; }
+.marca { display: flex; align-items: center; gap: 30px; }
+.marca svg { width: 132px; height: 132px; }
+.marca b { font-size: 132px; font-weight: 680; letter-spacing: -.04em; }
+.linha { overflow: hidden; margin-top: 34px; padding-bottom: 8px; font-size: 54px; font-weight: 560; letter-spacing: -.02em; color: #a3abb6; white-space: nowrap; }
+.linha span { display: inline-block; white-space: pre; }
+.fichas { display: grid; grid-template-columns: repeat(5, 300px); gap: 20px; }
+.ficha { height: 86px; border-radius: 22px; background: #0c0f14; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 620; letter-spacing: -.01em; }
+#hud { position: fixed; left: 8px; top: 1084px; font: 14px monospace; color: #888; }
+</style>
+</head>
+<body>
+<div id="palco">
+  <div id="brilho"></div>
+  <div id="telas"></div>
+  <div class="cena-texto" id="abre">
+    <div class="marca" id="abre-marca">
+      <svg viewBox="0 0 24 24"><rect id="b1" x="5" y="4" width="5" height="16" rx="2.5" fill="#9adcff"/><rect id="b2" x="14" y="10" width="5" height="10" rx="2.5" fill="#2aa8ea"/></svg>
+      <div style="overflow:hidden;padding:0 6px 10px"><b id="abre-nome" style="display:inline-block">GBFinanças</b></div>
+    </div>
+    <div class="linha" id="abre-linha"></div>
+    <div class="fichas" id="fichas"></div>
+  </div>
+  <div class="cena-texto" id="fecha">
+    <div class="marca" id="fecha-marca">
+      <svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="2.5" fill="#9adcff"/><rect x="14" y="10" width="5" height="10" rx="2.5" fill="#2aa8ea"/></svg>
+      <div style="overflow:hidden;padding:0 6px 10px"><b id="fecha-nome" style="display:inline-block">GBFinanças</b></div>
+    </div>
+    <div class="linha" id="fecha-l1" style="color:#eef1f5"></div>
+    <div class="linha" id="fecha-l2" style="margin-top:10px"></div>
+  </div>
+  <div id="sombra"></div>
+  <div id="legenda"><div id="capitulo"></div><div id="fala"></div></div>
+  <div id="progresso"></div>
+</div>
+<div id="hud"></div>
+<script src="film.js"></script>
+</body>
+</html>

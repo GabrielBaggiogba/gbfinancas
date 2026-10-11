@@ -1,0 +1,10 @@
+Fonte do vídeo da página Comece aqui (public/video/comece-aqui.mp4).
+
+Para refazer: numa pasta com playwright e ffmpeg-static instalados, e o app rodando em modo demo
+(npm run demo), copie estes arquivos, a fonte src/app/fonts/HankenGrotesk-latin.woff2 como fonte.woff2
+e a narração como voz.wav. Depois:
+  node captura.mjs                      telas reais do app em shots/
+  node render.mjs probe 10 30 60        quadros de teste em probe/
+  node render.mjs frames 0 3345 8761    todos os quadros (30 fps) em frames/
+e junte quadros e voz com o ffmpeg (libx264 crf 27, AAC, loudnorm -14 LUFS).
+Cenas, destaques e legendas ficam no topo de film.js; os tempos vêm das pausas da narração.
