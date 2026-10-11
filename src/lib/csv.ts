@@ -78,7 +78,7 @@ export function interpretarData(texto: string): string | null {
 
 export type LinhaImportada = { data: string; descricao: string; valor: number; entrada: boolean }
 
-const semAcento = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
+export const semAcento = (t: string) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()
 
 /**
  * Interpreta um extrato: procura as colunas de data, descrição e valor pelo cabeçalho

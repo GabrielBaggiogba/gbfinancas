@@ -15,7 +15,6 @@ import {
   Landmark,
   LayoutDashboard,
   LogOut,
-  Newspaper,
   Plus,
   Repeat,
   Settings,
@@ -31,7 +30,7 @@ import Marca from '@/components/ui/Marca'
 import { sair } from '@/features/auth/actions'
 import { useEditor } from '@/features/financas/components/Editor'
 import { useDados } from '@/features/financas/store'
-import FaixaDoMercado from '@/features/mercado/telas/FaixaDoMercado'
+import Calculadora from './Calculadora'
 import Folha from './Folha'
 import { usePreferencias } from './Preferencias'
 
@@ -47,7 +46,6 @@ const NAVEGACAO: Destino[] = [
   { href: '/recorrentes', rotulo: 'Recorrentes', icone: Repeat },
   { href: '/relatorios', rotulo: 'Relatórios', icone: ChartColumn },
   { href: '/mercado', rotulo: 'Mercado', icone: ChartCandlestick },
-  { href: '/noticias', rotulo: 'Notícias', icone: Newspaper },
   { href: '/configuracoes', rotulo: 'Configurações', icone: Settings },
 ]
 
@@ -192,9 +190,6 @@ export default function Casca({ children }: { children: ReactNode }) {
               </Magnetico>
             </div>
           </header>
-          <div className="ticker-area">
-            <FaixaDoMercado />
-          </div>
           <main className="pagina">{children}</main>
         </div>
 
@@ -260,6 +255,7 @@ export default function Casca({ children }: { children: ReactNode }) {
           </form>
         </Folha>
       </LayoutGroup>
+      <Calculadora />
       <div id="camadas" />
     </MotionConfig>
   )

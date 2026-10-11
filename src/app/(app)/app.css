@@ -1541,103 +1541,9 @@ kbd {
   }
 }
 
-/* ---------- Notícias ---------- */
-
-.noticia {
-  display: block;
-  overflow: hidden;
-  color: inherit;
-  transition:
-    transform 0.35s var(--mola),
-    box-shadow 0.35s ease;
-}
-
-.capa {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--painel2);
-}
-
-.capa img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.7s var(--mola);
-}
-
-.capa-vazia {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: color-mix(in srgb, var(--gelo) 70%, transparent);
-  background:
-    radial-gradient(
-      120% 90% at 20% 0%,
-      color-mix(in srgb, var(--azul) 34%, transparent),
-      transparent 60%
-    ),
-    radial-gradient(
-      90% 80% at 100% 100%,
-      color-mix(in srgb, var(--gelo) 18%, transparent),
-      transparent 60%
-    ),
-    var(--painel2);
-}
-
-.noticia-titulo {
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-  font-weight: 650;
-  text-wrap: balance;
-}
-
-.noticia-resumo {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-}
-
 .noticia-seta {
   flex: none;
   transition: transform 0.3s var(--mola);
-}
-
-.noticia-destaque {
-  display: grid;
-}
-
-.noticia-destaque .capa {
-  aspect-ratio: 16 / 9;
-}
-
-@media (min-width: 900px) {
-  .noticia-destaque {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  }
-  .noticia-destaque .capa {
-    aspect-ratio: auto;
-    min-height: 300px;
-    height: 100%;
-  }
-}
-
-@media (hover: hover) {
-  .noticia:hover {
-    transform: translateY(-3px);
-  }
-  .noticia:hover .capa img {
-    transform: scale(1.05);
-  }
-  .noticia:hover .noticia-seta {
-    transform: translate(3px, -3px);
-  }
 }
 
 .gira {
@@ -1808,13 +1714,6 @@ kbd {
 }
 
 /* ---------- Faixa "Destaques da semana" ---------- */
-
-.ticker-area {
-  width: 100%;
-  max-width: 1360px;
-  margin-inline: auto;
-  padding: 2px clamp(16px, 3vw, 36px) 6px;
-}
 
 .ticker {
   border-radius: 18px;
@@ -2079,5 +1978,102 @@ kbd {
 @media (hover: hover) {
   .ativo-linha:hover {
     background: color-mix(in srgb, var(--t1) 4%, transparent);
+  }
+}
+
+/* ---------- Calculadora flutuante ---------- */
+
+.calc {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 29;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.calc > * {
+  pointer-events: auto;
+}
+
+.calc-botao {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: var(--gelo);
+  background: var(--vidro-forte);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  box-shadow:
+    inset 0 0 0 1px var(--linha2),
+    var(--sombra);
+  cursor: pointer;
+  transition: transform var(--t-toque) var(--saida);
+}
+
+.calc-botao:active {
+  transform: scale(0.94);
+}
+
+.calc-painel {
+  width: min(300px, calc(100vw - 32px));
+  max-height: calc(100dvh - 112px);
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+  border-radius: 24px;
+  transform-origin: bottom right;
+  background: var(--vidro-forte);
+  -webkit-backdrop-filter: blur(36px) saturate(170%);
+  backdrop-filter: blur(36px) saturate(170%);
+  box-shadow:
+    inset 0 0 0 1px var(--linha2),
+    inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent),
+    var(--sombra);
+}
+
+.calc-visor {
+  margin: 10px 0 12px;
+  padding: 8px 6px 8px 14px;
+  border-radius: 16px;
+  background: var(--painel2);
+  box-shadow: inset 0 0 0 1px var(--linha);
+}
+
+.calc-visor:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--azul);
+}
+
+.calc-visor input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  outline: none;
+  color: var(--t1);
+  font-size: 1.375rem;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+
+.calc-resultado {
+  min-height: 1.3em;
+  color: var(--t2);
+  font-size: 0.875rem;
+}
+
+.calc-tecla {
+  height: 46px;
+  padding: 0;
+  font-size: 1.0625rem;
+}
+
+@media (max-width: 760px) {
+  .calc {
+    right: 12px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
   }
 }

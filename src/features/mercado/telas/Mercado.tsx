@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Abas from '@/components/app/Abas'
 import { Vazio } from '@/components/app/Campos'
 import { Surgir, itemSurgir } from '@/components/motion/Surgir'
-import { semAcento } from '@/features/noticias/temas'
+import { semAcento } from '@/lib/csv'
 import {
   GIRO_MINIMO,
   ROTULO_RANKING,
@@ -21,6 +21,7 @@ import {
 } from '../acoes'
 import { nomeDoSetor } from '../setores'
 import AcompanheOMercado from './AcompanheOMercado'
+import FaixaDoMercado from './FaixaDoMercado'
 import { Logo, Variacao, horario } from './partes'
 
 const PAGINA = 25
@@ -52,6 +53,9 @@ export default function Mercado({ mercado }: { mercado: Dados }) {
 
   return (
     <Surgir className="grid gap-[var(--vao)]">
+      <motion.div variants={itemSurgir}>
+        <FaixaDoMercado />
+      </motion.div>
       <motion.div variants={itemSurgir}>
         <RelevanteHoje acoes={mercado.acoes} consultado={mercado.consultado_em} />
       </motion.div>
