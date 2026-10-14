@@ -19,7 +19,7 @@ export function useMidia(consulta: string): boolean {
 export const useCelular = () => useMidia('(max-width: 760px)')
 
 /** Largura do elemento, para gráficos em SVG desenhados em pixels reais. */
-export function useLargura<T extends HTMLElement>(): [RefObject<T>, number] {
+export function useLargura<T extends HTMLElement>(): [RefObject<T | null>, number] {
   const ref = useRef<T>(null)
   const [largura, setLargura] = useState(0)
   useEfeitoIso(() => {

@@ -21,7 +21,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
   if (!usuario) redirect('/login')
 
   const dados = await carregarDados(usuario)
-  const loja = cookies()
+  const loja = await cookies()
   const tema = loja.get('gbf_tema')?.value
   const prefs = {
     tema: (tema === 'claro' || tema === 'escuro' ? tema : 'sistema') as Tema,

@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   const tokenHash = params.get('token_hash')
   const tipo = params.get('type')
   const codigo = params.get('code')
-  const supabase = criarClienteServidor()
+  const supabase = await criarClienteServidor()
 
   try {
     if (tokenHash && tipo) {
