@@ -6,8 +6,9 @@ import { obterModo } from '@/lib/modo'
 export default async function Login({
   searchParams,
 }: {
-  searchParams: { aviso?: string; erro?: string }
+  searchParams: Promise<{ aviso?: string; erro?: string }>
 }) {
+  const { aviso, erro } = await searchParams
   const modo = obterModo()
   if (modo === 'pendente') redirect('/configuracao')
   if (await obterUsuario()) redirect('/')
@@ -15,8 +16,8 @@ export default async function Login({
   return (
     <FormularioAuth
       demo={modo === 'demo'}
-      aviso={searchParams.aviso === 'confirmado' ? 'confirmado' : undefined}
-      erroLink={searchParams.erro === 'link'}
+      aviso={aviso === 'confirmado' ? 'confirmado' : undefined}
+      erroLink={erro === 'link'}
     />
   )
 }

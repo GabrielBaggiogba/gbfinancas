@@ -48,10 +48,11 @@ export function bancoSupabase(): Banco {
   // O cliente tipado não combina com nomes de tabela dinâmicos; o formato das linhas
   // é garantido pelos schemas Zod antes de chegar aqui.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = criarClienteServidor() as any
+  const cliente: Promise<any> = criarClienteServidor()
 
   async function lerTudo(tabela: Tabela): Promise<Registro[]> {
     const linhas: Registro[] = []
+    const supabase = await cliente
     for (let inicio = 0; inicio < MAXIMO; inicio += PAGINA) {
       const { data, error } = await supabase
         .from(tabela)
@@ -79,6 +80,7 @@ export function bancoSupabase(): Banco {
         linhas.filter((l) => l.pai_id),
       )
     }
+    const supabase = await cliente
     for (let i = 0; i < linhas.length; i += 500) {
       const lote = linhas.slice(i, i + 500).map((l) => paraBanco(tabela, l))
       const { error } = await supabase.from(tabela).insert(lote)
@@ -95,6 +97,7 @@ export function bancoSupabase(): Banco {
     },
 
     async aplicar(operacoes: Operacao[]) {
+      const supabase = await cliente
       for (const o of operacoes) {
         if (o.op === 'inserir') {
           await inserir(o.tabela, o.linhas)
@@ -112,6 +115,7 @@ export function bancoSupabase(): Banco {
     },
 
     async substituir(dados: Dados) {
+      const supabase = await cliente
       const {
         data: { user },
       } = await supabase.auth.getUser()

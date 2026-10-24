@@ -1,5 +1,5 @@
 // shortcut: script-src usa 'unsafe-inline' porque o Next injeta scripts inline; trocar por
-// nonce quando sair do Next 14 (a linha 14 tem falha conhecida de XSS com nonce).
+// nonce (gerado no proxy) se um dia o app exibir conteúdo de terceiros em HTML.
 const dev = process.env.NODE_ENV !== 'production'
 const csp = [
   "default-src 'self'",

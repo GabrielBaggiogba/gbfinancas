@@ -20,7 +20,7 @@ const Ctx = createContext<Confirmar>(async () => false)
 /** Confirmação só para ações destrutivas e sem volta. Devolve uma promessa. */
 export function ProvedorDeConfirmacao({ children }: { children: ReactNode }) {
   const [pedido, setPedido] = useState<Pedido | null>(null)
-  const resolver = useRef<(v: boolean) => void>()
+  const resolver = useRef<(v: boolean) => void>(undefined)
   const botao = useRef<HTMLButtonElement>(null)
 
   const confirmar = useCallback<Confirmar>((p) => {
