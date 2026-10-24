@@ -9,6 +9,8 @@ import { ProvedorDoEditor } from '@/features/financas/components/Editor'
 import { carregarDados } from '@/features/financas/servidor/carregar'
 import { ProvedorDeDados } from '@/features/financas/store'
 import { emailAtivo } from '@/features/avisos/email'
+import { pluggyAtivo, pluggySandbox } from '@/features/bancos/pluggy'
+import { obterConexoes } from '@/features/bancos/servidor'
 import { obterFamilia } from '@/features/familia/servidor'
 import { iaAtiva } from '@/features/ia/ler'
 import { obterAssinatura } from '@/features/planos/servidor'
@@ -30,6 +32,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
     obterAssinatura(usuario),
     obterFamilia(usuario),
   ])
+  const conexoes = await obterConexoes(familia.donoId)
   const loja = await cookies()
   const tema = loja.get('gbf_tema')?.value
   const prefs = {
@@ -51,6 +54,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
             ia={iaAtiva()}
             usuarioId={usuario.id}
             familia={familia}
+            bancos={{ ativo: pluggyAtivo(), sandbox: pluggySandbox(), conexoes }}
             avisos={{
               preferencias: assinatura.avisos,
               email: emailAtivo(),

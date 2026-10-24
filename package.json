@@ -18,8 +18,11 @@
     "lucide-react": "^1.52.0",
     "motion": "^14.0.0",
     "next": "^16.4.3",
+    "pluggy-js": "^0.19.3",
+    "pluggy-sdk": "^0.93.0",
     "react": "^19",
     "react-dom": "^19",
+    "react-pluggy-connect": "^2.12.0",
     "server-only": "^0.0.1",
     "zod": "^3.25.76"
   },

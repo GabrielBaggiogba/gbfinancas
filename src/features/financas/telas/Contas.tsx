@@ -1,5 +1,6 @@
 'use client'
 
+import ConexoesBancarias from '@/features/bancos/ConexoesBancarias'
 import { Archive, ArchiveRestore, ArrowLeftRight, Lock, Pencil, Plus, Trash2 } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -196,6 +197,7 @@ export default function Contas() {
           </div>
         </div>
       </Holofote>
+      <ConexoesBancarias />
 
       <div
         ref={grade}

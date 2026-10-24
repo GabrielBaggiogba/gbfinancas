@@ -40,7 +40,7 @@ export const PLANOS: Plano[] = [
       'Contas e cartões ilimitados',
       'Lançar pelo WhatsApp com texto, foto ou PDF',
       'Lembretes de contas no WhatsApp e por e-mail',
-      'Open Finance: contas sincronizadas (em breve)',
+      'Open Finance: conecte seus bancos e os lançamentos entram sozinhos',
     ],
   },
   {

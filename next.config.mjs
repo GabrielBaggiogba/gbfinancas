@@ -12,6 +12,8 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
+  // Janela de conexão bancária (Pluggy / Open Finance).
+  'frame-src https://connect.pluggy.ai',
 ].join('; ')
 
 /** @type {import('next').NextConfig} */

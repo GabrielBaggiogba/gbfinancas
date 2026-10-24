@@ -90,8 +90,7 @@ const RECURSOS: Recurso[] = [
   {
     icone: RefreshCw,
     titulo: 'Open Finance',
-    texto: 'Conecte bancos e cartões para os lançamentos chegarem sozinhos.',
-    breve: true,
+    texto: 'Conecte bancos e cartões pelo Open Finance e os lançamentos chegam sozinhos, todo dia.',
   },
 ]
 
