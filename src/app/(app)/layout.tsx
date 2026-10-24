@@ -8,6 +8,7 @@ import { obterUsuario } from '@/features/auth/sessao'
 import { ProvedorDoEditor } from '@/features/financas/components/Editor'
 import { carregarDados } from '@/features/financas/servidor/carregar'
 import { ProvedorDeDados } from '@/features/financas/store'
+import { iaAtiva } from '@/features/ia/ler'
 import { obterAssinatura } from '@/features/planos/servidor'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { obterModo } from '@/lib/modo'
@@ -40,6 +41,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
             email={usuario.email}
             demo={modo === 'demo'}
             plano={assinatura.plano}
+            ia={iaAtiva()}
           >
             <ProvedorDoEditor>
               <Casca>{children}</Casca>

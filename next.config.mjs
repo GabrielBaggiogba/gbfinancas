@@ -18,6 +18,8 @@ const csp = [
 const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // Fotos e PDFs da leitura com IA chegam por Server Action (o padrão é 1 MB).
+  experimental: { serverActions: { bodySizeLimit: '6mb' } },
   async headers() {
     return [
       {

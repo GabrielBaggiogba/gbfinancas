@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Copy, Trash2 } from 'lucide-react'
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, Copy, Sparkles, Trash2 } from 'lucide-react'
 import {
   createContext,
   useCallback,
@@ -17,6 +17,8 @@ import Folha from '@/components/app/Folha'
 import { Faisca, LuzNoFio } from '@/components/motion/Efeitos'
 import { formatarReais } from '@/lib/dinheiro'
 import { lancamentoSchema, primeiraMensagem } from '../esquemas'
+import { sugerirCategoria } from '@/features/ia/actions'
+import { contextoIA } from '@/features/ia/contexto'
 import { categoriasOrdenadas, lancamentoVazio, parcelar } from '../fabrica'
 import { ROTULO_FORMA } from '../padroes'
 import { useDados } from '../store'
@@ -128,8 +130,9 @@ export function ProvedorDoEditor({ children }: { children: ReactNode }) {
 }
 
 function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) {
-  const { dados, aplicar } = useDados()
+  const { dados, aplicar, ia } = useDados()
   const { duplicar } = useEditor()
+  const [sugerida, setSugerida] = useState<string | null>(null)
   const confirmar = useConfirmar()
   const editando = pedido.modo === 'editar'
   const [l, setL] = useState<Lancamento>(pedido.lancamento)
@@ -149,6 +152,30 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
   const origem = l.cartao_id ? `cartao:${l.cartao_id}` : l.conta_id ? `conta:${l.conta_id}` : ''
   const noCartao = l.tipo === 'despesa' && !!l.cartao_id
   const fatura = l.tipo === 'pagamento_fatura'
+
+  // Categoria automática ao sair da descrição: primeiro repete a de um lançamento igual,
+  // depois pergunta à IA (quando configurada). Nunca troca uma categoria já escolhida.
+  const sugerir = async () => {
+    const tipo = l.tipo
+    const descricao = l.descricao.trim()
+    if (l.categoria_id || (tipo !== 'receita' && tipo !== 'despesa') || descricao.length < 3) return
+    const chave = descricao.toLowerCase()
+    const igual = dados.lancamentos.find(
+      (x) => x.tipo === tipo && x.categoria_id && x.descricao.trim().toLowerCase() === chave,
+    )
+    let categoria = igual?.categoria_id ?? null
+    if (!categoria && ia) {
+      const r = await sugerirCategoria({ descricao, tipo, contexto: contextoIA(dados) }).catch(
+        () => null,
+      )
+      categoria = r?.ok ? r.categoria_id : null
+    }
+    if (!categoria) return
+    setL((atual) =>
+      atual.categoria_id || atual.tipo !== tipo ? atual : { ...atual, categoria_id: categoria },
+    )
+    setSugerida(categoria)
+  }
 
   const trocarTipo = (tipo: TipoLancamento) => {
     const conta = l.conta_id ?? contas[0]?.id ?? null
@@ -396,6 +423,7 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
               }
               value={l.descricao}
               onChange={(e) => mudar({ descricao: e.target.value })}
+              onBlur={() => void sugerir()}
             />
           )}
         </Campo>
@@ -404,19 +432,35 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
           <div className="grid grid-cols-2 gap-3">
             <Campo rotulo="Categoria">
               {(id) => (
-                <select
-                  id={id}
-                  className="controle"
-                  value={l.categoria_id ?? ''}
-                  onChange={(e) => mudar({ categoria_id: e.target.value || null })}
-                >
-                  <option value="">Sem categoria</option>
-                  {categorias.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.rotulo}
-                    </option>
-                  ))}
-                </select>
+                <>
+                  <select
+                    id={id}
+                    className="controle"
+                    value={l.categoria_id ?? ''}
+                    onChange={(e) => {
+                      setSugerida(null)
+                      mudar({ categoria_id: e.target.value || null })
+                    }}
+                    aria-describedby={
+                      sugerida && sugerida === l.categoria_id ? 'categoria-sugerida' : undefined
+                    }
+                  >
+                    <option value="">Sem categoria</option>
+                    {categorias.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.rotulo}
+                      </option>
+                    ))}
+                  </select>
+                  {sugerida && sugerida === l.categoria_id && (
+                    <p
+                      id="categoria-sugerida"
+                      className="miudo mt-1.5 flex items-center gap-1.5 text-menta"
+                    >
+                      <Sparkles size={13} aria-hidden="true" /> Sugerida automaticamente
+                    </p>
+                  )}
+                </>
               )}
             </Campo>
             {noCartao ? (
