@@ -905,3 +905,92 @@ li + li > .linha-dia {
     opacity: 0.8;
   }
 }
+
+/* ---------- Grão, o mascote ---------- */
+
+.mascote g,
+.mascote ellipse {
+  transform-box: fill-box;
+}
+
+.mascote-vivo .mascote-corpo {
+  transform-origin: 50% 100%;
+  animation: mascote-pula 3.2s ease-in-out infinite;
+}
+
+.mascote-vivo .mascote-sombra {
+  transform-origin: 50% 50%;
+  animation: mascote-sombra 3.2s ease-in-out infinite;
+}
+
+.mascote-vivo .mascote-broto {
+  transform-origin: 50% 100%;
+  animation: mascote-broto 4s ease-in-out infinite;
+}
+
+.mascote-vivo .mascote-olhos {
+  transform-origin: 50% 50%;
+  animation: mascote-pisca 5s steps(1) infinite;
+}
+
+.mascote-vivo .mascote-brilhos {
+  animation: mascote-brilha 1.6s ease-in-out infinite;
+}
+
+@keyframes mascote-pula {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes mascote-sombra {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 0.13;
+  }
+  50% {
+    transform: scaleX(0.86);
+    opacity: 0.08;
+  }
+}
+
+@keyframes mascote-broto {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes mascote-pisca {
+  0%,
+  96% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.12);
+  }
+}
+
+@keyframes mascote-brilha {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascote-vivo * {
+    animation: none !important;
+  }
+}

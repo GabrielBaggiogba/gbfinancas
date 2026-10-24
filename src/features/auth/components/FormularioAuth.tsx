@@ -8,6 +8,7 @@ import Botao from '@/components/ui/Botao'
 import CampoTexto from '@/components/ui/CampoTexto'
 import Grainient from '@/components/ui/Grainient'
 import Marca from '@/components/ui/Marca'
+import Mascote from '@/components/ui/Mascote'
 import { cadastrar, entrar } from '../actions'
 import { cadastroSchema, credenciaisSchema } from '../esquemas'
 
@@ -77,9 +78,10 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
       <Grainient className="fundo-auth" />
       <div className="cartao-vidro">
         <div className="mov-entra mb-8 flex flex-col items-center text-center" style={indice(0)}>
-          <div className="selo-marca">
-            <Marca tamanho={30} />
-          </div>
+          <Mascote tamanho={84} />
+          <p className="mt-1 flex items-center gap-1.5 text-[.9375rem] font-[700] tracking-[-.02em]">
+            <Marca tamanho={18} /> GBFinanças
+          </p>
           <h1 className="mt-4 text-[1.75rem] font-[650] leading-[1.1] tracking-[-0.03em]">
             {modo === 'entrar' ? 'Bem-vindo de volta' : 'Crie sua conta'}
           </h1>
@@ -207,7 +209,10 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
           </>
         )}
       </div>
-      <Link href="/planos" className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--painel)]/85 px-4 py-2 text-[.875rem] font-[620] text-menta shadow-[0_8px_24px_-12px_rgba(6,60,30,.5)] backdrop-blur">
+      <Link
+        href="/planos"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--painel)]/85 px-4 py-2 text-[.875rem] font-[620] text-menta shadow-[0_8px_24px_-12px_rgba(6,60,30,.5)] backdrop-blur"
+      >
         Conheça os planos
       </Link>
     </main>

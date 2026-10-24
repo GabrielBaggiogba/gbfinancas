@@ -20,6 +20,10 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Comece aqui**: vídeo narrado de dois minutos que apresenta cada tela, com legendas e capítulos clicáveis. A fonte do vídeo fica em `video/`.
 - **Calculadora**: botão no canto inferior direito de todas as telas; abre uma janela flutuante que aceita vírgula, parênteses e porcentagem (`200 + 10%` dá 220).
 - **Lançar com IA**: botão no topo; aceita texto livre ("almoço 32 no pix"), voz (navegadores com reconhecimento de fala), foto de nota fiscal ou PDF. Mostra os lançamentos para conferir antes de salvar. No editor, a categoria é sugerida pela descrição (primeiro repetindo a de um lançamento igual, depois pela IA).
+- **Pergunte ao Grão**: assistente no topo que responde perguntas sobre o próprio dinheiro ("Quanto sobrou do salário?", "Posso comprar um tênis este mês?") com base nos lançamentos, contas, cartões, limites e metas. Não recomenda investimentos.
+- **Primeiros passos**: guia no Dashboard para quem está começando (saldo das contas, cartões, renda, gastos, limite e meta), que some quando tudo está feito ou a pessoa fecha.
+- **Importar extrato**: OFX (o formato que os bancos exportam) ou CSV, em Configurações.
+- **Grão**: o mascote, uma moeda que brotou, desenhado em SVG (`src/components/ui/Mascote.tsx`). A logo são três barras subindo com uma folha dourada (`Marca.tsx`, `src/app/icon.svg`).
 - **WhatsApp**: a pessoa vincula o número em Configurações e passa a lançar mandando texto, foto ou PDF; responde `desfazer` para apagar o último registro. Áudio ainda não é lido.
 - **Lembretes**: todo dia às 8h, aviso por e-mail e WhatsApp das contas recorrentes que vencem ou entram nos próximos dias (antecedência escolhida pela pessoa).
 - **Família**: gestão compartilhada com até 5 pessoas, por link de convite. Membros lançam nas finanças de quem convidou, com o próprio login; a lista mostra quem lançou cada gasto.
@@ -159,4 +163,3 @@ Como os dados circulam: o layout da área logada lê tudo do usuário uma vez e 
 - Áudio pelo WhatsApp (precisa de um serviço de transcrição)
 - Importação de extrato com mapeamento de colunas e categorização em lote
 - Dashboard com blocos que a pessoa pode mover ou ocultar
-- Assistente que responde perguntas sobre os próprios dados

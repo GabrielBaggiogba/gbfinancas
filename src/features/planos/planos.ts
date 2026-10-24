@@ -24,6 +24,8 @@ export const PLANOS: Plano[] = [
       'Orçamentos com alertas e metas',
       'Contas recorrentes e fluxo de caixa',
       'Categorização automática com IA',
+      'Pergunte ao Grão: assistente que responde sobre o seu dinheiro',
+      'Importação de extrato OFX e CSV',
       'Lançar por foto de nota, PDF ou voz no app',
     ],
   },

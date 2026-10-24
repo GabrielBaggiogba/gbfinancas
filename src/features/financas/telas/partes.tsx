@@ -71,7 +71,9 @@ export function IconeDoLancamento({ l, dados }: { l: Lancamento; dados: Dados })
 
 export function ValorDoLancamento({ l, className = '' }: { l: Lancamento; className?: string }) {
   if (l.tipo === 'receita')
-    return <Valor centavos={l.valor} sinal="mais" className={`font-[600] text-menta ${className}`} />
+    return (
+      <Valor centavos={l.valor} sinal="mais" className={`font-[600] text-menta ${className}`} />
+    )
   if (l.tipo === 'despesa')
     return <Valor centavos={l.valor} sinal="menos" className={`font-[600] ${className}`} />
   return <Valor centavos={l.valor} sinal="nenhum" className={`font-[600] text-t2 ${className}`} />

@@ -7,9 +7,11 @@ import {
   ChartPie,
   Check,
   CreditCard,
+  FileUp,
   Gauge,
   LogIn,
   MessageCircle,
+  MessagesSquare,
   RefreshCw,
   ShieldCheck,
   Sparkles,
@@ -20,6 +22,7 @@ import {
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import Marca from '@/components/ui/Marca'
+import Mascote from '@/components/ui/Mascote'
 import { formatarReais } from '@/lib/dinheiro'
 import { entrarNaLista } from '../actions'
 import { PLANOS, anual, type PlanoId } from '../planos'
@@ -27,6 +30,12 @@ import { PLANOS, anual, type PlanoId } from '../planos'
 type Recurso = { icone: LucideIcon; titulo: string; texto: string; breve?: boolean }
 
 const RECURSOS: Recurso[] = [
+  {
+    icone: MessagesSquare,
+    titulo: 'Pergunte ao Grão',
+    texto:
+      '"Quanto sobrou do salário?" "Posso comprar um tênis?" O assistente responde com os seus números.',
+  },
   {
     icone: MessageCircle,
     titulo: 'Lance pelo WhatsApp',
@@ -66,6 +75,12 @@ const RECURSOS: Recurso[] = [
     icone: Users,
     titulo: 'Gestão compartilhada',
     texto: 'Casal ou família no mesmo painel, cada um no seu WhatsApp, sabendo quem gastou.',
+  },
+  {
+    icone: FileUp,
+    titulo: 'Importe o extrato do banco',
+    texto:
+      'Traga o histórico em OFX ou CSV, o arquivo que todo banco exporta, e comece sem digitar nada.',
   },
   {
     icone: CreditCard,
@@ -169,7 +184,13 @@ export default function Vitrine({ logado }: { logado: boolean }) {
                 )}
               </div>
             </div>
-            <Conversa />
+            <div className="relative">
+              <Mascote
+                tamanho={120}
+                className="absolute -left-6 -top-14 z-10 max-md:-left-2 max-md:-top-10"
+              />
+              <Conversa />
+            </div>
           </div>
         </section>
 
@@ -332,9 +353,7 @@ function Conversa() {
       className="mx-auto w-full max-w-sm rounded-[30px] bg-painel p-4 shadow-[0_40px_80px_-40px_rgba(6,60,30,.55)]"
     >
       <div className="flex items-center gap-3 border-b border-linha pb-3">
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-[color:color-mix(in_srgb,var(--verde)_16%,transparent)]">
-          <Marca tamanho={20} />
-        </span>
+        <Mascote tamanho={40} animado={false} />
         <div>
           <p className="font-[650]">GBFinanças</p>
           <p className="text-[.8125rem] text-t3">assistente financeiro</p>

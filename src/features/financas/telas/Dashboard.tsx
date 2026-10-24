@@ -30,6 +30,7 @@ import {
   fimDoMes,
   inicioDoMes,
   listarMeses,
+  diasEntre,
   mesDe,
   rotuloMes,
   rotuloMesCurto,
@@ -54,6 +55,7 @@ import { useEditor } from '../components/Editor'
 import { operacoesDoRecorrente } from '../fabrica'
 import { ROTULO_CONTA } from '../padroes'
 import { useDados } from '../store'
+import PrimeirosPassos from './PrimeirosPassos'
 import { Bloco, LinhaDeLancamento } from './partes'
 
 const ICONE_INSIGHT = { alerta: CircleAlert, atencao: TriangleAlert, info: Info, bom: Sparkles }
@@ -73,12 +75,17 @@ export default function Dashboard() {
     const saldo = saldoDisponivel(dados, hoje)
     const mes = resumoDoMes(dados, ref)
     const saldos = saldosPorConta(dados, hoje)
+    const projetado = saldoProjetadoFimDoMes(dados, hoje)
     const dias = Array.from({ length: 61 }, (_, i) => somarDias(hoje, i - 60))
     return {
       saldo,
       mes,
       saldos,
-      projetado: saldoProjetadoFimDoMes(dados, hoje),
+      projetado,
+      porDia:
+        mesDe(hoje) === ref && projetado > 0
+          ? Math.floor(projetado / (diasEntre(hoje, fimDoMes(ref)) + 1))
+          : null,
       serie: serieMensal(dados, listarMeses(ref, 6)),
       fatias: agruparFatias(gastosPorCategoria(dados, inicioDoMes(ref), fimDoMes(ref))),
       evolucao: dias.map((d) => ({
@@ -124,7 +131,16 @@ export default function Dashboard() {
       rotulo: 'Saldo projetado',
       icone: TrendingUp,
       valor: <Valor centavos={c.projetado} animado />,
-      nota: `até ${dataCurta(fimDoMes(ref))}`,
+      // Quanto dá para gastar por dia sem passar do projetado (só no mês atual).
+      nota:
+        c.porDia !== null ? (
+          <>
+            ≈ <span className="sigilo">{formatarReais(c.porDia)}</span> por dia até{' '}
+            {dataCurta(fimDoMes(ref))}
+          </>
+        ) : (
+          `até ${dataCurta(fimDoMes(ref))}`
+        ),
     },
     {
       rotulo: 'Taxa de economia',
@@ -152,6 +168,7 @@ export default function Dashboard() {
     <Surgir className="grid gap-[var(--vao)] min-[1280px]:grid-cols-[minmax(0,1fr)_368px]">
       {/* Coluna principal: indicadores e gráficos */}
       <div className="grid min-w-0 content-start gap-[var(--vao)]">
+        <PrimeirosPassos />
         <Holofote className="cartao borda-luz overflow-hidden" variants={itemSurgir}>
           <span className="aurora" aria-hidden="true" />
           <div className="relative flex flex-wrap items-end justify-between gap-x-8 gap-y-4 p-[calc(var(--pad)+4px)]">

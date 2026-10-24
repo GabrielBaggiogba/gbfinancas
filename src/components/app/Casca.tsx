@@ -31,6 +31,7 @@ import Marca from '@/components/ui/Marca'
 import { sair } from '@/features/auth/actions'
 import { useEditor } from '@/features/financas/components/Editor'
 import { useDados } from '@/features/financas/store'
+import Assistente from '@/features/assistente/Assistente'
 import LancarComIA from '@/features/ia/LancarComIA'
 import Calculadora from './Calculadora'
 import Folha from './Folha'
@@ -169,6 +170,7 @@ export default function Casca({ children }: { children: ReactNode }) {
                 <Eye size={19} aria-hidden="true" />
               )}
             </button>
+            <Assistente />
             <LancarComIA />
             <div className="flex items-center gap-2 max-[760px]:!hidden">
               <Magnetico>

@@ -17,7 +17,8 @@ const cores = [
 ]
 
 const config: Config = {
-  content: ['./src/**/*.{ts,tsx}'],
+  // Testes ficam de fora: textos de exemplo neles viravam classes CSS inválidas.
+  content: ['./src/**/*.{ts,tsx}', '!./src/**/*.test.ts'],
   theme: {
     extend: {
       colors: Object.fromEntries(cores.map((c) => [c, `var(--${c})`])),

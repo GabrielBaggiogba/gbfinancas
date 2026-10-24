@@ -67,7 +67,9 @@ export default function LancarComIA() {
   const voz = useRef<Reconhecimento | null>(null)
   const arquivo = useRef<HTMLInputElement>(null)
 
-  useEffect(() => setTemVoz(criarReconhecimento() !== null), [])
+  useEffect(() => {
+    setTemVoz(criarReconhecimento() !== null)
+  }, [])
   if (!ia) return null
 
   const limpar = () => {

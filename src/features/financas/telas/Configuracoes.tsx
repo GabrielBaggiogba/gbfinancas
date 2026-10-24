@@ -36,6 +36,7 @@ import BlocoAvisos from '@/features/avisos/BlocoAvisos'
 import BlocoFamilia from '@/features/familia/telas/BlocoFamilia'
 import { NOME_DO_PLANO } from '@/features/planos/planos'
 import { baixar, interpretarExtrato, type LinhaImportada } from '@/lib/csv'
+import { interpretarOfx, pareceOfx } from '@/lib/ofx'
 import { apagarTudo, restaurarBackup } from '../actions'
 import { categoriaSchema, primeiraMensagem } from '../esquemas'
 import { lancamentoVazio } from '../fabrica'
@@ -188,7 +189,8 @@ export default function Configuracoes() {
     const arquivo = e.target.files?.[0]
     e.target.value = ''
     if (!arquivo) return
-    const resultado = interpretarExtrato(await arquivo.text())
+    const conteudo = await arquivo.text()
+    const resultado = pareceOfx(conteudo) ? interpretarOfx(conteudo) : interpretarExtrato(conteudo)
     if (resultado.linhas.length === 0) {
       avisar({
         tipo: 'erro',
@@ -211,7 +213,7 @@ export default function Configuracoes() {
         descricao: l.descricao,
         conta_id: contaImportacao,
         forma_pagamento: 'pix',
-        observacao: 'Importado de CSV',
+        observacao: 'Importado do extrato',
       }),
     )
     setImportacao(null)
@@ -345,7 +347,7 @@ export default function Configuracoes() {
               className="b b-suave justify-start"
               onClick={() => arquivoCsv.current?.click()}
             >
-              <FileUp size={17} aria-hidden="true" /> Importar CSV
+              <FileUp size={17} aria-hidden="true" /> Importar extrato
             </button>
             <button
               type="button"
@@ -368,7 +370,7 @@ export default function Configuracoes() {
           <input
             ref={arquivoCsv}
             type="file"
-            accept=".csv,text/csv,text/plain"
+            accept=".csv,.ofx,text/csv,text/plain,application/x-ofx"
             className="sr-only"
             tabIndex={-1}
             aria-hidden="true"
@@ -376,8 +378,8 @@ export default function Configuracoes() {
           />
           <p className="miudo mt-3">
             O backup é um arquivo com tudo o que está no app. Guarde-o em lugar seguro: ele contém
-            seus dados financeiros. O CSV de importação precisa de colunas de data, descrição e
-            valor (valor negativo vira saída).
+            seus dados financeiros. Para importar, baixe o extrato no app ou site do seu banco em
+            OFX (o mais comum) ou CSV com colunas de data, descrição e valor (negativo vira saída).
           </p>
           {demo && (
             <p className="miudo mt-2">No modo demonstração, os dados ficam só neste computador.</p>
@@ -604,7 +606,7 @@ export default function Configuracoes() {
       <FolhaDeFormulario
         aberta={importacao !== null}
         aoFechar={() => setImportacao(null)}
-        titulo="Importar CSV"
+        titulo="Importar extrato"
         aoSalvar={() => {
           if (!contaImportacao) return 'Escolha a conta que recebe os lançamentos.'
           void importar()

@@ -10,7 +10,12 @@ import { Bloco } from '@/features/financas/telas/partes'
 // Capítulos do vídeo: o segundo em que cada tela começa (medido na narração) e para onde leva.
 const CAPITULOS: { inicio: number; nome: string; resumo: string; href?: string }[] = [
   { inicio: 0, nome: 'Abertura', resumo: 'O que é o GBFinanças' },
-  { inicio: 7.5, nome: 'Dashboard', resumo: 'Saldo, entradas, saídas e gráficos do mês', href: '/' },
+  {
+    inicio: 7.5,
+    nome: 'Dashboard',
+    resumo: 'Saldo, entradas, saídas e gráficos do mês',
+    href: '/',
+  },
   {
     inicio: 17.9,
     nome: 'Lançamentos',
@@ -48,7 +53,8 @@ const CAPITULOS: { inicio: number; nome: string; resumo: string; href?: string }
   },
 ]
 
-const relogio = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
+const relogio = (s: number) =>
+  `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
 
 export default function ComeceAqui() {
   const video = useRef<HTMLVideoElement>(null)
