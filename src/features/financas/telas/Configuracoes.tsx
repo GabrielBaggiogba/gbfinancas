@@ -30,7 +30,9 @@ import Menu from '@/components/app/Menu'
 import { usePreferencias, type Tema } from '@/components/app/Preferencias'
 import { ItemDeLista } from '@/components/motion/Efeitos'
 import { Surgir } from '@/components/motion/Surgir'
+import Link from 'next/link'
 import { excluirConta, sair } from '@/features/auth/actions'
+import { NOME_DO_PLANO } from '@/features/planos/planos'
 import { baixar, interpretarExtrato, type LinhaImportada } from '@/lib/csv'
 import { apagarTudo, restaurarBackup } from '../actions'
 import { categoriaSchema, primeiraMensagem } from '../esquemas'
@@ -50,7 +52,7 @@ import { Bloco } from './partes'
 type Importacao = { linhas: LinhaImportada[]; ignoradas: number; arquivo: string }
 
 export default function Configuracoes() {
-  const { dados, hoje, email, demo, aplicar } = useDados()
+  const { dados, hoje, email, demo, plano, aplicar } = useDados()
   const prefs = usePreferencias()
   const confirmar = useConfirmar()
   const avisar = useAvisar()
@@ -412,6 +414,16 @@ export default function Configuracoes() {
         >
           <p className="miudo">Conectado como</p>
           <p className="truncate font-[560]">{email}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="miudo">Plano</span>
+            <span className="selo selo-ouro">{plano ? NOME_DO_PLANO[plano] : 'Sem plano'}</span>
+            <Link href="/planos" className="ml-auto text-[.875rem] font-[600] text-menta">
+              Ver planos
+            </Link>
+          </div>
+          {plano === 'fundador' && (
+            <p className="miudo mt-1.5">Conta fundadora: acesso total a todos os recursos, sem custo.</p>
+          )}
           <form action={sair} className="mt-4">
             <button type="submit" className="b b-suave">
               <LogOut size={17} aria-hidden="true" /> Sair

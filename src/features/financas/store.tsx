@@ -14,6 +14,7 @@ import { useAvisar } from '@/components/app/Avisos'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { gravar } from './actions'
 import { aplicarLocal } from './operacoes'
+import type { PlanoDoUsuario } from '@/features/planos/planos'
 import type { Dados, Operacao } from './tipos'
 
 // Os dados chegam do servidor uma vez (no layout) e ficam aqui. Cada alteração aparece
@@ -50,6 +51,7 @@ type Contexto = {
   hoje: string
   email: string
   demo: boolean
+  plano: PlanoDoUsuario
   /** Aplica na tela e envia ao servidor. Resolve `true` quando o servidor confirmou. */
   aplicar: (operacoes: Operacao[], aoConfirmar?: string) => Promise<boolean>
   trocarTudo: (dados: Dados) => void
@@ -62,12 +64,14 @@ export function ProvedorDeDados({
   hoje,
   email,
   demo,
+  plano,
   children,
 }: {
   inicial: Dados
   hoje: string
   email: string
   demo: boolean
+  plano: PlanoDoUsuario
   children: ReactNode
 }) {
   const [estado, despachar] = useReducer(redutor, { confirmados: inicial, pendentes: [] })
@@ -125,8 +129,8 @@ export function ProvedorDeDados({
   }, [hoje])
 
   const valor = useMemo(
-    () => ({ dados, hoje, email, demo, aplicar, trocarTudo }),
-    [dados, hoje, email, demo, aplicar, trocarTudo],
+    () => ({ dados, hoje, email, demo, plano, aplicar, trocarTudo }),
+    [dados, hoje, email, demo, plano, aplicar, trocarTudo],
   )
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }

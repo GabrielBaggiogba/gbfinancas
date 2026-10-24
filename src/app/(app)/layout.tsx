@@ -8,6 +8,7 @@ import { obterUsuario } from '@/features/auth/sessao'
 import { ProvedorDoEditor } from '@/features/financas/components/Editor'
 import { carregarDados } from '@/features/financas/servidor/carregar'
 import { ProvedorDeDados } from '@/features/financas/store'
+import { obterAssinatura } from '@/features/planos/servidor'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { obterModo } from '@/lib/modo'
 import './app.css'
@@ -20,7 +21,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
   const usuario = await obterUsuario()
   if (!usuario) redirect('/login')
 
-  const dados = await carregarDados(usuario)
+  const [dados, assinatura] = await Promise.all([carregarDados(usuario), obterAssinatura(usuario)])
   const loja = await cookies()
   const tema = loja.get('gbf_tema')?.value
   const prefs = {
@@ -38,6 +39,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
             hoje={hojeEmSaoPaulo()}
             email={usuario.email}
             demo={modo === 'demo'}
+            plano={assinatura.plano}
           >
             <ProvedorDoEditor>
               <Casca>{children}</Casca>

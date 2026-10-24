@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import AnelMarca from '@/components/ui/AnelMarca'
@@ -206,6 +207,9 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
           </>
         )}
       </div>
+      <Link href="/planos" className="absolute bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[color:var(--painel)]/85 px-4 py-2 text-[.875rem] font-[620] text-menta shadow-[0_8px_24px_-12px_rgba(6,60,30,.5)] backdrop-blur">
+        Conheça os planos
+      </Link>
     </main>
   )
 }

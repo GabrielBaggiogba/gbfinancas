@@ -626,6 +626,10 @@ button.chip:active {
 .selo-erro {
   --c: var(--erro);
 }
+.selo-ouro {
+  --c: var(--ouro);
+}
+
 .selo-verde {
   --c: var(--menta);
 }
