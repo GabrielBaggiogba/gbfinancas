@@ -8,9 +8,11 @@ import { obterUsuario } from '@/features/auth/sessao'
 import { ProvedorDoEditor } from '@/features/financas/components/Editor'
 import { carregarDados } from '@/features/financas/servidor/carregar'
 import { ProvedorDeDados } from '@/features/financas/store'
+import { emailAtivo } from '@/features/avisos/email'
 import { obterFamilia } from '@/features/familia/servidor'
 import { iaAtiva } from '@/features/ia/ler'
 import { obterAssinatura } from '@/features/planos/servidor'
+import { numeroDoBot, whatsappAtivo } from '@/features/whatsapp/api'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { obterModo } from '@/lib/modo'
 import './app.css'
@@ -49,6 +51,12 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
             ia={iaAtiva()}
             usuarioId={usuario.id}
             familia={familia}
+            avisos={{
+              preferencias: assinatura.avisos,
+              email: emailAtivo(),
+              whatsapp: whatsappAtivo(),
+              numeroBot: numeroDoBot(),
+            }}
           >
             <ProvedorDoEditor>
               <Casca>{children}</Casca>

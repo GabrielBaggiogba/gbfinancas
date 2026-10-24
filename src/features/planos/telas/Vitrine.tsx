@@ -205,7 +205,9 @@ export default function Vitrine({ logado }: { logado: boolean }) {
           <div className="mx-auto max-w-6xl px-4">
             <div className="text-center">
               <h2 className="text-[2rem] font-[700] tracking-[-.03em]">Escolha o seu plano</h2>
-              <p className="mt-2 text-t2">Pague por mês ou por ano. No anual, você ganha 2 meses.</p>
+              <p className="mt-2 text-t2">
+                Pague por mês ou por ano. No anual, você ganha 2 meses.
+              </p>
               <div
                 role="tablist"
                 aria-label="Período de cobrança"
@@ -244,7 +246,9 @@ export default function Vitrine({ logado }: { logado: boolean }) {
                       </span>
                     )}
                     <h3 className="text-[1.375rem] font-[700]">{p.nome}</h3>
-                    <p className={`mt-1 text-[.9375rem] ${p.destaque ? 'text-[#a3b6a9]' : 'text-t2'}`}>
+                    <p
+                      className={`mt-1 text-[.9375rem] ${p.destaque ? 'text-[#a3b6a9]' : 'text-t2'}`}
+                    >
                       {p.resumo}
                     </p>
                     <p className="mt-5 flex items-end gap-1">
@@ -253,8 +257,12 @@ export default function Vitrine({ logado }: { logado: boolean }) {
                       </span>
                       <span className={p.destaque ? 'text-[#a3b6a9]' : 'text-t3'}>/mês</span>
                     </p>
-                    <p className={`mt-1 h-5 text-[.8125rem] ${p.destaque ? 'text-[#a3b6a9]' : 'text-t3'}`}>
-                      {periodo === 'anual' ? `${formatarReais(anual(p))} cobrados uma vez por ano` : ''}
+                    <p
+                      className={`mt-1 h-5 text-[.8125rem] ${p.destaque ? 'text-[#a3b6a9]' : 'text-t3'}`}
+                    >
+                      {periodo === 'anual'
+                        ? `${formatarReais(anual(p))} cobrados uma vez por ano`
+                        : ''}
                     </p>
                     <ul className="mb-7 mt-5 grid gap-2.5 text-[.9375rem]">
                       {p.recursos.map((r) => (
@@ -282,8 +290,8 @@ export default function Vitrine({ logado }: { logado: boolean }) {
               })}
             </div>
             <p className="mt-6 flex items-center justify-center gap-2 text-center text-[.875rem] text-t2">
-              <ShieldCheck size={17} aria-hidden="true" className="text-menta" /> Contas criadas antes
-              do lançamento são fundadoras: acesso total, sem custo.
+              <ShieldCheck size={17} aria-hidden="true" className="text-menta" /> Contas criadas
+              antes do lançamento são fundadoras: acesso total, sem custo.
             </p>
           </div>
         </section>
@@ -392,8 +400,8 @@ function ListaDeEspera({
         </p>
         {estado === 'feito' ? (
           <p role="status" className="mt-6 rounded-2xl bg-painel2 px-4 py-4 font-[600] text-menta">
-            Pronto! Você está na lista do plano{' '}
-            {PLANOS.find((p) => p.id === escolhido)?.nome}. Avisamos por e-mail.
+            Pronto! Você está na lista do plano {PLANOS.find((p) => p.id === escolhido)?.nome}.
+            Avisamos por e-mail.
           </p>
         ) : (
           <form onSubmit={enviar} className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto_auto]">

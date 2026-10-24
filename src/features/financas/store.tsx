@@ -16,6 +16,15 @@ import { gravar } from './actions'
 import { aplicarLocal } from './operacoes'
 import type { Familia } from '@/features/familia/servidor'
 import type { PlanoDoUsuario } from '@/features/planos/planos'
+import type { PreferenciasDeAviso } from '@/features/planos/servidor'
+
+/** Lembretes e WhatsApp: preferências da pessoa e o que está configurado no servidor. */
+export type Avisos = {
+  preferencias: PreferenciasDeAviso | null
+  email: boolean
+  whatsapp: boolean
+  numeroBot: string | null
+}
 import type { Dados, Operacao } from './tipos'
 
 // Os dados chegam do servidor uma vez (no layout) e ficam aqui. Cada alteração aparece
@@ -57,6 +66,7 @@ type Contexto = {
   ia: boolean
   usuarioId: string
   familia: Familia
+  avisos: Avisos
   /** Aplica na tela e envia ao servidor. Resolve `true` quando o servidor confirmou. */
   aplicar: (operacoes: Operacao[], aoConfirmar?: string) => Promise<boolean>
   trocarTudo: (dados: Dados) => void
@@ -73,6 +83,7 @@ export function ProvedorDeDados({
   ia,
   usuarioId,
   familia,
+  avisos,
   children,
 }: {
   inicial: Dados
@@ -83,6 +94,7 @@ export function ProvedorDeDados({
   ia: boolean
   usuarioId: string
   familia: Familia
+  avisos: Avisos
   children: ReactNode
 }) {
   const [estado, despachar] = useReducer(redutor, { confirmados: inicial, pendentes: [] })
@@ -140,8 +152,20 @@ export function ProvedorDeDados({
   }, [hoje])
 
   const valor = useMemo(
-    () => ({ dados, hoje, email, demo, plano, ia, usuarioId, familia, aplicar, trocarTudo }),
-    [dados, hoje, email, demo, plano, ia, usuarioId, familia, aplicar, trocarTudo],
+    () => ({
+      dados,
+      hoje,
+      email,
+      demo,
+      plano,
+      ia,
+      usuarioId,
+      familia,
+      avisos,
+      aplicar,
+      trocarTudo,
+    }),
+    [dados, hoje, email, demo, plano, ia, usuarioId, familia, avisos, aplicar, trocarTudo],
   )
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }

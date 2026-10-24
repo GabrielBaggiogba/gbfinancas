@@ -32,6 +32,7 @@ import { ItemDeLista } from '@/components/motion/Efeitos'
 import { Surgir } from '@/components/motion/Surgir'
 import Link from 'next/link'
 import { excluirConta, sair } from '@/features/auth/actions'
+import BlocoAvisos from '@/features/avisos/BlocoAvisos'
 import BlocoFamilia from '@/features/familia/telas/BlocoFamilia'
 import { NOME_DO_PLANO } from '@/features/planos/planos'
 import { baixar, interpretarExtrato, type LinhaImportada } from '@/lib/csv'
@@ -442,6 +443,7 @@ export default function Configuracoes() {
           </button>
         </Bloco>
         <BlocoFamilia />
+        <BlocoAvisos />
       </div>
 
       <Bloco

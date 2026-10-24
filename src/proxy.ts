@@ -41,7 +41,9 @@ export async function proxy(request: NextRequest) {
     pathname === '/planos' ||
     pathname.startsWith('/convite/') ||
     pathname.startsWith('/auth/') ||
-    pathname === '/api/mercado'
+    pathname === '/api/mercado' ||
+    pathname === '/api/whatsapp' ||
+    pathname === '/api/cron/lembretes'
   const origem = modo === 'supabase' ? resposta : undefined
 
   if (!logado && !publica) return ir('/login', origem)
