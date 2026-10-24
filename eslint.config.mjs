@@ -3,8 +3,8 @@ import nextTs from 'eslint-config-next/typescript'
 import prettier from 'eslint-config-prettier/flat'
 
 const config = [
-  // Scripts de render do vídeo: rodam fora do app.
-  { ignores: ['video/**'] },
+  // Scripts do vídeo e skills instaladas: rodam fora do app.
+  { ignores: ['video/**', '.agents/**', '.claude/**'] },
   ...nextVitals,
   ...nextTs,
   prettier,
