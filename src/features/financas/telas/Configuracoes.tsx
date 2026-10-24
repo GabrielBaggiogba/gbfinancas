@@ -632,7 +632,7 @@ export default function Configuracoes() {
                     <span className="min-w-0 flex-1 truncate">
                       {l.descricao || 'Sem descrição'}
                     </span>
-                    <span className={`num flex-none font-[600] ${l.entrada ? 'text-gelo' : ''}`}>
+                    <span className={`num flex-none font-[600] ${l.entrada ? 'text-menta' : ''}`}>
                       {l.entrada ? '+' : '−'} {(l.valor / 100).toFixed(2).replace('.', ',')}
                     </span>
                   </li>

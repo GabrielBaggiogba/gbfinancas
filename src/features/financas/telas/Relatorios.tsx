@@ -51,7 +51,7 @@ type Aba = 'mensal' | 'anual' | 'comparar'
 
 function Indicadores({ r }: { r: Resumo }) {
   const itens = [
-    { rotulo: 'Entradas', valor: <Valor centavos={r.entradas} animado className="text-gelo" /> },
+    { rotulo: 'Entradas', valor: <Valor centavos={r.entradas} animado className="text-menta" /> },
     { rotulo: 'Saídas', valor: <Valor centavos={r.saidas} animado /> },
     {
       rotulo: 'Saldo',
@@ -447,7 +447,7 @@ function Anual({ ano }: { ano: number }) {
                 <tr key={m.ref} className={m.ref > mesDe(hoje) ? 'opacity-40' : ''}>
                   <td className="font-[560] capitalize">{rotuloMesCurto(m.ref, true)}</td>
                   <td className="text-right">
-                    <Valor centavos={m.entradas} className="text-gelo" />
+                    <Valor centavos={m.entradas} className="text-menta" />
                   </td>
                   <td className="text-right">
                     <Valor centavos={m.saidas} />
@@ -566,7 +566,7 @@ function Comparar({ a, b }: { a: string; b: string }) {
           <>
             <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1">
               <span className="legenda inline-flex items-center gap-2 capitalize">
-                <i className="h-2.5 w-2.5 rounded-[3px] bg-azul" />
+                <i className="h-2.5 w-2.5 rounded-[3px] bg-verde" />
                 {rotuloMesCurto(a, true)}
               </span>
               <span className="legenda inline-flex items-center gap-2 capitalize">
@@ -596,7 +596,7 @@ function Comparar({ a, b }: { a: string; b: string }) {
                     </span>
                   </div>
                   <div className="grid gap-1">
-                    <Barra pct={v.total / maior} cor="var(--azul)" />
+                    <Barra pct={v.total / maior} cor="var(--verde)" />
                     <Barra pct={v.anterior / maior} cor="var(--serie-neutra)" />
                   </div>
                 </div>

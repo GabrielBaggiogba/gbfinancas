@@ -403,7 +403,7 @@ export default function Metas() {
                     <Valor
                       centavos={a.valor}
                       sinal={a.valor < 0 ? 'menos' : 'mais'}
-                      className={`font-[600] ${a.valor < 0 ? '' : 'text-gelo'}`}
+                      className={`font-[600] ${a.valor < 0 ? '' : 'text-menta'}`}
                     />
                     <button
                       type="button"

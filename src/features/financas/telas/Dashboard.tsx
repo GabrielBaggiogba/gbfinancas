@@ -60,7 +60,7 @@ const ICONE_INSIGHT = { alerta: CircleAlert, atencao: TriangleAlert, info: Info,
 const COR_INSIGHT = {
   alerta: 'var(--erro)',
   atencao: 'var(--aviso)',
-  info: 'var(--gelo)',
+  info: 'var(--menta)',
   bom: 'var(--ok)',
 }
 
@@ -113,7 +113,7 @@ export default function Dashboard() {
     {
       rotulo: 'Entradas do mês',
       icone: ArrowDownLeft,
-      valor: <Valor centavos={c.mes.entradas} animado className="text-gelo" />,
+      valor: <Valor centavos={c.mes.entradas} animado className="text-menta" />,
     },
     {
       rotulo: 'Saídas do mês',
@@ -168,7 +168,7 @@ export default function Dashboard() {
                 <Valor
                   centavos={c.mes.saldo}
                   sinal={c.mes.saldo >= 0 ? 'mais' : 'menos'}
-                  className={c.mes.saldo >= 0 ? 'text-gelo' : 'text-t1'}
+                  className={c.mes.saldo >= 0 ? 'text-menta' : 'text-t1'}
                 />
               </p>
             </div>
@@ -286,7 +286,7 @@ export default function Dashboard() {
                 <Link key={conta.id} href="/contas" className="linha-lista">
                   <span
                     className="icone-cat"
-                    style={{ ['--c' as string]: 'var(--azul)' }}
+                    style={{ ['--c' as string]: 'var(--verde)' }}
                     aria-hidden="true"
                   >
                     <I size={18} />
@@ -335,7 +335,7 @@ export default function Dashboard() {
                       ? 'var(--erro)'
                       : v.entrada
                         ? 'var(--ok)'
-                        : 'var(--azul)',
+                        : 'var(--verde)',
                     ['--i' as string]: i,
                   }}
                 >
@@ -353,7 +353,7 @@ export default function Dashboard() {
                       <Valor
                         centavos={v.valor}
                         sinal={v.entrada ? 'mais' : 'menos'}
-                        className={`font-[600] ${v.entrada ? 'text-gelo' : ''}`}
+                        className={`font-[600] ${v.entrada ? 'text-menta' : ''}`}
                       />
                       <button
                         type="button"
@@ -454,7 +454,7 @@ export default function Dashboard() {
                       pct={pct}
                       cor={
                         nivel === 'ok'
-                          ? 'var(--azul)'
+                          ? 'var(--verde)'
                           : nivel === 'atencao'
                             ? 'var(--aviso)'
                             : 'var(--erro)'

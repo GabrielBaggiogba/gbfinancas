@@ -134,7 +134,7 @@ export function Faisca({ children, className }: { children: ReactNode; className
             return (
               <motion.line
                 key={i}
-                stroke="var(--gelo)"
+                stroke="var(--menta)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 initial={{
@@ -186,7 +186,7 @@ export function TextoSurgindo({ texto, className }: { texto: string; className?:
 export function LuzNoFio({
   largura = 120,
   altura = 36,
-  cor = 'var(--azul)',
+  cor = 'var(--verde)',
   pulso = 0,
 }: {
   largura?: number
@@ -231,7 +231,7 @@ export function Anel({
   pct,
   tamanho = 72,
   espessura = 7,
-  cor = 'var(--azul)',
+  cor = 'var(--verde)',
   children,
 }: {
   pct: number

@@ -24,7 +24,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
   const loja = await cookies()
   const tema = loja.get('gbf_tema')?.value
   const prefs = {
-    tema: (tema === 'claro' || tema === 'escuro' ? tema : 'sistema') as Tema,
+    tema: (tema === 'sistema' || tema === 'escuro' ? tema : 'claro') as Tema,
     compacto: loja.get('gbf_compacto')?.value === '1',
     ocultar: loja.get('gbf_ocultar')?.value === '1',
   }

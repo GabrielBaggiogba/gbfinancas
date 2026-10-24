@@ -145,7 +145,7 @@ export default function Recorrentes() {
               <ArrowDownLeft size={15} className="text-t3" aria-hidden="true" /> Entradas fixas por
               mês
             </p>
-            <p className="grande mt-2 text-gelo">
+            <p className="grande mt-2 text-menta">
               <Valor centavos={c.entradas} animado />
             </p>
           </Holofote>
@@ -241,7 +241,7 @@ export default function Recorrentes() {
                       <Valor
                         centavos={r.valor}
                         sinal={entrada ? 'mais' : 'menos'}
-                        className={`flex-none font-[600] ${entrada ? 'text-gelo' : ''}`}
+                        className={`flex-none font-[600] ${entrada ? 'text-menta' : ''}`}
                       />
                       {status !== 'pausado' && (
                         <motion.button

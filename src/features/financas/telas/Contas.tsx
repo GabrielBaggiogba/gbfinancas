@@ -212,7 +212,7 @@ export default function Contas() {
                     <span
                       data-conta={conta.id}
                       className="icone-cat !h-11 !w-11"
-                      style={{ ['--c' as string]: 'var(--azul)' }}
+                      style={{ ['--c' as string]: 'var(--verde)' }}
                       aria-hidden="true"
                     >
                       <I size={20} />
@@ -258,12 +258,12 @@ export default function Contas() {
               key={feixe.chave}
               d={feixe.d}
               fill="none"
-              stroke="var(--azul)"
+              stroke="var(--verde)"
               strokeWidth="2.4"
               strokeLinecap="round"
               pathLength={1}
               strokeDasharray="0.2 1.4"
-              style={{ filter: 'drop-shadow(0 0 7px var(--azul))' }}
+              style={{ filter: 'drop-shadow(0 0 7px var(--verde))' }}
               initial={{ strokeDashoffset: 0.2, opacity: 1 }}
               animate={{ strokeDashoffset: -1.05, opacity: [1, 1, 0] }}
               transition={{ duration: 0.95, ease: CURVA_FIO, delay: 0.25 }}

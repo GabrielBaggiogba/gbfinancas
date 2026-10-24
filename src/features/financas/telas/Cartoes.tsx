@@ -39,7 +39,7 @@ import { FolhaDeFormulario, useFolha } from './formularios'
 import { Bloco, LinhaDeLancamento } from './partes'
 
 const SELO: Record<StatusFatura, { rotulo: string; classe: string }> = {
-  aberta: { rotulo: 'Aberta', classe: 'selo-azul' },
+  aberta: { rotulo: 'Aberta', classe: 'selo-verde' },
   futura: { rotulo: 'Futura', classe: '' },
   fechada: { rotulo: 'Fechada', classe: 'selo-aviso' },
   paga: { rotulo: 'Paga', classe: 'selo-ok' },
@@ -315,7 +315,7 @@ function PainelDoCartao({
           </div>
           <Barra
             pct={pct}
-            cor={pct >= 0.9 ? 'var(--erro)' : pct >= 0.7 ? 'var(--aviso)' : 'var(--azul)'}
+            cor={pct >= 0.9 ? 'var(--erro)' : pct >= 0.7 ? 'var(--aviso)' : 'var(--verde)'}
           />
         </div>
 

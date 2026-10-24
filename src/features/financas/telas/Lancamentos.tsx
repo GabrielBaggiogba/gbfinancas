@@ -77,7 +77,7 @@ const ROTULO_TIPO = {
   pagamento_fatura: 'Fatura',
 } as const
 const SELO_TIPO = {
-  receita: 'selo-azul',
+  receita: 'selo-verde',
   despesa: '',
   transferencia: '',
   pagamento_fatura: '',
@@ -454,7 +454,7 @@ export default function Lancamentos() {
               {filtrados.length} {filtrados.length === 1 ? 'lançamento' : 'lançamentos'}
             </p>
             <p className="legenda ml-auto">
-              Entradas <Valor centavos={totais.entradas} className="ml-1 font-[650] text-gelo" />
+              Entradas <Valor centavos={totais.entradas} className="ml-1 font-[650] text-menta" />
             </p>
             <p className="legenda">
               Saídas <Valor centavos={totais.saidas} className="ml-1 font-[650] text-t1" />
@@ -718,7 +718,7 @@ function Calendario({ filtrados, usarFiltro }: { filtrados: Lancamento[]; usarFi
                 {info && (
                   <span className="cal-valor relative mt-1.5 block text-[.6875rem] leading-[1.35]">
                     {info.entradas > 0 && (
-                      <span className="sigilo block truncate text-gelo">
+                      <span className="sigilo block truncate text-menta">
                         + {formatarCurto(info.entradas).replace('R$ ', '')}
                       </span>
                     )}
@@ -730,7 +730,7 @@ function Calendario({ filtrados, usarFiltro }: { filtrados: Lancamento[]; usarFi
                   </span>
                 )}
                 {info && (
-                  <i className="absolute bottom-2 right-2 hidden h-1.5 w-1.5 rounded-full bg-azul max-[760px]:block" />
+                  <i className="absolute bottom-2 right-2 hidden h-1.5 w-1.5 rounded-full bg-verde max-[760px]:block" />
                 )}
               </motion.button>
             )

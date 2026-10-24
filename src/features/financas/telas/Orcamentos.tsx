@@ -30,7 +30,7 @@ import { FolhaDeFormulario, useFolha } from './formularios'
 import { Bloco, SeletorDeMes } from './partes'
 
 const COR: Record<NivelOrcamento, string> = {
-  ok: 'var(--azul)',
+  ok: 'var(--verde)',
   atencao: 'var(--aviso)',
   alerta: 'var(--erro)',
   estourado: 'var(--erro)',
@@ -309,7 +309,7 @@ export default function Orcamentos() {
                               h.usado > i.o.valor
                                 ? 'var(--erro)'
                                 : h.ref === ref
-                                  ? 'var(--azul)'
+                                  ? 'var(--verde)'
                                   : 'var(--serie-neutra)',
                             opacity: h.ref === ref ? 1 : 0.55,
                           }}

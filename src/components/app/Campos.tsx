@@ -138,7 +138,7 @@ export function Vazio({
     <div className="relative flex flex-col items-center px-6 py-12 text-center">
       <div className="relative mb-5 grid h-[72px] w-[72px] place-items-center">
         <span className="respira inset-[-22px]" />
-        <span className="relative grid h-[72px] w-[72px] place-items-center rounded-full bg-painel2 text-gelo shadow-[inset_0_0_0_1px_var(--linha2)]">
+        <span className="relative grid h-[72px] w-[72px] place-items-center rounded-full bg-painel2 text-menta shadow-[inset_0_0_0_1px_var(--linha2)]">
           {icone}
         </span>
       </div>

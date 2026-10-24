@@ -84,9 +84,9 @@ function hexParaRgb(hex: string): [number, number, number] {
 }
 
 export default function Grainient({
-  cor1 = '#2AA8EA',
-  cor2 = '#000000',
-  cor3 = '#2AA8EA',
+  cor1 = '#16A34A',
+  cor2 = '#F3F8F4',
+  cor3 = '#86EFAC',
   className = '',
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)

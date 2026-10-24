@@ -50,13 +50,13 @@ export function Bloco({
 export function IconeDoLancamento({ l, dados }: { l: Lancamento; dados: Dados }) {
   if (l.tipo === 'transferencia')
     return (
-      <span className="icone-cat" style={{ ['--c' as string]: 'var(--azul)' }} aria-hidden="true">
+      <span className="icone-cat" style={{ ['--c' as string]: 'var(--verde)' }} aria-hidden="true">
         <ArrowLeftRight size={18} />
       </span>
     )
   if (l.tipo === 'pagamento_fatura')
     return (
-      <span className="icone-cat" style={{ ['--c' as string]: 'var(--azul)' }} aria-hidden="true">
+      <span className="icone-cat" style={{ ['--c' as string]: 'var(--verde)' }} aria-hidden="true">
         <CreditCard size={18} />
       </span>
     )
@@ -71,7 +71,7 @@ export function IconeDoLancamento({ l, dados }: { l: Lancamento; dados: Dados })
 
 export function ValorDoLancamento({ l, className = '' }: { l: Lancamento; className?: string }) {
   if (l.tipo === 'receita')
-    return <Valor centavos={l.valor} sinal="mais" className={`font-[600] text-gelo ${className}`} />
+    return <Valor centavos={l.valor} sinal="mais" className={`font-[600] text-menta ${className}`} />
   if (l.tipo === 'despesa')
     return <Valor centavos={l.valor} sinal="menos" className={`font-[600] ${className}`} />
   return <Valor centavos={l.valor} sinal="nenhum" className={`font-[600] text-t2 ${className}`} />

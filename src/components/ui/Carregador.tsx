@@ -9,9 +9,9 @@ export default function Carregador({ tamanho = 34 }: { tamanho?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      <rect x="2.5" y="4" width="5" height="16" rx="2.5" fill="var(--gelo)" />
-      <rect x="9.5" y="4" width="5" height="16" rx="2.5" fill="var(--azul)" />
-      <rect x="16.5" y="4" width="5" height="16" rx="2.5" fill="var(--gelo)" />
+      <rect x="2.5" y="4" width="5" height="16" rx="2.5" fill="var(--menta)" />
+      <rect x="9.5" y="4" width="5" height="16" rx="2.5" fill="var(--verde)" />
+      <rect x="16.5" y="4" width="5" height="16" rx="2.5" fill="var(--menta)" />
     </svg>
   )
 }

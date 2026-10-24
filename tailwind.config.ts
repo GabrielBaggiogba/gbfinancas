@@ -9,8 +9,9 @@ const cores = [
   't1',
   't2',
   't3',
-  'azul',
-  'gelo',
+  'verde',
+  'menta',
+  'ouro',
   'tinta',
   'erro',
 ]

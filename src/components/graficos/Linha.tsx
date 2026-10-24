@@ -14,7 +14,7 @@ export default function Linha({
   pontos,
   altura = 220,
   mini = false,
-  cor = 'var(--azul)',
+  cor = 'var(--verde)',
   nome,
 }: {
   pontos: PontoDeLinha[]

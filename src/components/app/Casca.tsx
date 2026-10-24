@@ -150,7 +150,7 @@ export default function Casca({ children }: { children: ReactNode }) {
               <TextoSurgindo key={atual.href} texto={atual.rotulo} />
             </h1>
             {demo && (
-              <span className="selo selo-azul mov-pilula max-[900px]:!hidden" role="status">
+              <span className="selo selo-verde mov-pilula max-[900px]:!hidden" role="status">
                 Modo demonstração
               </span>
             )}
@@ -207,7 +207,7 @@ export default function Casca({ children }: { children: ReactNode }) {
           <div className="grid place-items-center">
             <button
               type="button"
-              className="relative grid h-[52px] w-[52px] place-items-center rounded-full bg-gelo text-tinta shadow-[0_10px_24px_-8px_var(--azul)] transition-transform active:scale-95"
+              className="relative grid h-[52px] w-[52px] place-items-center rounded-full bg-menta text-tinta shadow-[0_10px_24px_-8px_var(--verde)] transition-transform active:scale-95"
               aria-label="Novo lançamento"
               onClick={() => {
                 setOnda((o) => o + 1)
@@ -243,7 +243,7 @@ export default function Casca({ children }: { children: ReactNode }) {
                   href={d.href}
                   onClick={() => setMais(false)}
                   aria-current={d.href === caminho ? 'page' : undefined}
-                  className="flex h-[72px] flex-col justify-center gap-1.5 rounded-2xl bg-painel2 px-4 font-[580] shadow-[inset_0_0_0_1px_var(--linha)] aria-[current=page]:text-gelo"
+                  className="flex h-[72px] flex-col justify-center gap-1.5 rounded-2xl bg-painel2 px-4 font-[580] shadow-[inset_0_0_0_1px_var(--linha)] aria-[current=page]:text-menta"
                 >
                   <d.icone size={20} aria-hidden="true" />
                   {d.rotulo}

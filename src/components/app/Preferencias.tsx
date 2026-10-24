@@ -37,16 +37,16 @@ export function ProvedorDePreferencias({
     const raiz = document.documentElement
     const claro =
       prefs.tema === 'claro' ||
-      (prefs.tema === 'sistema' && window.matchMedia('(prefers-color-scheme: light)').matches)
-    raiz.style.background = claro ? '#f3f5f8' : ''
-    raiz.style.colorScheme = claro ? 'light' : ''
+      (prefs.tema === 'sistema' && !window.matchMedia('(prefers-color-scheme: dark)').matches)
+    raiz.style.background = claro ? '' : '#050d09'
+    raiz.style.colorScheme = claro ? '' : 'dark'
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', claro ? '#f3f5f8' : '#000000')
+      ?.setAttribute('content', claro ? '#f3f8f4' : '#050d09')
     return () => {
       raiz.style.background = ''
       raiz.style.colorScheme = ''
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#000000')
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f3f8f4')
     }
   }, [prefs.tema])
 

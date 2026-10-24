@@ -40,13 +40,13 @@ export function ProvedorDeAvisos({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, y: 12, scale: 0.96, transition: MOLA }}
             >
               {a.tipo === 'ok' ? (
-                <span className="text-gelo">
+                <span className="text-menta">
                   <AnelMarca tamanho={22} />
                 </span>
               ) : a.tipo === 'erro' ? (
                 <CircleAlert size={20} className="text-erro" aria-hidden="true" />
               ) : (
-                <Info size={20} className="text-gelo" aria-hidden="true" />
+                <Info size={20} className="text-menta" aria-hidden="true" />
               )}
               <span>{a.texto}</span>
             </motion.div>

@@ -108,7 +108,7 @@ export default function FormularioAuth({ aviso, erroLink, demo }: Props) {
 
         {confirmarEmail ? (
           <div className="mov-entra flex flex-col items-start" style={indice(2)}>
-            <div className="text-gelo">
+            <div className="text-menta">
               <AnelMarca tamanho={72} />
             </div>
             <h2 className="mt-5 text-[1.25rem] font-[650] leading-[1.2] tracking-[-0.02em]">

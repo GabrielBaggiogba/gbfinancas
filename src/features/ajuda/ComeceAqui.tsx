@@ -99,7 +99,7 @@ export default function ComeceAqui() {
               >
                 <span
                   className={`grid h-9 w-9 flex-none place-items-center rounded-full ${
-                    i === atual ? 'bg-gelo text-tinta' : 'bg-painel2 text-t2'
+                    i === atual ? 'bg-menta text-tinta' : 'bg-painel2 text-t2'
                   }`}
                   aria-hidden="true"
                 >

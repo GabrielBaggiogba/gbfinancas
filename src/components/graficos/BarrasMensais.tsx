@@ -27,7 +27,7 @@ export default function BarrasMensais({
   const faixa = grupos.length ? w / grupos.length : 0
   const barra = Math.max(4, Math.min(22, faixa / 2 - 5))
   const y = (v: number) => m.t + h - (v / teto) * h
-  const cores = ['var(--azul)', 'var(--serie-neutra)']
+  const cores = ['var(--verde)', 'var(--serie-neutra)']
 
   return (
     <div>

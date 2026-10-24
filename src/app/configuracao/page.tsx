@@ -32,17 +32,17 @@ export default function Configuracao() {
         <li>Crie um projeto em supabase.com</li>
         <li>
           No SQL Editor, rode o arquivo{' '}
-          <code className="break-all rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-gelo">
+          <code className="break-all rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-menta">
             supabase/migrations/20261006000000_cria_lancamentos_diarios.sql
           </code>
         </li>
         <li>
           Copie{' '}
-          <code className="rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-gelo">
+          <code className="rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-menta">
             .env.example
           </code>{' '}
           para{' '}
-          <code className="rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-gelo">
+          <code className="rounded-md bg-painel2 px-1.5 py-0.5 text-[.875rem] text-menta">
             .env.local
           </code>
           , preencha as duas variáveis e reinicie
@@ -55,7 +55,7 @@ export default function Configuracao() {
           {faltando.map((nome) => (
             <li
               key={nome}
-              className="break-all rounded-full bg-painel2 px-3 py-1.5 text-[.8125rem] text-gelo shadow-[inset_0_0_0_1px_var(--linha)]"
+              className="break-all rounded-full bg-painel2 px-3 py-1.5 text-[.8125rem] text-menta shadow-[inset_0_0_0_1px_var(--linha)]"
             >
               {nome}
             </li>
