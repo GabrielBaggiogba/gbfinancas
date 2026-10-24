@@ -32,6 +32,7 @@ import { ItemDeLista } from '@/components/motion/Efeitos'
 import { Surgir } from '@/components/motion/Surgir'
 import Link from 'next/link'
 import { excluirConta, sair } from '@/features/auth/actions'
+import BlocoFamilia from '@/features/familia/telas/BlocoFamilia'
 import { NOME_DO_PLANO } from '@/features/planos/planos'
 import { baixar, interpretarExtrato, type LinhaImportada } from '@/lib/csv'
 import { apagarTudo, restaurarBackup } from '../actions'
@@ -422,7 +423,9 @@ export default function Configuracoes() {
             </Link>
           </div>
           {plano === 'fundador' && (
-            <p className="miudo mt-1.5">Conta fundadora: acesso total a todos os recursos, sem custo.</p>
+            <p className="miudo mt-1.5">
+              Conta fundadora: acesso total a todos os recursos, sem custo.
+            </p>
           )}
           <form action={sair} className="mt-4">
             <button type="submit" className="b b-suave">
@@ -438,6 +441,7 @@ export default function Configuracoes() {
             <Trash2 size={17} aria-hidden="true" /> Excluir conta
           </button>
         </Bloco>
+        <BlocoFamilia />
       </div>
 
       <Bloco

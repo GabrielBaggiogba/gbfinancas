@@ -17,7 +17,7 @@ export class ErroDeBanco extends Error {}
 
 export function obterBanco(usuario: { id: string; email: string }): Banco {
   const modo = obterModo()
-  if (modo === 'supabase') return bancoSupabase()
+  if (modo === 'supabase') return bancoSupabase(usuario)
   if (modo === 'demo') return bancoDemo(usuario.email)
   throw new Error('Supabase não configurado.')
 }

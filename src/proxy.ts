@@ -39,6 +39,7 @@ export async function proxy(request: NextRequest) {
   const publica =
     pathname === '/login' ||
     pathname === '/planos' ||
+    pathname.startsWith('/convite/') ||
     pathname.startsWith('/auth/') ||
     pathname === '/api/mercado'
   const origem = modo === 'supabase' ? resposta : undefined

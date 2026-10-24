@@ -1,4 +1,6 @@
 import 'server-only'
+import type { Usuario } from '@/features/auth/sessao'
+import { obterFamilia } from '@/features/familia/servidor'
 import { criarClienteServidor } from '@/lib/supabase/server'
 import {
   CAMPOS_DINHEIRO,
@@ -44,7 +46,10 @@ function traduzir(erro: { code?: string; message?: string }): string {
 const PAGINA = 1000
 const MAXIMO = 50_000
 
-export function bancoSupabase(): Banco {
+export function bancoSupabase(usuario: Usuario): Banco {
+  // Membro de uma família usa as finanças do dono: lê só as linhas dele e grava em nome dele.
+  const espaco = obterFamilia(usuario).then((f) => f.donoId)
+
   // O cliente tipado não combina com nomes de tabela dinâmicos; o formato das linhas
   // é garantido pelos schemas Zod antes de chegar aqui.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -57,6 +62,7 @@ export function bancoSupabase(): Banco {
       const { data, error } = await supabase
         .from(tabela)
         .select('*')
+        .eq('user_id', await espaco)
         .order('created_at', { ascending: true })
         .order('id', { ascending: true })
         .range(inicio, inicio + PAGINA - 1)
@@ -81,8 +87,12 @@ export function bancoSupabase(): Banco {
       )
     }
     const supabase = await cliente
+    const dono = await espaco
+    const deOutro = dono !== usuario.id
     for (let i = 0; i < linhas.length; i += 500) {
-      const lote = linhas.slice(i, i + 500).map((l) => paraBanco(tabela, l))
+      const lote = linhas
+        .slice(i, i + 500)
+        .map((l) => (deOutro ? { ...paraBanco(tabela, l), user_id: dono } : paraBanco(tabela, l)))
       const { error } = await supabase.from(tabela).insert(lote)
       if (error) throw new ErroDeBanco(traduzir(error))
     }
@@ -120,6 +130,8 @@ export function bancoSupabase(): Banco {
         data: { user },
       } = await supabase.auth.getUser()
       if (!user) throw new ErroDeBanco('Sua sessão expirou. Entre de novo.')
+      if ((await espaco) !== user.id)
+        throw new ErroDeBanco('Só quem criou a família pode restaurar backup ou apagar os dados.')
       for (const tabela of [...TABELAS].reverse()) {
         const { error } = await supabase.from(tabela).delete().eq('user_id', user.id)
         if (error) throw new ErroDeBanco(traduzir(error))

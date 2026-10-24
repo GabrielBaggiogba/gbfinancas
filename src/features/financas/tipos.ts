@@ -53,6 +53,8 @@ export type Lancamento = {
   recorrente_id: string | null
   fatura_ref: string | null
   created_at: string
+  /** Quem lançou (gestão compartilhada). Vem do banco; o app não envia. */
+  criado_por?: string | null
 }
 
 export type Orcamento = {

@@ -14,6 +14,7 @@ import { useAvisar } from '@/components/app/Avisos'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { gravar } from './actions'
 import { aplicarLocal } from './operacoes'
+import type { Familia } from '@/features/familia/servidor'
 import type { PlanoDoUsuario } from '@/features/planos/planos'
 import type { Dados, Operacao } from './tipos'
 
@@ -54,6 +55,8 @@ type Contexto = {
   plano: PlanoDoUsuario
   /** Leitura com IA configurada (chave da Anthropic no servidor). */
   ia: boolean
+  usuarioId: string
+  familia: Familia
   /** Aplica na tela e envia ao servidor. Resolve `true` quando o servidor confirmou. */
   aplicar: (operacoes: Operacao[], aoConfirmar?: string) => Promise<boolean>
   trocarTudo: (dados: Dados) => void
@@ -68,6 +71,8 @@ export function ProvedorDeDados({
   demo,
   plano,
   ia,
+  usuarioId,
+  familia,
   children,
 }: {
   inicial: Dados
@@ -76,6 +81,8 @@ export function ProvedorDeDados({
   demo: boolean
   plano: PlanoDoUsuario
   ia: boolean
+  usuarioId: string
+  familia: Familia
   children: ReactNode
 }) {
   const [estado, despachar] = useReducer(redutor, { confirmados: inicial, pendentes: [] })
@@ -133,8 +140,8 @@ export function ProvedorDeDados({
   }, [hoje])
 
   const valor = useMemo(
-    () => ({ dados, hoje, email, demo, plano, ia, aplicar, trocarTudo }),
-    [dados, hoje, email, demo, plano, ia, aplicar, trocarTudo],
+    () => ({ dados, hoje, email, demo, plano, ia, usuarioId, familia, aplicar, trocarTudo }),
+    [dados, hoje, email, demo, plano, ia, usuarioId, familia, aplicar, trocarTudo],
   )
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }

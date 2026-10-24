@@ -5,6 +5,7 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { obterModo } from '@/lib/modo'
 import { criarClienteServidor } from '@/lib/supabase/server'
+import { CODIGO_CONVITE, COOKIE_CONVITE } from '@/features/familia/convite'
 import { traduzirErroAuth } from './erros'
 import { cadastroSchema, credenciaisSchema } from './esquemas'
 
@@ -13,6 +14,12 @@ export type ResultadoAuth =
 
 const SEM_CONEXAO = 'Sem conexão com o servidor. Tente de novo.'
 const COOKIE_SESSAO_DEMO = 'gbf_demo_sessao'
+
+// Depois de entrar: volta ao convite de família, se a pessoa veio de um link (caminho fixo).
+async function destino(): Promise<string> {
+  const codigo = (await cookies()).get(COOKIE_CONVITE)?.value
+  return codigo && CODIGO_CONVITE.test(codigo) ? `/convite/${codigo}` : '/'
+}
 
 async function abrirSessaoDemo(email: string) {
   ;(await cookies()).set(COOKIE_SESSAO_DEMO, email, {
@@ -46,7 +53,7 @@ export async function entrar(dados: unknown): Promise<ResultadoAuth> {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect(await destino())
 }
 
 export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
@@ -58,7 +65,7 @@ export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
   if (modo === 'demo') {
     await abrirSessaoDemo(email)
     revalidatePath('/', 'layout')
-    redirect('/')
+    redirect(await destino())
   }
   if (modo !== 'supabase') return { ok: false, mensagem: 'Falta conectar o Supabase.' }
 
@@ -82,7 +89,7 @@ export async function cadastrar(dados: unknown): Promise<ResultadoAuth> {
     return { ok: false, mensagem: traduzirErroAuth(error) }
   if (data?.session) {
     revalidatePath('/', 'layout')
-    redirect('/')
+    redirect(await destino())
   }
   return { ok: true, confirmar: true, email }
 }

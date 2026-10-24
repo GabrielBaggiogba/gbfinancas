@@ -86,7 +86,16 @@ const SELO_TIPO = {
 const PAGINA = 80
 
 export default function Lancamentos() {
-  const { dados, hoje, aplicar } = useDados()
+  const { dados, hoje, aplicar, familia, usuarioId } = useDados()
+  // Na família, mostra quem lançou quando não foi a própria pessoa.
+  const pessoas = new Map([
+    [familia.donoId, familia.donoEmail],
+    ...familia.membros.map((m) => [m.id, m.email] as const),
+  ])
+  const autor = (l: Lancamento) =>
+    familia.papel !== 'sozinho' && l.criado_por && l.criado_por !== usuarioId
+      ? (pessoas.get(l.criado_por) ?? 'outra pessoa').split('@')[0]
+      : null
   const { novo, editar, duplicar } = useEditor()
   const confirmar = useConfirmar()
   const celular = useCelular()
@@ -563,9 +572,11 @@ export default function Lancamentos() {
                             <span className="block max-w-[34ch] truncate font-[560]">
                               {tituloDoLancamento(l, dados)}
                             </span>
-                            {l.observacao && (
+                            {(l.observacao || autor(l)) && (
                               <span className="miudo block max-w-[34ch] truncate">
-                                {l.observacao}
+                                {[autor(l) && `por ${autor(l)}`, l.observacao]
+                                  .filter(Boolean)
+                                  .join(' · ')}
                               </span>
                             )}
                           </span>
