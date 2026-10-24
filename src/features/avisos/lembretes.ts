@@ -1,5 +1,6 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { cobrancaAtiva, limitesDe, type PlanoDoUsuario } from '@/features/planos/planos'
 import { enviarModelo, whatsappAtivo } from '@/features/whatsapp/api'
 import { dataBR, diasEntre, hojeEmSaoPaulo, somarDias } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
@@ -57,9 +58,18 @@ export async function enviarLembretes(): Promise<{
   const donoDe = new Map((membros ?? []).map((m) => [m.membro as string, m.dono as string]))
   const emails = porEmail ? await todosOsEmails(admin) : new Map<string, string>()
   const contasDe = new Map<string, Conta[]>()
+  // Com a cobrança ligada, lembretes são do plano Completo em diante (vale o plano do dono).
+  const cobranca = cobrancaAtiva()
+  const planoDe = new Map<string, PlanoDoUsuario>()
+  if (cobranca) {
+    const { data } = await admin.from('perfis').select('user_id, plano')
+    for (const p of data ?? [])
+      planoDe.set(p.user_id as string, (p.plano ?? null) as PlanoDoUsuario)
+  }
 
   for (const p of perfis) {
     const dono = donoDe.get(p.user_id) ?? p.user_id
+    if (cobranca && !limitesDe(planoDe.get(dono) ?? null, true).lembretes) continue
     if (!contasDe.has(dono)) {
       const { data } = await admin
         .from('recorrentes')

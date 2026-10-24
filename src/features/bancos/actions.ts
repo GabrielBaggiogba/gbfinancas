@@ -6,6 +6,7 @@ import { after } from 'next/server'
 import { z } from 'zod'
 import { obterUsuario } from '@/features/auth/sessao'
 import { obterFamilia } from '@/features/familia/servidor'
+import { bloqueio } from '@/features/planos/permissao'
 import { clienteAdmin } from '@/lib/supabase/admin'
 import { clientePluggy, pluggyAtivo, urlDoWebhook } from './pluggy'
 import { sincronizarConexao, statusDaConexao } from './sincronizar'
@@ -20,6 +21,8 @@ export async function criarTokenDeConexao(itemId?: unknown): Promise<Resultado<{
   const usuario = await obterUsuario()
   if (!usuario) return { ok: false, mensagem: SESSAO }
   if (!pluggyAtivo()) return { ok: false, mensagem: DESLIGADO }
+  const barrado = await bloqueio(usuario, 'openFinance')
+  if (barrado) return { ok: false, mensagem: barrado }
   let item: string | undefined
   if (itemId !== undefined) {
     const r = itemSchema.safeParse(itemId)

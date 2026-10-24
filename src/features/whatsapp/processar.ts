@@ -3,7 +3,9 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { ESQUEMAS } from '@/features/financas/esquemas'
 import { lancamentoVazio, parcelar } from '@/features/financas/fabrica'
 import { ErroDeIA, iaAtiva, lerLancamentos, type Anexo, type Contexto } from '@/features/ia/ler'
-import { dataBR, hojeEmSaoPaulo } from '@/lib/datas'
+import { cobrancaAtiva, limitesDe, type PlanoDoUsuario } from '@/features/planos/planos'
+import { mensagemDeBloqueio } from '@/features/planos/permissao'
+import { dataBR, fimDoMes, hojeEmSaoPaulo, inicioDoMes, mesDe, rotuloMes } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
 import { clienteAdmin } from '@/lib/supabase/admin'
 import { baixarMidia, enviarTexto } from './api'
@@ -54,6 +56,15 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     .eq('membro', usuario)
     .maybeSingle()
   const dono = (membro?.dono as string | undefined) ?? usuario
+
+  // Com a cobrança ligada, o WhatsApp é do plano Completo em diante (vale o plano do dono).
+  if (cobrancaAtiva()) {
+    const { data: p } = await admin.from('perfis').select('plano').eq('user_id', dono).maybeSingle()
+    if (!limitesDe((p?.plano ?? null) as PlanoDoUsuario, true).whatsapp) {
+      await enviarTexto(m.from, mensagemDeBloqueio('whatsapp'))
+      return
+    }
+  }
 
   if (/^(desfazer|apagar|cancelar)$/i.test(texto))
     return desfazer(admin, m.from, usuario, dono, perfil)
@@ -167,10 +178,46 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     const parcelas = r.parcelas ? ` em ${r.parcelas}x` : ''
     return `• ${r.descricao || 'Lançamento'} · ${sinal}${formatarReais(r.valor)}${parcelas}\n   ${cat} · ${onde} · ${dataBR(r.data)}`
   })
+  const orcamento = await avisoDeOrcamento(admin, dono, ctx, leitura.itens)
   await enviarTexto(
     m.from,
-    `✅ Registrado:\n${linhasTexto.join('\n')}\n\nResponda *desfazer* para apagar.`,
+    `✅ Registrado:\n${linhasTexto.join('\n')}${orcamento ? `\n\n${orcamento}` : ''}\n\nResponda *desfazer* para apagar.`,
   )
+}
+
+/** "Você usou 64% do orçamento de Alimentação" para a categoria do primeiro gasto. */
+async function avisoDeOrcamento(
+  admin: SupabaseClient,
+  dono: string,
+  ctx: Contexto,
+  itens: { tipo: string; categoria_id: string | null; data: string }[],
+): Promise<string | null> {
+  const gasto = itens.find((i) => i.tipo === 'despesa' && i.categoria_id)
+  if (!gasto?.categoria_id) return null
+  const cat = ctx.categorias.find((c) => c.id === gasto.categoria_id)
+  const raiz = cat?.pai ? ctx.categorias.find((c) => c.id === cat.pai) : cat
+  if (!raiz) return null
+  const { data: orc } = await admin
+    .from('orcamentos')
+    .select('valor')
+    .eq('user_id', dono)
+    .eq('categoria_id', raiz.id)
+    .maybeSingle()
+  if (!orc) return null
+  const familia = [raiz.id, ...ctx.categorias.filter((c) => c.pai === raiz.id).map((c) => c.id)]
+  const mes = mesDe(gasto.data)
+  const { data: doMes } = await admin
+    .from('lancamentos')
+    .select('valor')
+    .eq('user_id', dono)
+    .eq('tipo', 'despesa')
+    .in('categoria_id', familia)
+    .gte('data', inicioDoMes(mes))
+    .lte('data', fimDoMes(mes))
+  const usado = (doMes ?? []).reduce((s, l) => s + Number(l.valor), 0)
+  const pct = Math.round((usado / Number(orc.valor)) * 100)
+  const alerta = pct >= 100 ? '🚨 ' : pct >= 90 ? '⚠️ ' : ''
+  return `${alerta}Você usou ${pct}% do orçamento de ${raiz.nome} em ${rotuloMes(mes)}.`
 }
 
 async function contexto(admin: SupabaseClient, dono: string, hoje: string): Promise<Contexto> {

@@ -19,7 +19,7 @@ type Passo = {
 
 /** Guia de quem está começando: some quando tudo estiver feito ou a pessoa fechar. */
 export default function PrimeirosPassos() {
-  const { dados } = useDados()
+  const { dados, bancos } = useDados()
   const { novo } = useEditor()
   const [fechado, setFechado] = useState(true)
 
@@ -37,6 +37,15 @@ export default function PrimeirosPassos() {
       feito: dados.contas.length > 1 || dados.contas.some((c) => c.saldo_inicial !== 0),
       acao: { rotulo: 'Contas', href: '/contas' },
     },
+    ...(bancos.ativo
+      ? [
+          {
+            titulo: 'Conecte seu banco para os lançamentos entrarem sozinhos',
+            feito: bancos.conexoes.length > 0,
+            acao: { rotulo: 'Conectar', href: '/contas' },
+          },
+        ]
+      : []),
     {
       titulo: 'Cadastre seus cartões de crédito',
       feito: dados.cartoes.length > 0,

@@ -6,6 +6,7 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { obterUsuario } from '@/features/auth/sessao'
+import { bloqueio } from '@/features/planos/permissao'
 import { obterModo } from '@/lib/modo'
 import { criarClienteServidor } from '@/lib/supabase/server'
 import { CODIGO_CONVITE, COOKIE_CONVITE } from './convite'
@@ -34,6 +35,9 @@ async function rpc(
 
 /** Cria um link de convite válido por 7 dias. */
 export async function criarConvite(): Promise<Resultado<{ link: string }>> {
+  const usuario = await obterUsuario()
+  const barrado = usuario ? await bloqueio(usuario, 'familia') : null
+  if (barrado) return { ok: false, mensagem: barrado }
   const r = await rpc('criar_convite')
   if (!r.ok) return r
   const origem = (await headers()).get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL ?? ''

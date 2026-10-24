@@ -16,6 +16,7 @@ import {
   Tags,
   Trash2,
   Upload,
+  Smartphone,
   UserRound,
 } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
@@ -23,6 +24,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { flushSync } from 'react-dom'
 import Abas from '@/components/app/Abas'
 import { useAvisar } from '@/components/app/Avisos'
+import { BotaoInstalar } from '@/components/app/Instalar'
 import { Campo } from '@/components/app/Campos'
 import { useConfirmar } from '@/components/app/Confirmar'
 import { IconeCategoria } from '@/components/app/Icones'
@@ -443,6 +445,19 @@ export default function Configuracoes() {
           >
             <Trash2 size={17} aria-hidden="true" /> Excluir conta
           </button>
+        </Bloco>
+        <Bloco
+          titulo={
+            <span className="flex items-center gap-2">
+              <Smartphone size={18} aria-hidden="true" /> Aplicativo
+            </span>
+          }
+        >
+          <p className="mb-3 text-t2">
+            Instale o GBFinanças no celular ou no computador: abre em tela cheia, com ícone próprio
+            e atalhos para lançar rápido.
+          </p>
+          <BotaoInstalar />
         </Bloco>
         <BlocoFamilia />
         <BlocoAvisos />

@@ -9,6 +9,7 @@ import {
   ChartColumn,
   ChartPie,
   CirclePlay,
+  Download,
   CreditCard,
   Ellipsis,
   Eye,
@@ -35,6 +36,7 @@ import Assistente from '@/features/assistente/Assistente'
 import LancarComIA from '@/features/ia/LancarComIA'
 import Calculadora from './Calculadora'
 import Folha from './Folha'
+import { useInstalacao } from './Instalar'
 import { usePreferencias } from './Preferencias'
 
 type Destino = { href: string; rotulo: string; icone: LucideIcon }
@@ -71,6 +73,20 @@ export default function Casca({ children }: { children: ReactNode }) {
   const [mais, setMais] = useState(false)
   const [onda, setOnda] = useState(0)
   const atual = NAVEGACAO.find((d) => d.href === caminho) ?? INICIO
+
+  // Atalhos do app instalado (ícone pressionado): /?acao=saida|ia|grao.
+  useEffect(() => {
+    const acao = new URLSearchParams(window.location.search).get('acao')
+    if (!acao) return
+    window.history.replaceState(null, '', window.location.pathname)
+    if (acao === 'saida') novo('despesa')
+    else if (acao === 'ia' || acao === 'grao')
+      // Espera os painéis montarem antes de pedir para abrir.
+      window.setTimeout(
+        () => window.dispatchEvent(new CustomEvent('gbf:abrir', { detail: acao })),
+        300,
+      )
+  }, [novo])
 
   // Atalhos: N abre um lançamento, / vai para a busca. Esc fecha painéis (em cada painel).
   useEffect(() => {
@@ -132,6 +148,7 @@ export default function Casca({ children }: { children: ReactNode }) {
             })}
           </nav>
 
+          <ItemInstalar />
           <div className="so-largo mt-3 rounded-2xl bg-painel2 p-3 shadow-[inset_0_0_0_1px_var(--linha)]">
             <p className="miudo">Conectado como</p>
             <p className="truncate text-[.875rem] font-[560]" title={email}>
@@ -265,6 +282,23 @@ export default function Casca({ children }: { children: ReactNode }) {
       <Calculadora />
       <div id="camadas" />
     </MotionConfig>
+  )
+}
+
+/** Na lateral, só quando o navegador oferece a instalação direta. */
+function ItemInstalar() {
+  const { podeInstalar, instalar } = useInstalacao()
+  if (!podeInstalar) return null
+  return (
+    <button
+      type="button"
+      className="nav-item w-full text-menta"
+      onClick={() => void instalar()}
+      title="Instalar app"
+    >
+      <Download size={19} aria-hidden="true" />
+      <span className="rotulo-nav">Instalar app</span>
+    </button>
   )
 }
 

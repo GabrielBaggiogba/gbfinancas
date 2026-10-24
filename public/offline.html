@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f3f8f4">
+<title>Sem conexão · GBFinanças</title>
+<style>
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: #f3f8f4; color: #0b1f14; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; text-align: center; padding: 24px; box-sizing: border-box; }
+  @media (prefers-color-scheme: dark) { body { background: #050d09; color: #ecf5ef; } p { color: #a3b6a9 !important; } }
+  h1 { font-size: 1.375rem; margin: 16px 0 8px; letter-spacing: -0.02em; }
+  p { color: #45594c; margin: 0 0 24px; max-width: 22rem; }
+  button { font: inherit; font-weight: 650; border: 0; border-radius: 16px; padding: 14px 28px; background: #15803d; color: #fff; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <svg width="96" height="96" viewBox="0 0 120 120" aria-hidden="true">
+    <ellipse cx="60" cy="113" rx="27" ry="4" fill="#0b1f14" opacity="0.13"/>
+    <path d="M60 31 C60 25 60 21 60 15" stroke="#15803d" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+    <path d="M60 19 C53 9 42 9 37 15 C43 23 53 24 60 19 Z" fill="#22c55e"/>
+    <path d="M60 16 C66 4 79 3 85 9 C80 18 68 21 60 16 Z" fill="#4ade80"/>
+    <circle cx="60" cy="70" r="41" fill="#d99a1e"/>
+    <circle cx="60" cy="68" r="39" fill="#f2c14e"/>
+    <circle cx="60" cy="68" r="31.5" fill="none" stroke="#e0a82e" stroke-width="2.4"/>
+    <ellipse cx="47" cy="62" rx="4.6" ry="6" fill="#0b1f14"/>
+    <ellipse cx="73" cy="62" rx="4.6" ry="6" fill="#0b1f14"/>
+    <path d="M55 81 Q60 78 66 80" stroke="#0b1f14" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+  </svg>
+  <h1>Sem conexão com a internet</h1>
+  <p>Seus dados ficam guardados com segurança no servidor. Assim que a conexão voltar, é só tentar de novo.</p>
+  <button type="button" onclick="location.reload()">Tentar de novo</button>
+</main>
+</body>
+</html>

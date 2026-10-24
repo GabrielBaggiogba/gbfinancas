@@ -30,6 +30,13 @@ function formatar(texto: string): ReactNode[] {
 export default function Assistente() {
   const { dados, hoje, ia } = useDados()
   const [aberta, setAberta] = useState(false)
+  useEffect(() => {
+    const abrir = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === 'grao') setAberta(true)
+    }
+    window.addEventListener('gbf:abrir', abrir)
+    return () => window.removeEventListener('gbf:abrir', abrir)
+  }, [])
   const [conversa, setConversa] = useState<Mensagem[]>([])
   const [texto, setTexto] = useState('')
   const [pensando, setPensando] = useState(false)

@@ -58,6 +58,13 @@ export default function LancarComIA() {
   const { novo } = useEditor()
   const avisar = useAvisar()
   const [aberta, setAberta] = useState(false)
+  useEffect(() => {
+    const abrir = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === 'ia') setAberta(true)
+    }
+    window.addEventListener('gbf:abrir', abrir)
+    return () => window.removeEventListener('gbf:abrir', abrir)
+  }, [])
   const [texto, setTexto] = useState('')
   const [anexo, setAnexo] = useState<{ nome: string; dado: Anexo } | null>(null)
   const [estado, setEstado] = useState<'livre' | 'lendo' | 'ouvindo'>('livre')

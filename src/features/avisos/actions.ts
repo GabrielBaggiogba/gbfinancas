@@ -5,6 +5,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { obterUsuario } from '@/features/auth/sessao'
+import { bloqueio } from '@/features/planos/permissao'
 import { whatsappAtivo } from '@/features/whatsapp/api'
 import { obterModo } from '@/lib/modo'
 import { clienteAdmin } from '@/lib/supabase/admin'
@@ -36,6 +37,8 @@ export async function gerarCodigoWhatsApp(): Promise<Resultado<{ codigo: string 
   const usuario = await obterUsuario()
   if (!usuario) return { ok: false, mensagem: SESSAO }
   if (!whatsappAtivo()) return { ok: false, mensagem: 'O WhatsApp não está configurado.' }
+  const barrado = await bloqueio(usuario, 'whatsapp')
+  if (barrado) return { ok: false, mensagem: barrado }
   const admin = clienteAdmin()
   const expira = new Date(Date.now() + 15 * 60 * 1000).toISOString()
   for (let tentativa = 0; tentativa < 5; tentativa++) {

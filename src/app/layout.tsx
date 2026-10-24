@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import AtivaToque from '@/components/AtivaToque'
+import { RegistrarApp } from '@/components/app/Instalar'
 import './globals.css'
 
 const fonte = localFont({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={fonte.variable}>
       <body className="bg-fundo text-t1 font-sans antialiased">
         <AtivaToque />
+        <RegistrarApp />
         {children}
       </body>
     </html>

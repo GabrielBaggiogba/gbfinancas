@@ -2,7 +2,11 @@
 
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
-import { obterUsuario } from '@/features/auth/sessao'
+import type { SupabaseClient } from '@supabase/supabase-js'
+import { obterUsuario, type Usuario } from '@/features/auth/sessao'
+import { obterFamilia } from '@/features/familia/servidor'
+import { limitesDoUsuario } from '@/features/planos/permissao'
+import { criarClienteServidor } from '@/lib/supabase/server'
 import { ESQUEMAS, ESQUEMAS_PARCIAIS, primeiraMensagem } from './esquemas'
 import { ErroDeBanco, obterBanco } from './servidor/banco'
 import { TABELAS, type Dados, type Operacao, type Tabela } from './tipos'
@@ -64,12 +68,41 @@ export async function gravar(entrada: unknown): Promise<Resultado> {
   const operacoes = validar(entrada)
   if (typeof operacoes === 'string') return { ok: false, mensagem: operacoes }
   if (operacoes.length === 0) return { ok: true }
+  const acimaDoPlano = await excedeLimites(usuario, operacoes)
+  if (acimaDoPlano) return { ok: false, mensagem: acimaDoPlano }
   try {
     await obterBanco(usuario).aplicar(operacoes)
     return { ok: true }
   } catch (e) {
     return { ok: false, mensagem: e instanceof ErroDeBanco ? e.message : FALHA }
   }
+}
+
+/** Plano Essencial (com a cobrança ligada): no máximo 3 contas e 2 cartões ativos. */
+async function excedeLimites(usuario: Usuario, operacoes: Operacao[]): Promise<string | null> {
+  const limites = await limitesDoUsuario(usuario)
+  for (const [tabela, nome] of [
+    ['contas', 'contas'],
+    ['cartoes', 'cartões'],
+  ] as const) {
+    const maximo = limites[tabela]
+    if (!Number.isFinite(maximo)) continue
+    const novas = operacoes.reduce(
+      (n, o) => n + (o.op === 'inserir' && o.tabela === tabela ? o.linhas.length : 0),
+      0,
+    )
+    if (!novas) continue
+    const { donoId } = await obterFamilia(usuario)
+    const supabase = (await criarClienteServidor()) as unknown as SupabaseClient
+    const { count } = await supabase
+      .from(tabela)
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', donoId)
+      .eq(tabela === 'contas' ? 'arquivada' : 'arquivado', false)
+    if ((count ?? 0) + novas > maximo)
+      return `Seu plano permite até ${maximo} ${nome}. Arquive uma ou veja os planos em /planos.`
+  }
+  return null
 }
 
 const backupSchema = z.object({

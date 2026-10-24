@@ -75,3 +75,47 @@ export const NOME_DO_PLANO: Record<Exclude<PlanoDoUsuario, null>, string> = {
   completo: 'Completo',
   familia: 'Família',
 }
+
+// O que cada plano libera. Só vale com a cobrança ligada; antes disso, todos têm tudo.
+export type Limites = {
+  contas: number
+  cartoes: number
+  whatsapp: boolean
+  lembretes: boolean
+  openFinance: boolean
+  familia: boolean
+}
+const TUDO: Limites = {
+  contas: Infinity,
+  cartoes: Infinity,
+  whatsapp: true,
+  lembretes: true,
+  openFinance: true,
+  familia: true,
+}
+const LIMITES: Record<Exclude<PlanoDoUsuario, null>, Limites> = {
+  fundador: TUDO,
+  familia: TUDO,
+  completo: { ...TUDO, familia: false },
+  essencial: {
+    contas: 3,
+    cartoes: 2,
+    whatsapp: false,
+    lembretes: false,
+    openFinance: false,
+    familia: false,
+  },
+}
+
+/** Sem assinatura (com a cobrança ligada), valem os limites do Essencial. */
+export function limitesDe(plano: PlanoDoUsuario, cobranca: boolean): Limites {
+  if (!cobranca) return TUDO
+  return LIMITES[plano ?? 'essencial']
+}
+
+export const PLANO_MINIMO: Record<Exclude<keyof Limites, 'contas' | 'cartoes'>, string> = {
+  whatsapp: 'Completo',
+  lembretes: 'Completo',
+  openFinance: 'Completo',
+  familia: 'Família',
+}

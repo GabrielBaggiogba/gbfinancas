@@ -22,6 +22,7 @@ import {
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import Marca from '@/components/ui/Marca'
+import { BotaoInstalar } from '@/components/app/Instalar'
 import Mascote from '@/components/ui/Mascote'
 import { formatarReais } from '@/lib/dinheiro'
 import { entrarNaLista } from '../actions'
@@ -109,11 +110,11 @@ const PERGUNTAS = [
   },
   {
     p: 'Posso trocar de plano depois?',
-    r: 'Sim. Você poderá mudar de plano quando quiser, direto nas configurações.',
+    r: 'Sim. A assinatura ainda não abriu; quando abrir, você poderá trocar de plano quando quiser.',
   },
   {
     p: 'Preciso instalar alguma coisa?',
-    r: 'Não. O GBFinanças funciona no navegador do computador e do celular, e pode ser adicionado à tela inicial como um aplicativo.',
+    r: 'Não precisa. O GBFinanças funciona no navegador do computador e do celular. Se quiser, instale como aplicativo pelo botão "Instalar app": abre em tela cheia, com ícone próprio, sem passar por loja.',
   },
 ]
 
@@ -313,6 +314,24 @@ export default function Vitrine({ logado }: { logado: boolean }) {
               <ShieldCheck size={17} aria-hidden="true" className="text-menta" /> Contas criadas
               antes do lançamento são fundadoras: acesso total, sem custo.
             </p>
+          </div>
+        </section>
+
+        <section id="app" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-16">
+          <div className="grid items-center gap-8 rounded-[28px] bg-[#0b2a18] p-7 text-[#ecf5ef] md:grid-cols-[1fr_auto] md:p-10">
+            <div>
+              <h2 className="text-[1.75rem] font-[700] tracking-[-.03em]">
+                No celular e no computador
+              </h2>
+              <p className="mt-2 max-w-xl text-[#a3b6a9]">
+                Instale o GBFinanças como aplicativo: abre em tela cheia, com ícone próprio e
+                atalhos para lançar um gasto em segundos. Sem loja e sem ocupar espaço.
+              </p>
+              <div className="mt-5 max-w-sm">
+                <BotaoInstalar className="inline-flex h-12 items-center gap-2 rounded-2xl bg-[#4ade80] px-6 font-[650] text-[#04210f]" />
+              </div>
+            </div>
+            <Mascote tamanho={140} humor="comemorando" className="justify-self-center" />
           </div>
         </section>
 

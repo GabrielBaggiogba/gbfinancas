@@ -20,6 +20,8 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Comece aqui**: vídeo narrado de dois minutos que apresenta cada tela, com legendas e capítulos clicáveis. A fonte do vídeo fica em `video/`.
 - **Calculadora**: botão no canto inferior direito de todas as telas; abre uma janela flutuante que aceita vírgula, parênteses e porcentagem (`200 + 10%` dá 220).
 - **Lançar com IA**: botão no topo; aceita texto livre ("almoço 32 no pix"), voz (navegadores com reconhecimento de fala), foto de nota fiscal ou PDF. Mostra os lançamentos para conferir antes de salvar. No editor, a categoria é sugerida pela descrição (primeiro repetindo a de um lançamento igual, depois pela IA).
+- **Aplicativo (PWA)**: o GBFinanças se instala no celular (Android e iPhone) e no computador (Chrome e Edge) pelo botão "Instalar app" (lateral, Configurações e página de planos). Abre em tela cheia, com ícone, atalhos ao pressionar o ícone (nova saída, lançar com IA, Pergunte ao Grão, contas) e tela "sem conexão" quando falta internet. O service worker (`public/sw.js`) guarda só código, ícones e fontes; páginas e dados financeiros nunca ficam no aparelho.
+- **Limites dos planos**: com `GBF_COBRANCA_ATIVA=1`, o Essencial fica com até 3 contas e 2 cartões ativos; WhatsApp, lembretes e Open Finance pedem o Completo; a família pede o Família. Na família vale o plano de quem convidou. Sem assinatura, valem os limites do Essencial. Antes disso, todos usam tudo.
 - **Bancos conectados (Open Finance)**: em Contas, "Conectar banco" abre a janela da Pluggy; a pessoa escolhe o banco (Caixa, BB, Itaú, Bradesco, Santander, Nubank, Inter e outros) e autoriza no app do próprio banco. O GBFinanças cria as contas e cartões, importa os últimos 90 dias e, depois, recebe os novos lançamentos pelo webhook da Pluggy (com uma sincronização diária de reserva). O acesso é só de leitura e pode ser revogado em "Desconectar". O id de cada transação do banco evita importar duas vezes; pagamentos de fatura viram "pagamento de fatura", não gasto.
 - **Pergunte ao Grão**: assistente no topo que responde perguntas sobre o próprio dinheiro ("Quanto sobrou do salário?", "Posso comprar um tênis este mês?") com base nos lançamentos, contas, cartões, limites e metas. Não recomenda investimentos.
 - **Primeiros passos**: guia no Dashboard para quem está começando (saldo das contas, cartões, renda, gastos, limite e meta), que some quando tudo está feito ou a pessoa fecha.
@@ -116,6 +118,10 @@ A chave `service_role` ignora as regras de acesso do banco: fica só nas variáv
 3. Bancos reais pelo Open Finance exigem a contratação do plano de produção com a Pluggy. Depois disso, tire o `PLUGGY_SANDBOX`.
 
 O webhook é configurado sozinho a cada conexão (`/api/pluggy`, com o segredo na URL). `vercel.json` também agenda `/api/cron/bancos` todo dia às 6h de Brasília.
+
+### Publicar nas lojas (opcional)
+
+O app já funciona instalado direto do site, sem loja. Para aparecer na Google Play, gere o pacote em pwabuilder.com com o endereço de produção (ele usa o mesmo site, como Trusted Web Activity), crie a conta de desenvolvedor do Google (taxa única) e publique. O PWABuilder entrega também o arquivo `assetlinks.json`, que vai em `public/.well-known/`. A App Store da Apple exige um Mac e a conta de desenvolvedor da Apple (anual).
 
 ### Lembretes
 

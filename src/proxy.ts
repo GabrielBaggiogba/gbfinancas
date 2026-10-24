@@ -4,7 +4,7 @@ import { atualizarSessao } from '@/lib/supabase/middleware'
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|icons/|video/).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|manifest.webmanifest|icons/|video/|screenshots/|sw.js|offline.html).*)',
   ],
 }
 
