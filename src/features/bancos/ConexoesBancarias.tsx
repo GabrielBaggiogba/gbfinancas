@@ -1,15 +1,24 @@
 'use client'
 
-import { Landmark, Link2, RefreshCw, ShieldCheck, Unlink } from 'lucide-react'
+import { Landmark, Link2, PlayCircle, RefreshCw, Search, ShieldCheck, Unlink } from 'lucide-react'
 import { motion } from 'motion/react'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import { useAvisar } from '@/components/app/Avisos'
+import Folha from '@/components/app/Folha'
 import { useConfirmar } from '@/components/app/Confirmar'
 import { itemSurgir } from '@/components/motion/Surgir'
 import { useDados } from '@/features/financas/store'
 import { dataCurta } from '@/lib/datas'
-import { atualizarConexao, criarTokenDeConexao, desconectar, registrarConexao } from './actions'
+import {
+  atualizarConexao,
+  criarTokenDeConexao,
+  desconectar,
+  listarBancos,
+  registrarConexao,
+} from './actions'
+import DemonstracaoBanco, { SeloDoBanco } from './DemonstracaoBanco'
+import { BANCOS_PRINCIPAIS, buscaBanco, type BancoDaLista } from './lista'
 import type { ConexaoBancaria } from './servidor'
 
 // A janela da Pluggy só existe no navegador.
@@ -31,6 +40,12 @@ export default function ConexoesBancarias() {
   const confirmar = useConfirmar()
   const [token, setToken] = useState<{ valor: string; item?: string } | null>(null)
   const [ocupado, setOcupado] = useState<string | null>(null)
+  const [escolhendo, setEscolhendo] = useState(false)
+  const [lista, setLista] = useState<BancoDaLista[]>(BANCOS_PRINCIPAIS)
+  const [termo, setTermo] = useState('')
+  const [demonstrando, setDemonstrando] = useState<BancoDaLista | null>(null)
+  const [conector, setConector] = useState<number | undefined>()
+  const conexaoReal = !demo && bancos.ativo
 
   const titulo = (
     <h2 className="titulo-secao flex items-center gap-2">
@@ -38,29 +53,37 @@ export default function ConexoesBancarias() {
     </h2>
   )
 
-  if (demo || !bancos.ativo)
-    return (
-      <motion.section variants={itemSurgir} className="cartao p-[var(--pad)]">
-        {titulo}
-        <p className="mt-2 text-t2">
-          Conecte seu banco pelo Open Finance e os lançamentos entram sozinhos, todos os dias.
-          {demo ? ' Indisponível no modo demonstração.' : ' Em breve.'}
-        </p>
-      </motion.section>
-    )
-
   const falhou = (r: { ok: boolean; mensagem?: string } | null) => {
     if (r?.ok) return false
     avisar({ tipo: 'erro', texto: r?.mensagem ?? 'Sem conexão. Tente de novo.' })
     return true
   }
 
-  const abrir = async (item?: string) => {
+  const abrir = async (item?: string, banco?: number | null) => {
     setOcupado(item ?? 'nova')
     const r = await criarTokenDeConexao(item).catch(() => null)
     setOcupado(null)
-    if (!falhou(r) && r?.ok) setToken({ valor: r.token, item })
+    if (!falhou(r) && r?.ok) {
+      setConector(banco ?? undefined)
+      setToken({ valor: r.token, item })
+    }
   }
+
+  const abrirLista = () => {
+    setEscolhendo(true)
+    setTermo('')
+    void listarBancos()
+      .then((l) => l.length && setLista(l))
+      .catch(() => undefined)
+  }
+
+  // Com a conexão ligada, o banco escolhido abre direto na janela segura; sem ela, a demonstração.
+  const escolher = (b: BancoDaLista) => {
+    setEscolhendo(false)
+    if (conexaoReal) void abrir(undefined, b.id)
+    else setDemonstrando(b)
+  }
+  const filtrados = lista.filter((b) => buscaBanco(b, termo))
 
   const concluir = async (itemId: string) => {
     setToken(null)
@@ -98,20 +121,56 @@ export default function ConexoesBancarias() {
     <motion.section variants={itemSurgir} className="cartao p-[var(--pad)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {titulo}
-        <button
-          type="button"
-          className="b b-primario"
-          disabled={ocupado !== null}
-          onClick={() => void abrir()}
-        >
-          <Link2 size={17} aria-hidden="true" /> Conectar banco
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            className="b b-suave"
+            onClick={() => setDemonstrando(lista[0] ?? BANCOS_PRINCIPAIS[0])}
+          >
+            <PlayCircle size={17} aria-hidden="true" /> Ver como funciona
+          </button>
+          <button
+            type="button"
+            className="b b-primario"
+            disabled={ocupado !== null}
+            onClick={abrirLista}
+          >
+            <Link2 size={17} aria-hidden="true" /> Conectar banco
+          </button>
+        </div>
       </div>
-      <p className="mt-2 flex items-start gap-2 text-[.9375rem] text-t2">
+      <ol className="mt-3 grid gap-2 sm:grid-cols-3">
+        {[
+          ['Escolha o banco', 'Nubank, Itaú, Bradesco, Caixa, Inter e outros.'],
+          [
+            'Autorize no app dele',
+            'Você entra no seu banco, como sempre. Sua senha não passa aqui.',
+          ],
+          ['Pronto', 'Contas, cartões e transações chegam sozinhos, todo dia.'],
+        ].map(([t, d], i) => (
+          <li key={t} className="flex gap-2.5 rounded-2xl bg-painel2 px-3 py-2.5">
+            <span className="grid h-6 w-6 flex-none place-items-center rounded-full bg-menta text-[.8125rem] font-[700] text-tinta">
+              {i + 1}
+            </span>
+            <span className="text-[.875rem]">
+              <b className="font-[650]">{t}</b>
+              <span className="block text-t2">{d}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+      <p className="mt-3 flex items-start gap-2 text-[.875rem] text-t2">
         <ShieldCheck size={17} aria-hidden="true" className="mt-0.5 flex-none text-menta" />
-        Pelo Open Finance, regulado pelo Banco Central. Você autoriza no app do seu banco, o
-        GBFinanças só consegue ler (nunca movimentar) e você pode desconectar quando quiser.
+        Pelo Open Finance, regulado pelo Banco Central. O GBFinanças só consegue ler (nunca
+        movimentar) e você pode desconectar quando quiser.
       </p>
+      {!conexaoReal && (
+        <p className="mt-3 rounded-2xl bg-painel2 px-4 py-3 text-[.875rem] text-t2">
+          {demo
+            ? 'No modo demonstração a conexão é só ilustrativa.'
+            : 'A conexão automática com os bancos ainda não está ligada neste site. Enquanto isso, veja a demonstração ou importe o extrato (OFX/CSV) em Configurações.'}
+        </p>
+      )}
 
       {bancos.conexoes.length > 0 && (
         <ul className="mt-4 grid gap-2">
@@ -188,6 +247,7 @@ export default function ConexoesBancarias() {
           connectToken={token.valor}
           updateItem={token.item}
           includeSandbox={bancos.sandbox}
+          selectedConnectorId={conector}
           language="pt"
           countries={['BR']}
           onSuccess={({ item }) => void concluir(item.id)}
@@ -197,6 +257,47 @@ export default function ConexoesBancarias() {
               avisar({ tipo: 'erro', texto: 'A conexão com o banco não foi concluída.' })
           }}
           onClose={() => setToken(null)}
+        />
+      )}
+
+      <Folha aberta={escolhendo} aoFechar={() => setEscolhendo(false)} titulo="Escolha seu banco">
+        <label className="controle flex items-center gap-2.5 !py-0">
+          <Search size={18} className="flex-none text-t3" aria-hidden="true" />
+          <input
+            type="search"
+            className="h-full min-w-0 flex-1 bg-transparent outline-none"
+            aria-label="Buscar banco"
+            placeholder="Buscar banco"
+            value={termo}
+            onChange={(e) => setTermo(e.target.value)}
+          />
+        </label>
+        <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {filtrados.map((b) => (
+            <li key={`${b.id}-${b.nome}`}>
+              <button
+                type="button"
+                className="flex w-full flex-col items-center gap-1.5 rounded-2xl p-2.5 text-center text-[.8125rem] font-[600] transition-colors hover:bg-painel2"
+                onClick={() => escolher(b)}
+              >
+                <SeloDoBanco banco={b} />
+                <span className="line-clamp-2">{b.nome}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        {filtrados.length === 0 && (
+          <p className="py-6 text-center text-t2">Nenhum banco com esse nome.</p>
+        )}
+      </Folha>
+
+      {demonstrando && (
+        <DemonstracaoBanco
+          aberta
+          banco={demonstrando}
+          conexaoReal={conexaoReal}
+          aoFechar={() => setDemonstrando(null)}
+          aoConectar={() => void abrir(undefined, demonstrando.id)}
         />
       )}
     </motion.section>

@@ -8,7 +8,8 @@ import { obterUsuario } from '@/features/auth/sessao'
 import { obterFamilia } from '@/features/familia/servidor'
 import { bloqueio } from '@/features/planos/permissao'
 import { clienteAdmin } from '@/lib/supabase/admin'
-import { clientePluggy, pluggyAtivo, urlDoWebhook } from './pluggy'
+import { BANCOS_PRINCIPAIS, ordenarBancos, type BancoDaLista } from './lista'
+import { clientePluggy, pluggyAtivo, pluggySandbox, urlDoWebhook } from './pluggy'
 import { sincronizarConexao, statusDaConexao } from './sincronizar'
 
 type Resultado<T = object> = ({ ok: true } & T) | { ok: false; mensagem: string }
@@ -128,4 +129,33 @@ async function conexaoDaFamilia(usuario: { id: string; email: string }, itemId: 
     .eq('user_id', donoId)
     .maybeSingle()
   return Boolean(data)
+}
+
+let cacheBancos: { em: number; lista: BancoDaLista[] } | null = null
+
+/** Bancos para a tela de escolha: os da Pluggy (com logo) ou, sem ela, a lista dos principais. */
+export async function listarBancos(): Promise<BancoDaLista[]> {
+  if (!(await obterUsuario())) return []
+  if (!pluggyAtivo()) return BANCOS_PRINCIPAIS
+  if (cacheBancos && Date.now() - cacheBancos.em < 60 * 60 * 1000) return cacheBancos.lista
+  try {
+    const { results } = await clientePluggy().fetchConnectors({
+      countries: ['BR'],
+      types: ['PERSONAL_BANK', 'PAYMENT_ACCOUNT'],
+      ...(pluggySandbox() ? {} : { sandbox: false }),
+    })
+    const lista = ordenarBancos(
+      results.map((c) => ({
+        id: c.id,
+        nome: c.name,
+        logo: c.imageUrl ?? null,
+        cor: c.primaryColor ? `#${c.primaryColor.replace('#', '')}` : '#16a34a',
+      })),
+    )
+    cacheBancos = { em: Date.now(), lista }
+    return lista
+  } catch (e) {
+    console.error('[bancos] lista', e instanceof Error ? e.message : e)
+    return BANCOS_PRINCIPAIS
+  }
 }
