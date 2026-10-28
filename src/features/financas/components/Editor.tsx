@@ -15,7 +15,9 @@ import { Campo, CampoValor } from '@/components/app/Campos'
 import { useConfirmar } from '@/components/app/Confirmar'
 import Folha from '@/components/app/Folha'
 import { Faisca, LuzNoFio } from '@/components/motion/Efeitos'
+import { dataCurta, rotuloMesCurto, somarMeses } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
+import { faturaDe, faturasDoCartao, mesDaFatura, vencimentoDaFatura } from '../calculos'
 import { lancamentoSchema, primeiraMensagem } from '../esquemas'
 import { sugerirCategoria } from '@/features/ia/actions'
 import { contextoIA } from '@/features/ia/contexto'
@@ -130,7 +132,7 @@ export function ProvedorDoEditor({ children }: { children: ReactNode }) {
 }
 
 function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) {
-  const { dados, aplicar, ia } = useDados()
+  const { dados, aplicar, ia, hoje } = useDados()
   const { duplicar } = useEditor()
   const [sugerida, setSugerida] = useState<string | null>(null)
   const confirmar = useConfirmar()
@@ -152,6 +154,12 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
   const origem = l.cartao_id ? `cartao:${l.cartao_id}` : l.conta_id ? `conta:${l.conta_id}` : ''
   const noCartao = l.tipo === 'despesa' && !!l.cartao_id
   const fatura = l.tipo === 'pagamento_fatura'
+  const cartaoEscolhido = cartoes.find((c) => c.id === l.cartao_id) ?? null
+  // Faturas que dá para pagar: fechadas, atrasadas e a aberta (a do lançamento sempre aparece).
+  const faturasParaPagar = (c: Cartao) =>
+    faturasDoCartao(c, dados.lancamentos, hoje).filter(
+      (f) => (f.restante > 0 && f.status !== 'futura') || f.ref === l.fatura_ref,
+    )
 
   // Categoria automática ao sair da descrição: primeiro repete a de um lançamento igual,
   // depois pergunta à IA (quando configurada). Nunca troca uma categoria já escolhida.
@@ -385,6 +393,75 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
             </Campo>
           )}
         </div>
+
+        {fatura && (
+          <div className="grid grid-cols-2 gap-3">
+            <Campo rotulo="Cartão">
+              {(id) => (
+                <select
+                  id={id}
+                  className="controle"
+                  value={l.cartao_id ?? ''}
+                  onChange={(e) => {
+                    const c = cartoes.find((x) => x.id === e.target.value)
+                    const f = c ? faturasParaPagar(c)[0] : undefined
+                    mudar({
+                      cartao_id: e.target.value,
+                      fatura_ref: f?.ref ?? l.fatura_ref,
+                      valor: f?.restante ?? l.valor,
+                      descricao: c ? `Fatura ${c.nome}` : l.descricao,
+                    })
+                  }}
+                >
+                  {cartoes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nome}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Campo>
+            <Campo rotulo="Fatura">
+              {(id) => {
+                const c = cartoes.find((x) => x.id === l.cartao_id)
+                const faturas = c ? faturasParaPagar(c) : []
+                return (
+                  <select
+                    id={id}
+                    className="controle"
+                    value={l.fatura_ref ?? ''}
+                    onChange={(e) => {
+                      const f = faturas.find((x) => x.ref === e.target.value)
+                      mudar({ fatura_ref: e.target.value, valor: f?.restante || l.valor })
+                    }}
+                  >
+                    {c &&
+                      faturas.map((f) => (
+                        <option key={f.ref} value={f.ref}>
+                          {rotuloMesCurto(mesDaFatura(c, f.ref), true)} (vence{' '}
+                          {dataCurta(f.vencimento)})
+                        </option>
+                      ))}
+                  </select>
+                )
+              }}
+            </Campo>
+          </div>
+        )}
+
+        {noCartao && cartaoEscolhido && (
+          <p className="miudo -mt-1 text-t2">
+            {(() => {
+              const total = editando ? 1 : Math.max(1, parcelas)
+              const primeira = faturaDe(cartaoEscolhido, l.data)
+              const ultima = faturaDe(cartaoEscolhido, somarMeses(l.data, total - 1))
+              const nome = (ref: string) => rotuloMesCurto(mesDaFatura(cartaoEscolhido, ref), true)
+              return total > 1
+                ? `Parcelas nas faturas de ${nome(primeira)} a ${nome(ultima)} (a 1ª vence ${dataCurta(vencimentoDaFatura(cartaoEscolhido, primeira))}).`
+                : `Entra na fatura de ${nome(primeira)}, que vence ${dataCurta(vencimentoDaFatura(cartaoEscolhido, primeira))}.`
+            })()}
+          </p>
+        )}
 
         {l.tipo === 'transferencia' && (
           <Campo rotulo="Vai para">

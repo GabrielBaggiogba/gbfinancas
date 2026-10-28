@@ -1,5 +1,6 @@
 import {
   faturasDoCartao,
+  mesDaFatura,
   gastosPorCategoria,
   patrimonio,
   progressoDaMeta,
@@ -45,7 +46,10 @@ export function resumoParaAssistente(dados: Dados, hoje: string): string {
       )
       const faturas = abertas
         .slice(0, 3)
-        .map((f) => `${f.ref} ${r(f.restante)} vence ${f.vencimento} (${f.status})`)
+        .map(
+          (f) =>
+            `fatura de ${rotuloMes(mesDaFatura(c, f.ref))} ${r(f.restante)} vence ${f.vencimento} (${f.status})`,
+        )
         .join('; ')
       linhas.push(`- ${c.nome}: limite ${r(c.limite)}. Faturas: ${faturas || 'nenhuma em aberto'}`)
     }

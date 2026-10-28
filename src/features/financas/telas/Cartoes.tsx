@@ -23,6 +23,7 @@ import { MOLA } from '@/components/motion/molas'
 import { dataCurta, distanciaEmDias, rotuloMesCurto } from '@/lib/datas'
 import { formatarPct } from '@/lib/dinheiro'
 import {
+  mesDaFatura,
   dividaDoCartao,
   faturaDe,
   faturasDoCartao,
@@ -385,7 +386,7 @@ function PainelDoCartao({
                 />
               )}
               <span className="relative block text-[.8125rem] font-[620] capitalize">
-                {rotuloMesCurto(f.ref, true)}
+                {rotuloMesCurto(mesDaFatura(cartao, f.ref), true)}
               </span>
               <Valor centavos={f.total} className="relative block text-[.8125rem] text-t2" />
             </button>
@@ -403,7 +404,10 @@ function PainelDoCartao({
             <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="legenda flex items-center gap-2">
-                  Fatura de <span className="capitalize">{rotuloMesCurto(fatura.ref, true)}</span>
+                  Fatura de{' '}
+                  <span className="capitalize">
+                    {rotuloMesCurto(mesDaFatura(cartao, fatura.ref), true)}
+                  </span>
                   <span className={`selo ${SELO[fatura.status].classe}`}>
                     {SELO[fatura.status].rotulo}
                   </span>

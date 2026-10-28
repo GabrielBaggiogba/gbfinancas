@@ -15,7 +15,9 @@ import {
   saldosPorConta,
   usoDoOrcamento,
   vencimentoDaFatura,
+  mesDaFatura,
 } from './calculos'
+import { parcelar } from './fabrica'
 import { DADOS_VAZIOS, type Cartao, type Dados, type Lancamento } from './tipos'
 
 const agora = '2026-10-06T12:00:00.000Z'
@@ -128,6 +130,24 @@ describe('cartão', () => {
     expect(faturaDe(cartao, '2026-10-25')).toBe('2026-10')
     expect(faturaDe(cartao, '2026-10-26')).toBe('2026-11')
     expect(vencimentoDaFatura(cartao, '2026-10')).toBe('2026-11-05')
+  })
+  it('a fatura leva o nome do mês em que vence, como nos bancos', () => {
+    // fecha em 25/10 e vence em 05/11: "fatura de novembro"
+    expect(mesDaFatura(cartao, '2026-10')).toBe('2026-11')
+    // fecha no dia 5 e vence no dia 15 do mesmo mês: nome igual ao do fechamento
+    expect(mesDaFatura({ ...cartao, dia_fechamento: 5, dia_vencimento: 15 }, '2026-10')).toBe(
+      '2026-10',
+    )
+  })
+  it('compra parcelada: cada parcela cai numa fatura seguida, a 1ª na da compra', () => {
+    const datas = parcelar(
+      {
+        ...l({ tipo: 'despesa', valor: 30000, data: '2026-10-20', cartao_id: cartao.id }),
+        conta_id: null,
+      },
+      3,
+    ).map((p) => faturaDe(cartao, p.data))
+    expect(datas).toEqual(['2026-10', '2026-11', '2026-12'])
   })
   it('monta faturas, status e pagamento', () => {
     const faturas = faturasDoCartao(cartao, base.lancamentos, '2026-10-06')

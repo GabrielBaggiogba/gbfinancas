@@ -179,6 +179,15 @@ export function vencimentoDaFatura(cartao: Cartao, ref: string): string {
   return dataNoMes(mes, cartao.dia_vencimento)
 }
 
+/**
+ * Mês com que a fatura é chamada: o do vencimento, como fazem os bancos
+ * ("fatura de novembro" fecha em outubro e vence em novembro). Internamente a fatura
+ * continua identificada pelo mês do fechamento (`ref`).
+ */
+export function mesDaFatura(cartao: Cartao, ref: string): string {
+  return mesDe(vencimentoDaFatura(cartao, ref))
+}
+
 export type StatusFatura = 'aberta' | 'futura' | 'fechada' | 'paga' | 'atrasada'
 
 export type Fatura = {
