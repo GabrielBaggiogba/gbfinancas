@@ -82,7 +82,7 @@ export default async function Diagnostico() {
           nome: `Conexão com bancos (Pluggy${pluggySandbox() ? ', modo de teste' : ''})`,
           ok: pluggyAtivo(),
           falta:
-            'PLUGGY_CLIENT_ID, PLUGGY_CLIENT_SECRET e PLUGGY_WEBHOOK_SECRET (dashboard.pluggy.ai)',
+            'PLUGGY_CLIENT_ID, PLUGGY_CLIENT_SECRET e PLUGGY_WEBHOOK_SEGREDO (dashboard.pluggy.ai)',
         },
         {
           nome: 'WhatsApp',
