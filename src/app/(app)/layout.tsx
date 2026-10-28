@@ -1,3 +1,4 @@
+import { transcricaoAtiva } from '@/features/ia/transcrever'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ProvedorDeAvisos } from '@/components/app/Avisos'
@@ -52,6 +53,7 @@ export default async function LayoutDoApp({ children }: { children: React.ReactN
             demo={modo === 'demo'}
             plano={assinatura.plano}
             ia={iaAtiva()}
+            audio={iaAtiva() && transcricaoAtiva()}
             usuarioId={usuario.id}
             familia={familia}
             bancos={{ ativo: pluggyAtivo(), sandbox: pluggySandbox(), conexoes }}

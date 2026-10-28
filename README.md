@@ -27,7 +27,7 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Primeiros passos**: guia no Dashboard para quem está começando (saldo das contas, cartões, renda, gastos, limite e meta), que some quando tudo está feito ou a pessoa fecha.
 - **Importar extrato**: OFX (o formato que os bancos exportam) ou CSV, em Configurações.
 - **Grão**: o mascote, uma moeda que brotou, desenhado em SVG (`src/components/ui/Mascote.tsx`). A logo são três barras subindo com uma folha dourada (`Marca.tsx`, `src/app/icon.svg`).
-- **WhatsApp**: a pessoa vincula o número em Configurações e passa a lançar mandando texto, foto ou PDF; responde `desfazer` para apagar o último registro. Áudio ainda não é lido.
+- **WhatsApp**: a pessoa vincula o número em Configurações e passa a lançar mandando texto, áudio, foto ou PDF ("gastei 45 no mercado ontem à tarde"); o áudio é transcrito e a resposta mostra o que foi entendido. Responde `desfazer` para apagar o último registro.
 - **Lembretes**: todo dia às 8h, aviso por e-mail e WhatsApp das contas recorrentes que vencem ou entram nos próximos dias (antecedência escolhida pela pessoa).
 - **Família**: gestão compartilhada com até 5 pessoas, por link de convite. Membros lançam nas finanças de quem convidou, com o próprio login; a lista mostra quem lançou cada gasto.
 - **Planos**: página pública `/planos` com Essencial, Completo e Família, cobrança mensal ou anual e lista de espera. Contas criadas antes do lançamento são "fundadoras", com acesso total sem custo. A cobrança ainda não existe: liga com `GBF_COBRANCA_ATIVA=1` quando houver checkout.
@@ -96,6 +96,7 @@ Os valores ficam no banco em reais com duas casas (`numeric`). O app trabalha em
 | `RESEND_API_KEY`, `GBF_EMAIL_REMETENTE` | lembretes por e-mail (remetente com domínio verificado, ex.: `GBFinanças <avisos@seudominio.com>`) | resend.com |
 | `CRON_SECRET`                   | protege a rota dos lembretes diários                    | invente um texto longo         |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_NUMERO` | WhatsApp Cloud API | developers.facebook.com → seu app → WhatsApp |
+| `GBF_TRANSCRICAO_KEY` (e opcionais `GBF_TRANSCRICAO_URL`, `GBF_TRANSCRICAO_MODELO`) | áudio no app e no WhatsApp; padrão Groq Whisper, aceita qualquer API compatível com a da OpenAI | console.groq.com → API Keys |
 | `WHATSAPP_TEMPLATE_LEMBRETE`    | modelo aprovado pela Meta para os lembretes (um parâmetro no corpo) | WhatsApp Manager → Modelos |
 | `PLUGGY_CLIENT_ID`, `PLUGGY_CLIENT_SECRET` | conexão com bancos (Open Finance) | dashboard.pluggy.ai → Applications |
 | `PLUGGY_WEBHOOK_SEGREDO` | protege o aviso de novos lançamentos | invente um texto longo |

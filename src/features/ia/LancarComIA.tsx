@@ -10,7 +10,7 @@ import { useDados } from '@/features/financas/store'
 import type { Lancamento } from '@/features/financas/tipos'
 import { dataBR } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
-import { lerComIA } from './actions'
+import { lerComIA, ouvirAudio } from './actions'
 import { contextoIA } from './contexto'
 import type { Anexo, Rascunho } from './ler'
 
@@ -45,16 +45,26 @@ async function prepararImagem(arquivo: File): Promise<Anexo> {
   return { tipo: 'image/jpeg', base64: url.slice(url.indexOf(',') + 1) }
 }
 
-async function prepararPdf(arquivo: File): Promise<Anexo> {
+async function base64De(arquivo: Blob): Promise<string> {
   const bytes = new Uint8Array(await arquivo.arrayBuffer())
   let bin = ''
   for (let i = 0; i < bytes.length; i += 0x8000)
     bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000))
-  return { tipo: 'application/pdf', base64: btoa(bin) }
+  return btoa(bin)
 }
 
+const prepararPdf = async (arquivo: File): Promise<Anexo> => ({
+  tipo: 'application/pdf',
+  base64: await base64De(arquivo),
+})
+
+// Com a transcrição ligada no servidor, o app grava o áudio (funciona em qualquer navegador
+// com microfone); sem ela, usa o reconhecimento de voz do próprio navegador.
+const TIPOS_GRAVACAO = ['audio/webm', 'audio/mp4', 'audio/ogg']
+const LIMITE_GRAVACAO = 120_000
+
 export default function LancarComIA() {
-  const { dados, ia, aplicar } = useDados()
+  const { dados, ia, audio, aplicar } = useDados()
   const { novo } = useEditor()
   const avisar = useAvisar()
   const [aberta, setAberta] = useState(false)
@@ -72,11 +82,13 @@ export default function LancarComIA() {
   const [observacao, setObservacao] = useState<string | null>(null)
   const [temVoz, setTemVoz] = useState(false)
   const voz = useRef<Reconhecimento | null>(null)
+  const gravador = useRef<MediaRecorder | null>(null)
+  const gravaNoServidor = audio && typeof MediaRecorder !== 'undefined'
   const arquivo = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    setTemVoz(criarReconhecimento() !== null)
-  }, [])
+    setTemVoz((audio && typeof MediaRecorder !== 'undefined') || criarReconhecimento() !== null)
+  }, [audio])
   if (!ia) return null
 
   const limpar = () => {
@@ -86,8 +98,51 @@ export default function LancarComIA() {
     setObservacao(null)
   }
 
+  const parar = () => {
+    voz.current?.stop()
+    if (gravador.current?.state === 'recording') gravador.current.stop()
+  }
+
+  const gravar = async () => {
+    let stream: MediaStream
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    } catch {
+      return avisar({ tipo: 'erro', texto: 'Permita o uso do microfone para falar o lançamento.' })
+    }
+    const tipo = TIPOS_GRAVACAO.find((t) => MediaRecorder.isTypeSupported(t))
+    const rec = new MediaRecorder(stream, tipo ? { mimeType: tipo } : undefined)
+    const partes: Blob[] = []
+    const limite = window.setTimeout(() => rec.state === 'recording' && rec.stop(), LIMITE_GRAVACAO)
+    rec.ondataavailable = (e) => {
+      if (e.data.size) partes.push(e.data)
+    }
+    rec.onstop = async () => {
+      window.clearTimeout(limite)
+      stream.getTracks().forEach((t) => t.stop())
+      gravador.current = null
+      const gravado = new Blob(partes, { type: rec.mimeType || tipo || 'audio/webm' })
+      if (!gravado.size) return setEstado('livre')
+      setEstado('lendo')
+      const r = await ouvirAudio({ tipo: gravado.type, base64: await base64De(gravado) }).catch(
+        () => null,
+      )
+      if (!r?.ok) {
+        setEstado('livre')
+        return avisar({ tipo: 'erro', texto: r?.mensagem ?? 'Sem conexão. Tente de novo.' })
+      }
+      const falado = texto.trim() ? `${texto.trim()} ${r.texto}` : r.texto
+      setTexto(falado)
+      await ler(falado)
+    }
+    gravador.current = rec
+    rec.start()
+    setEstado('ouvindo')
+  }
+
   const ouvir = () => {
-    if (estado === 'ouvindo') return voz.current?.stop()
+    if (estado === 'ouvindo') return parar()
+    if (gravaNoServidor) return void gravar()
     const r = criarReconhecimento()
     if (!r) return
     r.lang = 'pt-BR'
@@ -121,12 +176,12 @@ export default function LancarComIA() {
     }
   }
 
-  const ler = async () => {
+  const ler = async (conteudo = texto) => {
     setEstado('lendo')
     setItens(null)
     setObservacao(null)
     const r = await lerComIA({
-      texto,
+      texto: conteudo,
       anexo: anexo?.dado ?? null,
       contexto: contextoIA(dados),
     }).catch(() => null)
@@ -190,7 +245,7 @@ export default function LancarComIA() {
       <Folha
         aberta={aberta}
         aoFechar={() => {
-          voz.current?.stop()
+          parar()
           setAberta(false)
         }}
         titulo="Lançar com IA"
@@ -216,7 +271,11 @@ export default function LancarComIA() {
               onClick={() => void ler()}
             >
               <Sparkles size={18} aria-hidden="true" />
-              {estado === 'lendo' ? 'Lendo...' : 'Interpretar'}
+              {estado === 'lendo'
+                ? 'Lendo...'
+                : estado === 'ouvindo'
+                  ? 'Ouvindo...'
+                  : 'Interpretar'}
             </button>
           )
         }
@@ -246,7 +305,7 @@ export default function LancarComIA() {
                 >
                   {estado === 'ouvindo' ? (
                     <>
-                      <MicOff size={17} aria-hidden="true" /> Parar
+                      <MicOff size={17} aria-hidden="true" /> {gravaNoServidor ? 'Pronto' : 'Parar'}
                     </>
                   ) : (
                     <>

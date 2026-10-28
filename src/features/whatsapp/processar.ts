@@ -8,6 +8,12 @@ import { mensagemDeBloqueio } from '@/features/planos/permissao'
 import { dataBR, fimDoMes, hojeEmSaoPaulo, inicioDoMes, mesDe, rotuloMes } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
 import { clienteAdmin } from '@/lib/supabase/admin'
+import {
+  ErroDeTranscricao,
+  TIPOS_DE_AUDIO,
+  transcrever,
+  transcricaoAtiva,
+} from '@/features/ia/transcrever'
 import { baixarMidia, enviarTexto } from './api'
 
 // O que chega no webhook: só os campos que usamos.
@@ -18,11 +24,13 @@ export type MensagemRecebida = {
   text?: { body?: string }
   image?: { id: string; mime_type?: string; caption?: string }
   document?: { id: string; mime_type?: string; caption?: string }
+  audio?: { id: string; mime_type?: string; voice?: boolean }
 }
 
 const AJUDA = `Oi! Eu registro seus gastos e entradas no GBFinanças.
 
 • Escreva: _almoço 32 no pix_ ou _recebi 1500 de salário_
+• Mande um áudio: _gastei 45 no mercado ontem à tarde_
 • Mande a foto da nota ou o PDF de um boleto
 • Responda *desfazer* para apagar o último registro`
 
@@ -33,7 +41,7 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
   const { error: repetida } = await admin.from('whatsapp_mensagens').insert({ id: m.id })
   if (repetida) return
 
-  const texto = (m.text?.body ?? m.image?.caption ?? m.document?.caption ?? '').trim()
+  let texto = (m.text?.body ?? m.image?.caption ?? m.document?.caption ?? '').trim()
   const codigo = /^gb\s*(\d{6})$/i.exec(texto)
   if (codigo) return vincular(admin, m.from, codigo[1])
 
@@ -72,16 +80,34 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     await enviarTexto(m.from, AJUDA)
     return
   }
-  if (m.type === 'audio') {
-    await enviarTexto(
-      m.from,
-      'Ainda não entendo áudio por aqui. Mande o gasto por texto ou a foto da nota.',
-    )
-    return
-  }
   if (!iaAtiva()) {
     await enviarTexto(m.from, 'A leitura automática está desligada no momento. Registre pelo app.')
     return
+  }
+  // Áudio: transcreve e segue como se a pessoa tivesse escrito.
+  if (m.type === 'audio' || m.audio) {
+    if (!transcricaoAtiva() || !m.audio) {
+      await enviarTexto(
+        m.from,
+        'Ainda não consigo ouvir áudios por aqui. Mande o gasto por texto ou a foto da nota.',
+      )
+      return
+    }
+    const arquivo = await baixarMidia(m.audio.id).catch(() => null)
+    const tipo = TIPOS_DE_AUDIO.find((t) => t === arquivo?.tipo)
+    if (!arquivo || !tipo) {
+      await enviarTexto(m.from, 'Não consegui abrir este áudio. Mande um de até 3 minutos.')
+      return
+    }
+    try {
+      texto = await transcrever({ tipo, base64: arquivo.base64 })
+    } catch (e) {
+      await enviarTexto(
+        m.from,
+        e instanceof ErroDeTranscricao ? e.message : 'Não consegui ouvir o áudio. Tente de novo.',
+      )
+      return
+    }
   }
 
   let anexo: Anexo | undefined
@@ -181,7 +207,7 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
   const orcamento = await avisoDeOrcamento(admin, dono, ctx, leitura.itens)
   await enviarTexto(
     m.from,
-    `✅ Registrado:\n${linhasTexto.join('\n')}${orcamento ? `\n\n${orcamento}` : ''}\n\nResponda *desfazer* para apagar.`,
+    `${m.audio ? `🎙️ Ouvi: _${texto}_\n\n` : ''}✅ Registrado:\n${linhasTexto.join('\n')}${orcamento ? `\n\n${orcamento}` : ''}\n\nResponda *desfazer* para apagar.`,
   )
 }
 

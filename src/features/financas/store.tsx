@@ -68,6 +68,8 @@ type Contexto = {
   plano: PlanoDoUsuario
   /** Leitura com IA configurada (chave da Anthropic no servidor). */
   ia: boolean
+  /** Transcrição de áudio no servidor (gravar e mandar a fala). */
+  audio: boolean
   usuarioId: string
   familia: Familia
   avisos: Avisos
@@ -86,6 +88,7 @@ export function ProvedorDeDados({
   demo,
   plano,
   ia,
+  audio,
   usuarioId,
   familia,
   avisos,
@@ -98,6 +101,8 @@ export function ProvedorDeDados({
   demo: boolean
   plano: PlanoDoUsuario
   ia: boolean
+  /** Transcrição de áudio no servidor (gravar e mandar a fala). */
+  audio: boolean
   usuarioId: string
   familia: Familia
   avisos: Avisos
@@ -166,6 +171,7 @@ export function ProvedorDeDados({
       demo,
       plano,
       ia,
+      audio,
       usuarioId,
       familia,
       avisos,
@@ -173,7 +179,21 @@ export function ProvedorDeDados({
       aplicar,
       trocarTudo,
     }),
-    [dados, hoje, email, demo, plano, ia, usuarioId, familia, avisos, bancos, aplicar, trocarTudo],
+    [
+      dados,
+      hoje,
+      email,
+      demo,
+      plano,
+      ia,
+      audio,
+      usuarioId,
+      familia,
+      avisos,
+      bancos,
+      aplicar,
+      trocarTudo,
+    ],
   )
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }

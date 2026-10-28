@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { obterUsuario } from '@/features/auth/sessao'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { ErroDeIA, lerLancamentos, type Leitura } from './ler'
+import { ErroDeTranscricao, TIPOS_DE_AUDIO, transcrever } from './transcrever'
 
 const id = z.string().uuid()
 const contextoSchema = z.object({
@@ -76,5 +77,27 @@ export async function sugerirCategoria(
     return { ok: true, categoria_id: leitura.itens[0]?.categoria_id ?? null }
   } catch (e) {
     return { ok: false, mensagem: e instanceof ErroDeIA ? e.message : 'Falhou.' }
+  }
+}
+
+const audioSchema = z.object({
+  tipo: z.string().max(60),
+  base64: z.string().min(1).max(5_600_000),
+})
+
+/** Transcreve um áudio gravado no app; o texto volta para a pessoa conferir antes de interpretar. */
+export async function ouvirAudio(dados: unknown): Promise<Resultado<{ texto: string }>> {
+  if (!(await obterUsuario())) return { ok: false, mensagem: 'Sua sessão expirou. Entre de novo.' }
+  const r = audioSchema.safeParse(dados)
+  const tipo = TIPOS_DE_AUDIO.find((t) => t === r.data?.tipo.split(';')[0])
+  if (!r.success || !tipo)
+    return { ok: false, mensagem: 'Áudio grande demais ou em formato inválido.' }
+  try {
+    return { ok: true, texto: await transcrever({ tipo, base64: r.data.base64 }) }
+  } catch (e) {
+    return {
+      ok: false,
+      mensagem: e instanceof ErroDeTranscricao ? e.message : 'Não consegui ouvir o áudio.',
+    }
   }
 }
