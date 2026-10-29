@@ -34,6 +34,7 @@ import { useEditor } from '@/features/financas/components/Editor'
 import { useDados } from '@/features/financas/store'
 import Assistente from '@/features/assistente/Assistente'
 import LancarComIA from '@/features/ia/LancarComIA'
+import FalarGasto from '@/features/voz/FalarGasto'
 import Calculadora from './Calculadora'
 import Folha from './Folha'
 import { useInstalacao } from './Instalar'
@@ -80,7 +81,7 @@ export default function Casca({ children }: { children: ReactNode }) {
     if (!acao) return
     window.history.replaceState(null, '', window.location.pathname)
     if (acao === 'saida') novo('despesa')
-    else if (acao === 'ia' || acao === 'grao')
+    else if (acao === 'ia' || acao === 'grao' || acao === 'voz')
       // Espera os painéis montarem antes de pedir para abrir.
       window.setTimeout(
         () => window.dispatchEvent(new CustomEvent('gbf:abrir', { detail: acao })),
@@ -187,6 +188,7 @@ export default function Casca({ children }: { children: ReactNode }) {
                 <Eye size={19} aria-hidden="true" />
               )}
             </button>
+            <FalarGasto />
             <Assistente />
             <LancarComIA />
             <div className="flex items-center gap-2 max-[760px]:!hidden">

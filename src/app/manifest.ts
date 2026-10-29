@@ -29,6 +29,12 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       {
+        name: 'Falar um gasto',
+        short_name: 'Falar',
+        url: '/?acao=voz',
+        icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }],
+      },
+      {
         name: 'Nova saída',
         short_name: 'Saída',
         url: '/?acao=saida',
