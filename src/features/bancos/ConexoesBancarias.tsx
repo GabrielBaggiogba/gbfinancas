@@ -4,6 +4,7 @@ import { Landmark, Link2, PlayCircle, RefreshCw, Search, ShieldCheck, Unlink } f
 import { motion } from 'motion/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useAvisar } from '@/components/app/Avisos'
 import Folha from '@/components/app/Folha'
 import { useConfirmar } from '@/components/app/Confirmar'
@@ -265,23 +266,26 @@ export default function ConexoesBancarias() {
         </ul>
       )}
 
-      {token && (
-        <PluggyConnect
-          connectToken={token.valor}
-          updateItem={token.item}
-          includeSandbox={bancos.sandbox}
-          selectedConnectorId={conector}
-          language="pt"
-          countries={['BR']}
-          onSuccess={({ item }) => void concluir(item.id)}
-          onError={(e) => {
-            // Na reconexão, o item pode ter voltado a funcionar mesmo com aviso de erro.
-            if (!e.data?.item)
-              avisar({ tipo: 'erro', texto: 'A conexão com o banco não foi concluída.' })
-          }}
-          onClose={() => setToken(null)}
-        />
-      )}
+      {/* No body: dentro da seção animada (transform), a janela "fixed" ficaria do tamanho dela. */}
+      {token &&
+        createPortal(
+          <PluggyConnect
+            connectToken={token.valor}
+            updateItem={token.item}
+            includeSandbox={bancos.sandbox}
+            selectedConnectorId={conector}
+            language="pt"
+            countries={['BR']}
+            onSuccess={({ item }) => void concluir(item.id)}
+            onError={(e) => {
+              // Na reconexão, o item pode ter voltado a funcionar mesmo com aviso de erro.
+              if (!e.data?.item)
+                avisar({ tipo: 'erro', texto: 'A conexão com o banco não foi concluída.' })
+            }}
+            onClose={() => setToken(null)}
+          />,
+          document.body,
+        )}
 
       <Folha aberta={escolhendo} aoFechar={() => setEscolhendo(false)} titulo="Escolha seu banco">
         <label className="controle flex items-center gap-2.5 !py-0">
