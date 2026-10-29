@@ -47,9 +47,9 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }],
       },
       {
-        name: 'Contas e bancos',
-        short_name: 'Contas',
-        url: '/contas',
+        name: 'Conectar banco',
+        short_name: 'Banco',
+        url: '/contas?conectar=1',
         icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }],
       },
     ],

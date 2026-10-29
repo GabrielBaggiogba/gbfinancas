@@ -3,7 +3,7 @@
 import { Landmark, Link2, PlayCircle, RefreshCw, Search, ShieldCheck, Unlink } from 'lucide-react'
 import { motion } from 'motion/react'
 import dynamic from 'next/dynamic'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAvisar } from '@/components/app/Avisos'
 import Folha from '@/components/app/Folha'
 import { useConfirmar } from '@/components/app/Confirmar'
@@ -85,6 +85,24 @@ export default function ConexoesBancarias() {
   }
   const filtrados = lista.filter((b) => buscaBanco(b, termo))
 
+  // "Conectar banco": com a conexão ligada, abre direto a janela segura do Open Finance, que
+  // já tem a lista de todos os bancos; sem ela, a nossa lista leva à demonstração.
+  const conectar = () => (conexaoReal ? void abrir() : abrirLista())
+
+  // Atalhos (primeiros passos, cartões, ícone do app) chegam em /contas?conectar=1.
+  const secao = useRef<HTMLElement>(null)
+  const pedidoNaUrl = useRef(false)
+  useEffect(() => {
+    if (pedidoNaUrl.current) return
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('conectar')) return
+    pedidoNaUrl.current = true
+    url.searchParams.delete('conectar')
+    window.history.replaceState(null, '', url.pathname + url.search)
+    secao.current?.scrollIntoView({ block: 'center' })
+    window.setTimeout(conectar, 0)
+  })
+
   const concluir = async (itemId: string) => {
     setToken(null)
     const r = await registrarConexao(itemId).catch(() => null)
@@ -118,7 +136,12 @@ export default function ConexoesBancarias() {
   }
 
   return (
-    <motion.section variants={itemSurgir} className="cartao p-[var(--pad)]">
+    <motion.section
+      ref={secao}
+      id="conectar-banco"
+      variants={itemSurgir}
+      className="cartao scroll-mt-24 p-[var(--pad)]"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         {titulo}
         <div className="flex flex-wrap gap-2">
@@ -133,7 +156,7 @@ export default function ConexoesBancarias() {
             type="button"
             className="b b-primario"
             disabled={ocupado !== null}
-            onClick={abrirLista}
+            onClick={conectar}
           >
             <Link2 size={17} aria-hidden="true" /> Conectar banco
           </button>

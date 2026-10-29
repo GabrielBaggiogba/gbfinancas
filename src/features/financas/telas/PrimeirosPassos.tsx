@@ -42,7 +42,7 @@ export default function PrimeirosPassos() {
           {
             titulo: 'Conecte seu banco para os lançamentos entrarem sozinhos',
             feito: bancos.conexoes.length > 0,
-            acao: { rotulo: 'Conectar', href: '/contas' },
+            acao: { rotulo: 'Conectar', href: '/contas?conectar=1' },
           },
         ]
       : []),
