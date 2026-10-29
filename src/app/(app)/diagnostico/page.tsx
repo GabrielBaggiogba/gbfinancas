@@ -43,8 +43,14 @@ async function tabelasQueExistem(): Promise<Set<string>> {
   const existe = await Promise.all(
     MIGRATIONS.map(async ([, t]) => {
       // Sem "head": numa requisição HEAD a tabela inexistente não volta como erro.
+      // Tabelas só do servidor (ex.: whatsapp_mensagens) respondem "sem permissão": existem.
       const { error } = await supabase.from(t).select('*').limit(0)
-      return error ? null : t
+      const falta =
+        error &&
+        (error.code === '42P01' ||
+          error.code === 'PGRST205' ||
+          /does not exist|schema cache/i.test(error.message))
+      return falta ? null : t
     }),
   )
   return new Set(existe.filter((t): t is (typeof MIGRATIONS)[number][1] => t !== null))
