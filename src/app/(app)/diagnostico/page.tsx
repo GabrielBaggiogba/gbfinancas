@@ -52,7 +52,19 @@ async function tabelasQueExistem(): Promise<Set<string>> {
 export default async function Diagnostico() {
   if (!(await podeVer())) notFound()
   const tabelas = await tabelasQueExistem()
-  const env = (n: string) => Boolean(process.env[n])
+  const env = (n: string) => Boolean(process.env[n]?.trim())
+  // Mostra quais variáveis já chegaram ao site e quais ainda faltam (só os nomes, nunca os valores).
+  const faltam = (nomes: string[], onde: string) => {
+    const ausentes = nomes.filter((n) => !env(n))
+    const presentes = nomes.filter(env)
+    return [
+      ausentes.length ? `Faltam: ${ausentes.join(', ')}` : 'Todas as variáveis estão cadastradas',
+      presentes.length && ausentes.length ? `Já cadastradas: ${presentes.join(', ')}` : '',
+      onde,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  }
 
   const grupos: { titulo: string; itens: Item[] }[] = [
     {
@@ -61,43 +73,62 @@ export default async function Diagnostico() {
         {
           nome: 'Banco de dados (Supabase)',
           ok: obterModo() === 'supabase',
-          falta: 'NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY',
+          falta: faltam(['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'Supabase'),
         },
         {
           nome: 'Chave de serviço (WhatsApp, lembretes e bancos)',
           ok: adminAtivo(),
-          falta: 'SUPABASE_SERVICE_ROLE_KEY (Supabase → Settings → API Keys)',
+          falta: faltam(
+            ['SUPABASE_SERVICE_ROLE_KEY'],
+            'Supabase → Project Settings → API Keys → service_role',
+          ),
         },
         {
           nome: 'Leitura com IA',
           ok: iaAtiva(),
-          falta: 'ANTHROPIC_API_KEY (console.anthropic.com)',
+          falta: faltam(['ANTHROPIC_API_KEY'], 'console.anthropic.com'),
         },
         {
           nome: 'Áudio (transcrição)',
           ok: transcricaoAtiva(),
-          falta: 'GBF_TRANSCRICAO_KEY (console.groq.com → API Keys)',
+          falta: faltam(['GBF_TRANSCRICAO_KEY'], 'console.groq.com → API Keys'),
         },
         {
           nome: `Conexão com bancos (Pluggy${pluggySandbox() ? ', modo de teste' : ''})`,
           ok: pluggyAtivo(),
-          falta:
-            'PLUGGY_CLIENT_ID, PLUGGY_CLIENT_SECRET e PLUGGY_WEBHOOK_SEGREDO (dashboard.pluggy.ai)',
+          falta: faltam(
+            [
+              'PLUGGY_CLIENT_ID',
+              'PLUGGY_CLIENT_SECRET',
+              'PLUGGY_WEBHOOK_SEGREDO',
+              'SUPABASE_SERVICE_ROLE_KEY',
+            ],
+            'a conexão também usa a chave de serviço do Supabase',
+          ),
         },
         {
           nome: 'WhatsApp',
           ok: whatsappAtivo(),
-          falta: 'WHATSAPP_TOKEN, WHATSAPP_PHONE_ID, WHATSAPP_APP_SECRET, WHATSAPP_VERIFY_TOKEN',
+          falta: faltam(
+            [
+              'WHATSAPP_TOKEN',
+              'WHATSAPP_PHONE_ID',
+              'WHATSAPP_APP_SECRET',
+              'WHATSAPP_VERIFY_TOKEN',
+              'SUPABASE_SERVICE_ROLE_KEY',
+            ],
+            'developers.facebook.com',
+          ),
         },
         {
           nome: 'E-mail de lembretes',
           ok: emailAtivo(),
-          falta: 'RESEND_API_KEY e GBF_EMAIL_REMETENTE (resend.com)',
+          falta: faltam(['RESEND_API_KEY', 'GBF_EMAIL_REMETENTE'], 'resend.com'),
         },
         {
           nome: 'Rotinas diárias (lembretes e bancos)',
           ok: env('CRON_SECRET'),
-          falta: 'CRON_SECRET (qualquer texto longo e aleatório)',
+          falta: faltam(['CRON_SECRET'], 'qualquer texto longo e aleatório'),
         },
       ],
     },
