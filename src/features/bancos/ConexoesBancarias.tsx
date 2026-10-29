@@ -275,7 +275,8 @@ export default function ConexoesBancarias() {
             includeSandbox={bancos.sandbox}
             selectedConnectorId={conector}
             language="pt"
-            countries={['BR']}
+            // Os bancos de teste da Pluggy não têm país: filtrar por BR os esconderia.
+            countries={bancos.sandbox ? undefined : ['BR']}
             onSuccess={({ item }) => void concluir(item.id)}
             onError={(e) => {
               // Na reconexão, o item pode ter voltado a funcionar mesmo com aviso de erro.
