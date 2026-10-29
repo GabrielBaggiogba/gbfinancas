@@ -42,7 +42,8 @@ async function tabelasQueExistem(): Promise<Set<string>> {
   const supabase = (await criarClienteServidor()) as unknown as SupabaseClient
   const existe = await Promise.all(
     MIGRATIONS.map(async ([, t]) => {
-      const { error } = await supabase.from(t).select('*', { head: true, count: 'exact' }).limit(0)
+      // Sem "head": numa requisição HEAD a tabela inexistente não volta como erro.
+      const { error } = await supabase.from(t).select('*').limit(0)
       return error ? null : t
     }),
   )
