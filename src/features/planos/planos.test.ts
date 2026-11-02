@@ -11,12 +11,10 @@ describe('limitesDe', () => {
       contas: 3,
       cartoes: 2,
       whatsapp: false,
-      openFinance: false,
     })
     expect(limitesDe(null, true).contas).toBe(3)
     expect(limitesDe('completo', true)).toMatchObject({
       whatsapp: true,
-      openFinance: true,
       familia: false,
     })
     expect(limitesDe('familia', true).familia).toBe(true)

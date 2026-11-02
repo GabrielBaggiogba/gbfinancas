@@ -2,7 +2,14 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { ESQUEMAS } from '@/features/financas/esquemas'
 import { lancamentoVazio, parcelar } from '@/features/financas/fabrica'
-import { ErroDeIA, iaAtiva, lerLancamentos, type Anexo, type Contexto } from '@/features/ia/ler'
+import {
+  ErroDeIA,
+  iaAtiva,
+  lerLancamentos,
+  type Anexo,
+  type Contexto,
+  type Leitura,
+} from '@/features/ia/ler'
 import { cobrancaAtiva, limitesDe, type PlanoDoUsuario } from '@/features/planos/planos'
 import { mensagemDeBloqueio } from '@/features/planos/permissao'
 import { dataBR, fimDoMes, hojeEmSaoPaulo, inicioDoMes, mesDe, rotuloMes } from '@/lib/datas'
@@ -14,7 +21,9 @@ import {
   transcrever,
   transcricaoAtiva,
 } from '@/features/ia/transcrever'
+import { interpretarFala } from '@/features/voz/interpretar'
 import { baixarMidia, enviarTexto } from './api'
+import { ehPergunta, responderPergunta } from './conversa'
 
 // O que chega no webhook: só os campos que usamos.
 export type MensagemRecebida = {
@@ -27,10 +36,11 @@ export type MensagemRecebida = {
   audio?: { id: string; mime_type?: string; voice?: boolean }
 }
 
-const AJUDA = `Oi! Eu registro seus gastos e entradas no GBFinanças.
+const AJUDA = `Oi! Eu sou o Grão, do GBFinanças. Por aqui você registra e consulta seu dinheiro.
 
-• Escreva: _almoço 32 no pix_ ou _recebi 1500 de salário_
 • Mande um áudio: _gastei 45 no mercado ontem à tarde_
+• Ou escreva: _almoço 32 no pix_ ou _recebi 1500 de salário_
+• Pergunte: _quanto gastei este mês?_ ou _qual meu saldo?_
 • Mande a foto da nota ou o PDF de um boleto
 • Responda *desfazer* para apagar o último registro`
 
@@ -80,10 +90,6 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     await enviarTexto(m.from, AJUDA)
     return
   }
-  if (!iaAtiva()) {
-    await enviarTexto(m.from, 'A leitura automática está desligada no momento. Registre pelo app.')
-    return
-  }
   // Áudio: transcreve e segue como se a pessoa tivesse escrito.
   if (m.type === 'audio' || m.audio) {
     if (!transcricaoAtiva() || !m.audio) {
@@ -110,8 +116,27 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     }
   }
 
+  const ouvido = m.audio ? `🎙️ Ouvi: _${texto}_\n\n` : ''
+  const hoje = hojeEmSaoPaulo()
   let anexo: Anexo | undefined
   const midia = m.image ?? (m.document?.mime_type === 'application/pdf' ? m.document : undefined)
+
+  // Pergunta sobre o dinheiro: responde com os números (ou com o Grão, se a IA estiver ligada).
+  if (!midia && texto && ehPergunta(texto)) {
+    const resposta = await responderPergunta(admin, dono, texto, hoje).catch(() => null)
+    await enviarTexto(
+      m.from,
+      ouvido + (resposta ?? 'Não consegui ver seus números agora. Tente de novo.'),
+    )
+    return
+  }
+  if (midia && !iaAtiva()) {
+    await enviarTexto(
+      m.from,
+      'Por enquanto não leio fotos e PDFs. Mande um áudio ou escreva o gasto.',
+    )
+    return
+  }
   if (midia) {
     const arquivo = await baixarMidia(midia.id).catch(() => null)
     const tipos = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'] as const
@@ -132,14 +157,27 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
     return
   }
 
-  const hoje = hojeEmSaoPaulo()
   const ctx = await contexto(admin, dono, hoje)
-  let leitura
-  try {
-    leitura = await lerLancamentos(ctx, texto, anexo)
-  } catch (e) {
-    await enviarTexto(m.from, e instanceof ErroDeIA ? e.message : 'Algo deu errado. Tente de novo.')
-    return
+  let leitura: Leitura
+  if (iaAtiva()) {
+    try {
+      leitura = await lerLancamentos(ctx, texto, anexo)
+    } catch (e) {
+      await enviarTexto(
+        m.from,
+        e instanceof ErroDeIA ? e.message : 'Algo deu errado. Tente de novo.',
+      )
+      return
+    }
+  } else {
+    // Sem IA: o mesmo interpretador do botão Falar do app (valor, o quê, quando, como pagou).
+    const f = interpretarFala(texto, { ...ctx, hoje })
+    leitura = {
+      itens: f ? [{ ...f, valor: Math.round(f.valor * 100) }] : [],
+      observacao: f
+        ? null
+        : ouvido + 'Não achei o valor. Fale, por exemplo: _gastei 45 reais no mercado ontem_.',
+    }
   }
   if (!leitura.itens.length) {
     await enviarTexto(
@@ -207,7 +245,7 @@ export async function processarMensagem(m: MensagemRecebida): Promise<void> {
   const orcamento = await avisoDeOrcamento(admin, dono, ctx, leitura.itens)
   await enviarTexto(
     m.from,
-    `${m.audio ? `🎙️ Ouvi: _${texto}_\n\n` : ''}✅ Registrado:\n${linhasTexto.join('\n')}${orcamento ? `\n\n${orcamento}` : ''}\n\nResponda *desfazer* para apagar.`,
+    `${ouvido}✅ Registrado:\n${linhasTexto.join('\n')}${orcamento ? `\n\n${orcamento}` : ''}\n\nResponda *desfazer* para apagar.`,
   )
 }
 

@@ -4,7 +4,6 @@ import {
   Archive,
   ArchiveRestore,
   CreditCard,
-  Link2,
   Pencil,
   Plus,
   ShoppingBag,
@@ -12,7 +11,6 @@ import {
   Wifi,
 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { useAvisar } from '@/components/app/Avisos'
 import { Campo, CampoValor, Vazio } from '@/components/app/Campos'
@@ -128,9 +126,6 @@ export default function Cartoes() {
           A compra entra no mês em que foi feita; o dinheiro só sai da conta quando a fatura é paga.
         </p>
         <div className="flex flex-none gap-2 max-[640px]:[&>*]:flex-1">
-          <Link href="/contas?conectar=1" className="b b-suave">
-            <Link2 size={17} aria-hidden="true" /> Conectar banco
-          </Link>
           <button type="button" className="b b-primario" onClick={() => abrir()}>
             <Plus size={17} aria-hidden="true" /> Novo cartão
           </button>

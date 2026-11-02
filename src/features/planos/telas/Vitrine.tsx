@@ -12,7 +12,6 @@ import {
   LogIn,
   MessageCircle,
   MessagesSquare,
-  RefreshCw,
   ShieldCheck,
   Sparkles,
   Target,
@@ -39,8 +38,9 @@ const RECURSOS: Recurso[] = [
   },
   {
     icone: MessageCircle,
-    titulo: 'Lance pelo WhatsApp',
-    texto: 'Mande "almoço 32 reais" e o gasto entra na hora, com categoria e conta.',
+    titulo: 'Converse pelo WhatsApp',
+    texto:
+      'Mande um áudio "gastei 45 no mercado" e o gasto entra na hora. Pergunte "quanto gastei este mês?" e receba o resumo.',
   },
   {
     icone: Camera,
@@ -87,11 +87,6 @@ const RECURSOS: Recurso[] = [
     icone: CreditCard,
     titulo: 'Contas e cartões',
     texto: 'Várias contas, faturas e compras parceladas organizadas em um só lugar.',
-  },
-  {
-    icone: RefreshCw,
-    titulo: 'Open Finance',
-    texto: 'Conecte bancos e cartões pelo Open Finance e os lançamentos chegam sozinhos, todo dia.',
   },
 ]
 

@@ -2,7 +2,6 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import { obterUsuario } from '@/features/auth/sessao'
 import { emailAtivo } from '@/features/avisos/email'
-import { pluggyAtivo, pluggySandbox } from '@/features/bancos/pluggy'
 import { iaAtiva } from '@/features/ia/ler'
 import { transcricaoAtiva } from '@/features/ia/transcrever'
 import { obterAssinatura } from '@/features/planos/servidor'
@@ -20,7 +19,6 @@ const MIGRATIONS = [
   ['20261024 planos e perfis', 'perfis'],
   ['20261025 família', 'membros'],
   ['20261026 WhatsApp', 'whatsapp_mensagens'],
-  ['20261027 Open Finance', 'conexoes_bancarias'],
 ] as const
 
 type Item = { nome: string; ok: boolean; falta: string }
@@ -83,7 +81,7 @@ export default async function Diagnostico() {
           falta: faltam(['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'], 'Supabase'),
         },
         {
-          nome: 'Chave de serviço (WhatsApp, lembretes e bancos)',
+          nome: 'Chave de serviço (WhatsApp e lembretes)',
           ok: adminAtivo(),
           falta: faltam(
             ['SUPABASE_SERVICE_ROLE_KEY'],
@@ -99,19 +97,6 @@ export default async function Diagnostico() {
           nome: 'Áudio (transcrição)',
           ok: transcricaoAtiva(),
           falta: faltam(['GBF_TRANSCRICAO_KEY'], 'console.groq.com → API Keys'),
-        },
-        {
-          nome: `Conexão com bancos (Pluggy${pluggySandbox() ? ', modo de teste' : ''})`,
-          ok: pluggyAtivo(),
-          falta: faltam(
-            [
-              'PLUGGY_CLIENT_ID',
-              'PLUGGY_CLIENT_SECRET',
-              'PLUGGY_WEBHOOK_SEGREDO',
-              'SUPABASE_SERVICE_ROLE_KEY',
-            ],
-            'a conexão também usa a chave de serviço do Supabase',
-          ),
         },
         {
           nome: 'WhatsApp',

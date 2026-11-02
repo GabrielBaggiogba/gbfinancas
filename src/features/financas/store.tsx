@@ -14,13 +14,9 @@ import { useAvisar } from '@/components/app/Avisos'
 import { hojeEmSaoPaulo } from '@/lib/datas'
 import { gravar } from './actions'
 import { aplicarLocal } from './operacoes'
-import type { ConexaoBancaria } from '@/features/bancos/servidor'
 import type { Familia } from '@/features/familia/servidor'
 import type { PlanoDoUsuario } from '@/features/planos/planos'
 import type { PreferenciasDeAviso } from '@/features/planos/servidor'
-
-/** Open Finance: se está configurado e os bancos conectados. */
-export type Bancos = { ativo: boolean; sandbox: boolean; conexoes: ConexaoBancaria[] }
 
 /** Lembretes e WhatsApp: preferências da pessoa e o que está configurado no servidor. */
 export type Avisos = {
@@ -73,7 +69,6 @@ type Contexto = {
   usuarioId: string
   familia: Familia
   avisos: Avisos
-  bancos: Bancos
   /** Aplica na tela e envia ao servidor. Resolve `true` quando o servidor confirmou. */
   aplicar: (operacoes: Operacao[], aoConfirmar?: string) => Promise<boolean>
   trocarTudo: (dados: Dados) => void
@@ -92,7 +87,6 @@ export function ProvedorDeDados({
   usuarioId,
   familia,
   avisos,
-  bancos,
   children,
 }: {
   inicial: Dados
@@ -106,7 +100,6 @@ export function ProvedorDeDados({
   usuarioId: string
   familia: Familia
   avisos: Avisos
-  bancos: Bancos
   children: ReactNode
 }) {
   const [estado, despachar] = useReducer(redutor, { confirmados: inicial, pendentes: [] })
@@ -175,25 +168,10 @@ export function ProvedorDeDados({
       usuarioId,
       familia,
       avisos,
-      bancos,
       aplicar,
       trocarTudo,
     }),
-    [
-      dados,
-      hoje,
-      email,
-      demo,
-      plano,
-      ia,
-      audio,
-      usuarioId,
-      familia,
-      avisos,
-      bancos,
-      aplicar,
-      trocarTudo,
-    ],
+    [dados, hoje, email, demo, plano, ia, audio, usuarioId, familia, avisos, aplicar, trocarTudo],
   )
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>
 }

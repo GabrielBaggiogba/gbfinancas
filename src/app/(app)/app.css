@@ -35,6 +35,37 @@
 
 /* Tema escuro: verde do dinheiro sobre fundo quase preto, com dourado nos destaques. */
 .app[data-tema='escuro'] {
+  --fundo: #050d09;
+  --painel: #0b1711;
+  --painel2: #122219;
+  --linha: rgba(220, 255, 230, 0.08);
+  --linha2: rgba(220, 255, 230, 0.15);
+  --t1: #ecf5ef;
+  --t2: #a3b6a9;
+  --t3: #7a8f81;
+  --verde: #22c55e;
+  --menta: #4ade80;
+  --ouro: #f2c14e;
+  --tinta: #04210f;
+  --erro: #ff6b61;
+  --ok: #4ade80;
+  --aviso: #f2c14e;
+  --realce: rgba(34, 197, 94, 0.12);
+  --realce2: rgba(34, 197, 94, 0.2);
+  --vidro: rgba(7, 16, 11, 0.72);
+  --vidro-forte: rgba(9, 19, 13, 0.88);
+  --sombra: 0 30px 70px -28px rgba(0, 0, 0, 0.85);
+  --sombra-cartao: none;
+  --grade: rgba(255, 255, 255, 0.07);
+  --serie-neutra: #9aa89f;
+  --tom-icone: 100%;
+  --tom-opcao: 100%;
+  --veu: rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  .app[data-tema='sistema'] {
     --fundo: #050d09;
     --painel: #0b1711;
     --painel2: #122219;
@@ -61,41 +92,10 @@
     --tom-icone: 100%;
     --tom-opcao: 100%;
     --veu: rgba(0, 0, 0, 0.5);
-    color-scheme: dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  .app[data-tema='sistema'] {
-      --fundo: #050d09;
-      --painel: #0b1711;
-      --painel2: #122219;
-      --linha: rgba(220, 255, 230, 0.08);
-      --linha2: rgba(220, 255, 230, 0.15);
-      --t1: #ecf5ef;
-      --t2: #a3b6a9;
-      --t3: #7a8f81;
-      --verde: #22c55e;
-      --menta: #4ade80;
-      --ouro: #f2c14e;
-      --tinta: #04210f;
-      --erro: #ff6b61;
-      --ok: #4ade80;
-      --aviso: #f2c14e;
-      --realce: rgba(34, 197, 94, 0.12);
-      --realce2: rgba(34, 197, 94, 0.2);
-      --vidro: rgba(7, 16, 11, 0.72);
-      --vidro-forte: rgba(9, 19, 13, 0.88);
-      --sombra: 0 30px 70px -28px rgba(0, 0, 0, 0.85);
-      --sombra-cartao: none;
-      --grade: rgba(255, 255, 255, 0.07);
-      --serie-neutra: #9aa89f;
-      --tom-icone: 100%;
-      --tom-opcao: 100%;
-      --veu: rgba(0, 0, 0, 0.5);
     --tom-icone: 100%;
     --tom-opcao: 100%;
     --veu: rgba(0, 0, 0, 0.5);
-      color-scheme: dark;
+    color-scheme: dark;
   }
 }
 

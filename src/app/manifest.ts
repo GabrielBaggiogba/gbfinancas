@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'GBFinanças',
     short_name: 'GBFinanças',
     description:
-      'Gestão financeira com WhatsApp, inteligência artificial e Open Finance: lançamentos, contas, cartões, orçamentos e metas.',
+      'Gestão financeira com WhatsApp, voz e inteligência artificial: lançamentos, contas, cartões, orçamentos e metas.',
     lang: 'pt-BR',
     dir: 'ltr',
     start_url: '/?origem=app',
@@ -50,12 +50,6 @@ export default function manifest(): MetadataRoute.Manifest {
         name: 'Pergunte ao Grão',
         short_name: 'Grão',
         url: '/?acao=grao',
-        icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }],
-      },
-      {
-        name: 'Conectar banco',
-        short_name: 'Banco',
-        url: '/contas?conectar=1',
         icons: [{ src: '/icons/icon-192.png', sizes: '192x192' }],
       },
     ],

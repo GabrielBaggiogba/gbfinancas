@@ -21,8 +21,7 @@ Gestão financeira pessoal para usar todo dia no computador e no celular: lança
 - **Calculadora**: botão no canto inferior direito de todas as telas; abre uma janela flutuante que aceita vírgula, parênteses e porcentagem (`200 + 10%` dá 220).
 - **Lançar com IA**: botão no topo; aceita texto livre ("almoço 32 no pix"), voz (navegadores com reconhecimento de fala), foto de nota fiscal ou PDF. Mostra os lançamentos para conferir antes de salvar. No editor, a categoria é sugerida pela descrição (primeiro repetindo a de um lançamento igual, depois pela IA).
 - **Aplicativo (PWA)**: o GBFinanças se instala no celular (Android e iPhone) e no computador (Chrome e Edge) pelo botão "Instalar app" (lateral, Configurações e página de planos). Abre em tela cheia, com ícone, atalhos ao pressionar o ícone (nova saída, lançar com IA, Pergunte ao Grão, contas) e tela "sem conexão" quando falta internet. O service worker (`public/sw.js`) guarda só código, ícones e fontes; páginas e dados financeiros nunca ficam no aparelho.
-- **Limites dos planos**: com `GBF_COBRANCA_ATIVA=1`, o Essencial fica com até 3 contas e 2 cartões ativos; WhatsApp, lembretes e Open Finance pedem o Completo; a família pede o Família. Na família vale o plano de quem convidou. Sem assinatura, valem os limites do Essencial. Antes disso, todos usam tudo.
-- **Bancos conectados (Open Finance)**: em Contas, "Conectar banco" abre a janela da Pluggy; a pessoa escolhe o banco (Caixa, BB, Itaú, Bradesco, Santander, Nubank, Inter e outros) e autoriza no app do próprio banco. O GBFinanças cria as contas e cartões, importa os últimos 90 dias e, depois, recebe os novos lançamentos pelo webhook da Pluggy (com uma sincronização diária de reserva). O acesso é só de leitura e pode ser revogado em "Desconectar". O id de cada transação do banco evita importar duas vezes; pagamentos de fatura viram "pagamento de fatura", não gasto.
+- **Limites dos planos**: com `GBF_COBRANCA_ATIVA=1`, o Essencial fica com até 3 contas e 2 cartões ativos; WhatsApp e lembretes pedem o Completo; a família pede o Família. Na família vale o plano de quem convidou. Sem assinatura, valem os limites do Essencial. Antes disso, todos usam tudo.
 - **Pergunte ao Grão**: assistente no topo que responde perguntas sobre o próprio dinheiro ("Quanto sobrou do salário?", "Posso comprar um tênis este mês?") com base nos lançamentos, contas, cartões, limites e metas. Não recomenda investimentos.
 - **Primeiros passos**: guia no Dashboard para quem está começando (saldo das contas, cartões, renda, gastos, limite e meta), que some quando tudo está feito ou a pessoa fecha.
 - **Importar extrato**: OFX (o formato que os bancos exportam) ou CSV, em Configurações.
@@ -98,9 +97,6 @@ Os valores ficam no banco em reais com duas casas (`numeric`). O app trabalha em
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_NUMERO` | WhatsApp Cloud API | developers.facebook.com → seu app → WhatsApp |
 | `GBF_TRANSCRICAO_KEY` (e opcionais `GBF_TRANSCRICAO_URL`, `GBF_TRANSCRICAO_MODELO`) | áudio no app e no WhatsApp; padrão Groq Whisper, aceita qualquer API compatível com a da OpenAI | console.groq.com → API Keys |
 | `WHATSAPP_TEMPLATE_LEMBRETE`    | modelo aprovado pela Meta para os lembretes (um parâmetro no corpo) | WhatsApp Manager → Modelos |
-| `PLUGGY_CLIENT_ID`, `PLUGGY_CLIENT_SECRET` | conexão com bancos (Open Finance) | dashboard.pluggy.ai → Applications |
-| `PLUGGY_WEBHOOK_SEGREDO` | protege o aviso de novos lançamentos | invente um texto longo |
-| `PLUGGY_SANDBOX` | `1` mostra os bancos de teste da Pluggy (usuário `user-ok`, senha `password-ok`) | — |
 | `GBF_COBRANCA_ATIVA`            | `1` quando a assinatura começar a ser cobrada         | —                              |
 
 A chave `service_role` ignora as regras de acesso do banco: fica só nas variáveis da Vercel, nunca com o prefixo `NEXT_PUBLIC_`. O código que a usa (`src/lib/supabase/admin.ts`) filtra tudo por usuário.
@@ -112,13 +108,7 @@ A chave `service_role` ignora as regras de acesso do banco: fica só nas variáv
 3. Em WhatsApp → Configuration, cadastre o webhook `https://<seu-dominio>/api/whatsapp` com o mesmo texto de `WHATSAPP_VERIFY_TOKEN` e assine o campo `messages`.
 4. Para os lembretes, crie em WhatsApp Manager um modelo de mensagem (categoria Utilidade, idioma Português (BR)) com um parâmetro no corpo, por exemplo: "Lembrete do GBFinanças: {{1}}". Coloque o nome dele em `WHATSAPP_TEMPLATE_LEMBRETE`.
 
-### Configurar a conexão com bancos
-
-1. Crie uma conta em pluggy.ai e uma Application no dashboard. Anote o Client ID e o Client Secret.
-2. Na Vercel, cadastre `PLUGGY_CLIENT_ID`, `PLUGGY_CLIENT_SECRET`, `PLUGGY_WEBHOOK_SEGREDO` e `PLUGGY_SANDBOX=1` para começar testando com os bancos de mentira.
-3. Bancos reais pelo Open Finance exigem a contratação do plano de produção com a Pluggy. Depois disso, tire o `PLUGGY_SANDBOX`.
-
-O webhook é configurado sozinho a cada conexão (`/api/pluggy`, com o segredo na URL). `vercel.json` também agenda `/api/cron/bancos` todo dia às 6h de Brasília.
+Pelo WhatsApp a pessoa conversa com o Grão: manda áudio ou texto com o gasto ("gastei 45 no mercado ontem"), que entra na hora, ou pergunta ("quanto gastei este mês?", "qual meu saldo?"). Sem a `ANTHROPIC_API_KEY`, o app entende os gastos com o próprio interpretador (o mesmo do botão Falar) e responde perguntas com o resumo do mês; com ela, o Grão responde qualquer pergunta e lê fotos e PDFs. O áudio precisa da `GBF_TRANSCRICAO_KEY`.
 
 ### Publicar nas lojas (opcional)
 
@@ -179,7 +169,5 @@ Como os dados circulam: o layout da área logada lê tudo do usuário uma vez e 
 
 - Recuperação de senha por e-mail
 - Checkout da assinatura (Mercado Pago ou Stripe) e limites por plano
-- Open Finance (contas sincronizadas)
-- Áudio pelo WhatsApp (precisa de um serviço de transcrição)
 - Importação de extrato com mapeamento de colunas e categorização em lote
 - Dashboard com blocos que a pessoa pode mover ou ocultar

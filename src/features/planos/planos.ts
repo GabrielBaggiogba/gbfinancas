@@ -38,9 +38,8 @@ export const PLANOS: Plano[] = [
     recursos: [
       'Tudo do Essencial',
       'Contas e cartões ilimitados',
-      'Lançar pelo WhatsApp com texto, foto ou PDF',
+      'Lançar pelo WhatsApp com áudio, texto, foto ou PDF',
       'Lembretes de contas no WhatsApp e por e-mail',
-      'Open Finance: conecte seus bancos e os lançamentos entram sozinhos',
     ],
   },
   {
@@ -82,7 +81,6 @@ export type Limites = {
   cartoes: number
   whatsapp: boolean
   lembretes: boolean
-  openFinance: boolean
   familia: boolean
 }
 const TUDO: Limites = {
@@ -90,7 +88,6 @@ const TUDO: Limites = {
   cartoes: Infinity,
   whatsapp: true,
   lembretes: true,
-  openFinance: true,
   familia: true,
 }
 const LIMITES: Record<Exclude<PlanoDoUsuario, null>, Limites> = {
@@ -102,7 +99,6 @@ const LIMITES: Record<Exclude<PlanoDoUsuario, null>, Limites> = {
     cartoes: 2,
     whatsapp: false,
     lembretes: false,
-    openFinance: false,
     familia: false,
   },
 }
@@ -116,6 +112,5 @@ export function limitesDe(plano: PlanoDoUsuario, cobranca: boolean): Limites {
 export const PLANO_MINIMO: Record<Exclude<keyof Limites, 'contas' | 'cartoes'>, string> = {
   whatsapp: 'Completo',
   lembretes: 'Completo',
-  openFinance: 'Completo',
   familia: 'Família',
 }
