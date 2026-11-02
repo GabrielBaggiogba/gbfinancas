@@ -149,6 +149,20 @@ describe('cartão', () => {
     ).map((p) => faturaDe(cartao, p.data))
     expect(datas).toEqual(['2026-10', '2026-11', '2026-12'])
   })
+  it('parcelas já pagas ficam de fora e as restantes mantêm número e data', () => {
+    const base = l({ tipo: 'despesa', valor: 120000, data: '2026-06-10', conta_id: 'a' })
+    const linhas = parcelar(base, 12, 4)
+    expect(linhas).toHaveLength(8)
+    expect(linhas[0]).toMatchObject({ id: base.id, parcela_atual: 5, data: '2026-10-10' })
+    expect(linhas.at(-1)).toMatchObject({
+      parcela_atual: 12,
+      parcela_total: 12,
+      data: '2027-05-10',
+    })
+    expect(linhas.every((p) => p.valor === 10000 && p.grupo_id === linhas[0].grupo_id)).toBe(true)
+    // Nunca pula todas: no máximo fica a última.
+    expect(parcelar(base, 3, 9)).toHaveLength(1)
+  })
   it('monta faturas, status e pagamento', () => {
     const faturas = faturasDoCartao(cartao, base.lancamentos, '2026-10-06')
     expect(faturas.map((f) => [f.ref, f.total, f.status])).toEqual([

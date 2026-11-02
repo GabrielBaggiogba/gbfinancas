@@ -15,7 +15,7 @@ import { Campo, CampoValor } from '@/components/app/Campos'
 import { useConfirmar } from '@/components/app/Confirmar'
 import Folha from '@/components/app/Folha'
 import { Faisca, LuzNoFio } from '@/components/motion/Efeitos'
-import { dataCurta, rotuloMesCurto, somarMeses } from '@/lib/datas'
+import { dataBR, dataCurta, rotuloMesCurto, somarMeses } from '@/lib/datas'
 import { formatarReais } from '@/lib/dinheiro'
 import { faturaDe, faturasDoCartao, mesDaFatura, vencimentoDaFatura } from '../calculos'
 import { lancamentoSchema, primeiraMensagem } from '../esquemas'
@@ -41,6 +41,17 @@ export function useEditor(): Contexto {
   const ctx = useContext(Ctx)
   if (!ctx) throw new Error('useEditor fora do ProvedorDoEditor')
   return ctx
+}
+
+/** "À vista", "2x de R$ 50,00"... até 48 vezes (financiamentos e carnês longos). */
+function OpcoesDeParcelas({ valor, valorPor }: { valor: number; valorPor: 'total' | 'parcela' }) {
+  return Array.from({ length: 48 }, (_, i) => i + 1).map((n) => (
+    <option key={n} value={n}>
+      {n === 1
+        ? 'À vista'
+        : `${n}x de ${formatarReais(valorPor === 'parcela' ? valor : Math.floor(valor / n))}`}
+    </option>
+  ))
 }
 
 const FORMAS_DA_CONTA: FormaPagamento[] = ['pix', 'debito', 'dinheiro', 'boleto', 'transferencia']
@@ -139,6 +150,10 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
   const editando = pedido.modo === 'editar'
   const [l, setL] = useState<Lancamento>(pedido.lancamento)
   const [parcelas, setParcelas] = useState(1)
+  // Compra parcelada que já vinha sendo paga antes do app: quantas parcelas já saíram.
+  const [jaPagas, setJaPagas] = useState(0)
+  // O valor digitado é o total da compra ou o de cada parcela.
+  const [valorPor, setValorPor] = useState<'total' | 'parcela'>('total')
   const [erro, setErro] = useState('')
   const [pulso, setPulso] = useState(0)
   const mudar = (campos: Partial<Lancamento>) => setL((atual) => ({ ...atual, ...campos }))
@@ -153,6 +168,14 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
   )
   const origem = l.cartao_id ? `cartao:${l.cartao_id}` : l.conta_id ? `conta:${l.conta_id}` : ''
   const noCartao = l.tipo === 'despesa' && !!l.cartao_id
+  const podeParcelar = !editando && l.tipo === 'despesa' && (noCartao || !!l.conta_id)
+  const nParcelas = podeParcelar ? parcelas : 1
+  const pagas = nParcelas > 1 ? Math.min(jaPagas, nParcelas - 1) : 0
+  const totalDaCompra = valorPor === 'parcela' && nParcelas > 1 ? l.valor * nParcelas : l.valor
+  const mudarParcelas = (n: number) => {
+    setParcelas(n)
+    setJaPagas((j) => Math.min(j, Math.max(0, n - 1)))
+  }
   const fatura = l.tipo === 'pagamento_fatura'
   const cartaoEscolhido = cartoes.find((c) => c.id === l.cartao_id) ?? null
   // Faturas que dá para pagar: fechadas, atrasadas e a aberta (a do lançamento sempre aparece).
@@ -210,6 +233,7 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
             : l.forma_pagamento,
       })
     setParcelas(1)
+    setJaPagas(0)
   }
 
   const trocarOrigem = (valor: string) => {
@@ -222,7 +246,6 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
         forma_pagamento:
           l.forma_pagamento === 'credito' || !l.forma_pagamento ? 'pix' : l.forma_pagamento,
       })
-      setParcelas(1)
     }
   }
 
@@ -244,11 +267,13 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
         'Lançamento atualizado',
       )
     } else {
-      const linhas = parcelar(limpo, noCartao ? parcelas : 1)
+      const linhas = parcelar({ ...limpo, valor: totalDaCompra }, nParcelas, pagas)
       await aplicar(
         [{ op: 'inserir', tabela: 'lancamentos', linhas }],
-        linhas.length > 1
-          ? `Compra lançada em ${linhas.length} parcelas`
+        nParcelas > 1
+          ? pagas
+            ? `Parcelas ${pagas + 1} a ${nParcelas} lançadas (${pagas} já pagas)`
+            : `Compra lançada em ${linhas.length} parcelas`
           : fatura
             ? 'Pagamento registrado'
             : 'Lançamento salvo',
@@ -312,7 +337,15 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
           />
         )}
 
-        <Campo rotulo="Valor">
+        <Campo
+          rotulo={
+            nParcelas > 1
+              ? valorPor === 'parcela'
+                ? 'Valor de cada parcela'
+                : 'Valor total da compra'
+              : 'Valor'
+          }
+        >
           {(id) => (
             <CampoValor
               id={id}
@@ -335,7 +368,7 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
         )}
 
         <div className="grid grid-cols-2 gap-3">
-          <Campo rotulo="Data">
+          <Campo rotulo={nParcelas > 1 ? 'Data da compra (1ª parcela)' : 'Data'}>
             {(id) => (
               <input
                 id={id}
@@ -452,12 +485,12 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
         {noCartao && cartaoEscolhido && (
           <p className="miudo -mt-1 text-t2">
             {(() => {
-              const total = editando ? 1 : Math.max(1, parcelas)
-              const primeira = faturaDe(cartaoEscolhido, l.data)
+              const total = Math.max(1, nParcelas)
+              const primeira = faturaDe(cartaoEscolhido, somarMeses(l.data, pagas))
               const ultima = faturaDe(cartaoEscolhido, somarMeses(l.data, total - 1))
               const nome = (ref: string) => rotuloMesCurto(mesDaFatura(cartaoEscolhido, ref), true)
               return total > 1
-                ? `Parcelas nas faturas de ${nome(primeira)} a ${nome(ultima)} (a 1ª vence ${dataCurta(vencimentoDaFatura(cartaoEscolhido, primeira))}).`
+                ? `${pagas ? `Parcelas ${pagas + 1} a ${total}` : 'Parcelas'} nas faturas de ${nome(primeira)} a ${nome(ultima)} (a próxima vence ${dataCurta(vencimentoDaFatura(cartaoEscolhido, primeira))}).`
                 : `Entra na fatura de ${nome(primeira)}, que vence ${dataCurta(vencimentoDaFatura(cartaoEscolhido, primeira))}.`
             })()}
           </p>
@@ -557,15 +590,9 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
                       id={id}
                       className="controle"
                       value={parcelas}
-                      onChange={(e) => setParcelas(Number(e.target.value))}
+                      onChange={(e) => mudarParcelas(Number(e.target.value))}
                     >
-                      {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={n}>
-                          {n === 1
-                            ? 'À vista'
-                            : `${n}x de ${formatarReais(Math.floor(l.valor / n))}`}
-                        </option>
-                      ))}
+                      <OpcoesDeParcelas valor={l.valor} valorPor={valorPor} />
                     </select>
                   )
                 }
@@ -589,6 +616,72 @@ function Formulario({ pedido, fechar }: { pedido: Pedido; fechar: () => void }) 
                   </select>
                 )}
               </Campo>
+            )}
+          </div>
+        )}
+
+        {podeParcelar && (
+          <div className="grid gap-3 rounded-2xl bg-painel2 p-3">
+            <div className="grid grid-cols-2 gap-3">
+              {!noCartao && (
+                <Campo rotulo="Parcelas">
+                  {(id) => (
+                    <select
+                      id={id}
+                      className="controle"
+                      value={parcelas}
+                      onChange={(e) => mudarParcelas(Number(e.target.value))}
+                    >
+                      <OpcoesDeParcelas valor={l.valor} valorPor={valorPor} />
+                    </select>
+                  )}
+                </Campo>
+              )}
+              {nParcelas > 1 && (
+                <>
+                  <Campo rotulo="Já paguei">
+                    {(id) => (
+                      <select
+                        id={id}
+                        className="controle"
+                        value={pagas}
+                        onChange={(e) => setJaPagas(Number(e.target.value))}
+                      >
+                        {Array.from({ length: nParcelas }, (_, i) => i).map((n) => (
+                          <option key={n} value={n}>
+                            {n === 0 ? 'Nenhuma' : `${n} (estou na ${n + 1}ª)`}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </Campo>
+                  <Campo rotulo="O valor digitado é">
+                    {(id) => (
+                      <select
+                        id={id}
+                        className="controle"
+                        value={valorPor}
+                        onChange={(e) => setValorPor(e.target.value as 'total' | 'parcela')}
+                      >
+                        <option value="total">Total da compra</option>
+                        <option value="parcela">Cada parcela</option>
+                      </select>
+                    )}
+                  </Campo>
+                </>
+              )}
+            </div>
+            {nParcelas > 1 && (
+              <p className="miudo text-t2">
+                {(() => {
+                  const cada = formatarReais(Math.floor(totalDaCompra / nParcelas))
+                  const de = dataBR(somarMeses(l.data, pagas))
+                  const ate = dataBR(somarMeses(l.data, nParcelas - 1))
+                  return pagas
+                    ? `Vão para o app as parcelas ${pagas + 1} a ${nParcelas}, de ${cada}, de ${de} a ${ate}. As ${pagas} já pagas ficam de fora e não mexem no seu saldo.`
+                    : `${nParcelas} parcelas de ${cada}, de ${de} a ${ate}.`
+                })()}
+              </p>
             )}
           </div>
         )}

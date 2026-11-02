@@ -26,19 +26,26 @@ export function lancamentoVazio(
   }
 }
 
-/** Uma compra parcelada vira um lançamento por mês, todos com o mesmo grupo. */
-export function parcelar(base: Lancamento, parcelas: number): Lancamento[] {
+/**
+ * Uma compra parcelada vira um lançamento por mês, todos com o mesmo grupo. `base.data` é a
+ * data da compra (1ª parcela). Com `jaPagas`, as parcelas anteriores ficam de fora: já saíram
+ * do saldo antes de a pessoa usar o app; as restantes mantêm a numeração ("5 de 12").
+ */
+export function parcelar(base: Lancamento, parcelas: number, jaPagas = 0): Lancamento[] {
   if (parcelas <= 1) return [{ ...base, parcela_atual: null, parcela_total: null, grupo_id: null }]
   const grupo = novoId()
-  return dividirEmParcelas(base.valor, parcelas).map((valor, i) => ({
-    ...base,
-    id: i === 0 ? base.id : novoId(),
-    valor,
-    data: somarMeses(base.data, i),
-    parcela_atual: i + 1,
-    parcela_total: parcelas,
-    grupo_id: grupo,
-  }))
+  const pular = Math.min(Math.max(0, Math.floor(jaPagas)), parcelas - 1)
+  return dividirEmParcelas(base.valor, parcelas)
+    .map((valor, i) => ({
+      ...base,
+      valor,
+      data: somarMeses(base.data, i),
+      parcela_atual: i + 1,
+      parcela_total: parcelas,
+      grupo_id: grupo,
+    }))
+    .slice(pular)
+    .map((l, i) => ({ ...l, id: i === 0 ? base.id : novoId() }))
 }
 
 /** Categorias em ordem de exibição: mãe seguida das filhas ("Alimentação › Mercado"). */
